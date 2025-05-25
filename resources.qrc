@@ -1,0 +1,14 @@
+<RCC>
+    <qresource prefix="/resources">
+        <file>icon/calendar.svg</file>
+        <file>icon/calculator.svg</file>
+        <file>icon/heart.svg</file>
+        <file>icon/history.svg</file>
+        <file>icon/home.svg</file>
+        <file>icon/list.svg</file>
+        <file>icon/eye-off.svg</file>
+        <file>icon/eye.svg</file>
+        <file>resources/courses.json</file>
+        <file>pictures/table.svg</file>
+    </qresource>
+</RCC>

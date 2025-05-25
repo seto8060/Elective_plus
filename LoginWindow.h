@@ -1,0 +1,37 @@
+#ifndef LOGINWINDOW_H
+#define LOGINWINDOW_H
+
+#pragma once
+
+#include <QWidget>
+#include <QLineEdit>
+#include <QPushButton>
+#include <QComboBox>
+#include <QLabel>
+#include "userinfo.h"
+
+class LoginWindow : public QWidget {
+    Q_OBJECT
+
+public:
+    LoginWindow(QWidget *parent = nullptr);
+
+signals:
+    void loginSuccess(const UserInfo &user);
+
+private slots:
+    void handleLogin();
+    void handleRegister();
+
+private:
+    QLineEdit *Name_Box;
+    QLineEdit *Pass_Box;
+    QPushButton *Display_Pass;
+    QComboBox *roleBox;
+    QPushButton *Login_Button, *Register_Button;
+    QLabel *errorLabel;
+
+    bool validateCredentials(const QString &user, const QString &pass, const QString &role);
+};
+
+#endif // LOGINWINDOW_H
