@@ -1,0 +1,26 @@
+<svg width="800" height="500" viewBox="0 0 800 500" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- 阴影效果 -->
+    <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="3" stdDeviation="5" flood-color="#aaa"></feDropShadow>
+    </filter>
+  </defs>
+
+  <!-- 背景 -->
+  <rect x="0" y="0" width="800" height="500" fill="white"></rect>
+
+  <!-- 主边框，内填充为浅灰色 -->
+  <rect x="20" y="20" width="760" height="460" rx="30" ry="30" fill="#f8f8f8" stroke="#34495E" stroke-width="4" filter="url(#shadow)"></rect>
+
+  <!-- 四角装饰线 -->
+  <path d="M20,80 L20,20 L80,20" stroke="#3498DB" stroke-width="2"></path>
+  <path d="M780,80 L780,20 L720,20" stroke="#3498DB" stroke-width="2"></path>
+  <path d="M20,420 L20,480 L80,480" stroke="#E67E22" stroke-width="2"></path>
+  <path d="M780,420 L780,480 L720,480" stroke="#E67E22" stroke-width="2"></path>
+
+  <!-- 装饰小圆点 -->
+  <circle cx="40" cy="40" r="5" fill="#9B59B6"></circle>
+  <circle cx="760" cy="40" r="5" fill="#1ABC9C"></circle>
+  <circle cx="40" cy="460" r="5" fill="#F39C12"></circle>
+  <circle cx="760" cy="460" r="5" fill="#C0392B"></circle>
+</svg>
