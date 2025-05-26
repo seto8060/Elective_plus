@@ -11,6 +11,8 @@ CONFIG += c++17
 SOURCES += \
     LoginWindow.cpp \
     RegisterWindow.cpp \
+    courseSelectPage.cpp \
+    coursedetailpage.cpp \
     courseinfo.cpp \
     courselistwidget.cpp \
     courseloader.cpp \
@@ -24,6 +26,8 @@ SOURCES += \
 HEADERS += \
     LoginWindow.h \
     RegisterWindow.h \
+    courseSelectPage.h \
+    coursedetailpage.h \
     courseinfo.h \
     courselistwidget.h \
     courseloader.h \
@@ -36,8 +40,7 @@ HEADERS += \
 FORMS += \
     mainwindow.ui
 
-TRANSLATIONS += \
-    final_project_zh_CN.ts
+
 CONFIG += lrelease
 CONFIG += embed_translations
 
