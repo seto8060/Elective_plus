@@ -10,5 +10,6 @@
         <file>icon/eye.svg</file>
         <file>resources/courses.json</file>
         <file>pictures/table.svg</file>
+        <file>icon/warning.svg</file>
     </qresource>
 </RCC>

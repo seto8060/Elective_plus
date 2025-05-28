@@ -114,7 +114,7 @@ LoginWindow::LoginWindow(QWidget *parent) : QWidget(parent) {
 
     connect(Register_Button, &QPushButton::clicked, this, &LoginWindow::handleRegister);
 }
-bool loadUserFromJson(const QString &username, const QString &password, UserInfo &user) {
+bool loadUserFromJson(const QString &username, const QString &password, UserInfo *&user) {
     QFile file("users.json");
     if (!file.open(QIODevice::ReadOnly)) return false;
 
@@ -129,9 +129,9 @@ bool loadUserFromJson(const QString &username, const QString &password, UserInfo
     QString savedPass = obj.value("password").toString();
     if (savedPass != password) return false;
     // qDebug() << 1;
-    user = UserInfo::fromJson(obj);
+    user = new UserInfo(UserInfo::fromJson(obj));
     // qDebug() << 1;
-    user.setUsername(username);
+    user->setUsername(username);
     // qDebug() << 1;
     return true;
 }
@@ -140,7 +140,7 @@ void LoginWindow::handleLogin() {
     QString username = Name_Box->text();
     QString password = Pass_Box->text();
 
-    UserInfo user;
+    UserInfo *user;
     if (loadUserFromJson(username, password, user)) {
         emit loginSuccess(user);
         this->close();
@@ -150,7 +150,7 @@ void LoginWindow::handleLogin() {
     }
 }
 
-void saveUserToJson(const UserInfo &user) {
+void saveUserToJson(UserInfo *user) {
     QFile file("users.json");
     QJsonObject root;
 
@@ -161,8 +161,8 @@ void saveUserToJson(const UserInfo &user) {
         file.close();
     }
 
-    QJsonObject newUser = user.toJson();
-    root.insert(user.getUsername(), newUser);
+    QJsonObject newUser = user->toJson();
+    root.insert(user->getUsername(), newUser);
 
     if (file.open(QIODevice::WriteOnly)) {
         file.write(QJsonDocument(root).toJson(QJsonDocument::Indented));
@@ -173,7 +173,7 @@ void saveUserToJson(const UserInfo &user) {
 void LoginWindow::handleRegister(){
         RegisterWindow reg(this);
         if (reg.exec() == QDialog::Accepted) {
-            UserInfo newUser = reg.getUserInfo();
+            UserInfo *newUser = new UserInfo(reg.getUserInfo());
             saveUserToJson(newUser);
             QMessageBox::information(this, "注册成功", "注册成功，请登录！");
         }

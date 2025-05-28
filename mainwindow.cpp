@@ -1,6 +1,7 @@
 #include "MainWindow.h"
 #include "CourseLoader.h"
-#include "timetable.h"
+// #include "timetable.h"
+#include "historypage.h"
 #include "timetablepage.h"
 #include "courselistwidget.h"
 #include "homepage.h"
@@ -11,7 +12,7 @@
 #include <QHeaderView>
 #include <QDebug>
 
-MainWindow::MainWindow(UserInfo userInfo,QWidget *parent) : QMainWindow(parent) {
+MainWindow::MainWindow(UserInfo *userInfo,QWidget *parent) : QMainWindow(parent) {
     All_courses = loadCoursesFromJsonFile(":/resources/resources/courses.json");
     setWindowTitle("选课系统");
     resize(1000, 700);
@@ -75,17 +76,17 @@ MainWindow::MainWindow(UserInfo userInfo,QWidget *parent) : QMainWindow(parent) 
     mainStack->addWidget(new HomePage(userInfo,this));
     mainStack->addWidget(new QLabel("选课主页"));
     mainStack->addWidget(new QLabel("智能选课系统"));
-    CourseListWidget *FavoritePage = new CourseListWidget(this,2);
-    FavoritePage->setCourses(userInfo.getFavorites(),2);
+    CourseListWidget *FavoritePage = new CourseListWidget(this,2,userInfo,"");
+    FavoritePage->setCourses(userInfo->getFavorites(),2,userInfo);
     mainStack->addWidget(FavoritePage);
-    QVector<CourseInfo> courseList = userInfo.getCurrentCourses();
+    QVector<CourseInfo> courseList = userInfo->getCurrentCourses();
 
 
     TimetablePage *timetablePage = new TimetablePage(this);
-    CourseListWidget *courseListPage = new CourseListWidget(this);
+    CourseListWidget *courseListPage = new CourseListWidget(this,0,userInfo,"");
 
     timetablePage->setCourses(courseList);
-    courseListPage->setCourses(courseList,0);
+    courseListPage->setCourses(courseList,0,userInfo);
 
     mainStack->addWidget(timetablePage);    // index 5
     mainStack->addWidget(courseListPage);   // index 6
@@ -99,7 +100,8 @@ MainWindow::MainWindow(UserInfo userInfo,QWidget *parent) : QMainWindow(parent) 
     });
 
 
-    mainStack->addWidget(new QLabel("历史选课模块"));
+    HistoryPage* historyPage = new HistoryPage(userInfo, mainStack);
+    mainStack->addWidget(historyPage);
 
     layout->addWidget(sidebar);
     layout->addWidget(mainStack);
@@ -120,9 +122,9 @@ void MainWindow::changeModule(int index) {
     mainStack->setCurrentIndex(index);
 }
 
-void MainWindow::setUser(const QString &username, const QString &role) {
-    setWindowTitle(QString("%1%2您好，欢迎来到选课网++！").arg(user.getUsername(), user.getGrade()));
-}
+// void MainWindow::setUser(const QString &username, const QString &role) {
+//     setWindowTitle(QString("%1%2您好，欢迎来到选课网++！").arg(user.getUsername(), user.getGrade()));
+// }
 
 
 void MainWindow::loadCourseData() {

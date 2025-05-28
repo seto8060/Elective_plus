@@ -22,6 +22,12 @@ RegisterWindow::RegisterWindow(QWidget *parent) : QDialog(parent) {
     Pass_Box->setPlaceholderText("请输入密码");
     Pass_Box->setEchoMode(QLineEdit::Password);
 
+    verifyLabel = new QLabel("请输入验证码：", this);
+    verifyBox = new QLineEdit(this);
+    verifyBox->setPlaceholderText("验证码");
+    verifyLabel->setVisible(false);
+    verifyBox->setVisible(false);
+
     Confirm_Pass_Box = new QLineEdit(this);
     Confirm_Pass_Box->setPlaceholderText("请确认密码");
     Confirm_Pass_Box->setEchoMode(QLineEdit::Password);
@@ -32,12 +38,41 @@ RegisterWindow::RegisterWindow(QWidget *parent) : QDialog(parent) {
     gradeBox = new QComboBox(this);
     gradeBox->addItems({"2020级", "2021级", "2022级", "2023级", "2024级"});
     QStringList colleges = {
-        "元培学院", "数学学院", "物理学院", "外国语学院", "心理与认知科学学院",
-        "工学院", "信息科学技术学院", "化学与分子工程学院", "法学院", "历史系",
+                            "数学科学学院",
+                            "物理学院",
+                            "化学与分子工程学院",
+                            "生命科学学院",
+                            "地球与空间科学学院",
+                            "心理与认知科学学院",
+                            "新闻与传播学院",
+                            "中国语言文学系",
+                            "历史学系",
+                            "考古文博学院",
+                            "哲学系",
+                            "国际关系学院",
+                            "经济学院",
+                            "光华管理学院",
+                            "法学院",
+                            "信息管理系",
+                            "社会学系",
+                            "政府管理学院",
+                            "英语语言文学系",
+                            "外国语学院",
+                            "马克思主义学院",
+                            "体育教研部",
+                            "艺术学院",
+                            "元培学院",
+                            "信息科学技术学院",
+                            "国家发展研究院",
+                            "工学院",
+                            "城市与环境学院",
+                            "环境科学与工程学院"
     };
 
     collegeBox = new QComboBox(this);
+    collegeBox->setEditable(true);
     collegeBox->addItems(colleges);
+    collegeBox->setCompleter(new QCompleter(colleges, this));
 
     errorLabel = new QLabel(this);
     errorLabel->setStyleSheet("color: red");
@@ -50,10 +85,20 @@ RegisterWindow::RegisterWindow(QWidget *parent) : QDialog(parent) {
     layout->addWidget(rolebox);
     layout->addWidget(gradeBox);
     layout->addWidget(collegeBox);
+    layout->addWidget(verifyLabel);
+    layout->addWidget(verifyBox);
     layout->addWidget(Register_Button);
     layout->addWidget(errorLabel);
 
     connect(Register_Button, &QPushButton::clicked, this, &RegisterWindow::Register);
+
+    connect(rolebox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [=](int index){
+        bool isStudent = (rolebox->currentText() == "学生");
+        gradeBox->setVisible(isStudent);
+        collegeBox->setVisible(isStudent);
+        verifyLabel->setVisible(!isStudent);
+        verifyBox->setVisible(!isStudent);
+    });
 }
 
 void RegisterWindow::Register() {
@@ -72,6 +117,20 @@ void RegisterWindow::Register() {
         errorLabel->setVisible(true);
         return;
     }
+
+    if (rolebox->currentText() == "教务") {
+        if (verifyBox->text() != "1024") {
+            errorLabel->setText("验证码错误!");
+            errorLabel->setVisible(true);
+            return;
+        }
+        else {
+            newUser = UserInfo(user,pass1, "","",true);
+            // qDebug() << newUser.IsTeacher ;
+            accept();
+        }
+        return ;
+    }
     QString confirmText = QString("我超！盒！请问是%1%2的%3同学吗？")
                               .arg(collegeBox->currentText())
                               .arg(gradeBox->currentText())
@@ -82,7 +141,7 @@ void RegisterWindow::Register() {
 
     if (reply == QMessageBox::Yes) {
         qDebug() << 1;
-        newUser = UserInfo(user, pass1, gradeBox->currentText(), collegeBox->currentText());
+        newUser = UserInfo(user, pass1, gradeBox->currentText(), collegeBox->currentText(), false);
         accept();
     }
 }

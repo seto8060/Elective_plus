@@ -4,7 +4,7 @@
 #include <QScrollArea>
 #include <QTextEdit>
 
-HomePage::HomePage(const UserInfo &user,QWidget *parent) : QWidget(parent) {
+HomePage::HomePage(UserInfo *user,QWidget *parent) : QWidget(parent) {
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
 
     // 欢迎语
@@ -16,9 +16,9 @@ HomePage::HomePage(const UserInfo &user,QWidget *parent) : QWidget(parent) {
     tipLabel->setStyleSheet("font-size: 16px; color: #636e72;");
     tipLabel->setAlignment(Qt::AlignCenter);
     QString info = QString("当前登录用户：%1（%2 %3）")
-                       .arg(user.getUsername())
-                       .arg(user.getGrade())
-                       .arg(user.getCollege());
+                       .arg(user->getUsername())
+                       .arg(user->getGrade())
+                       .arg(user->getCollege());
 
     QLabel *userLabel = new QLabel(info, this);
     // userLabel->setAlignment(Qt::AlignCenter);

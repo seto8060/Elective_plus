@@ -10,12 +10,14 @@ public:
     UserInfo(const QString &username,
              const QString &password,
              const QString &grade,
-             const QString &college);
+             const QString &college,
+             const bool &IsTeacher);
 
     QString getUsername() const;
     QString getPassword() const;
     QString getGrade() const;
     QString getCollege() const;
+    int getPoint() const;
 
     void setPassword(const QString &pwd);
     void setGrade(const QString &grade);
@@ -30,11 +32,20 @@ public:
     static UserInfo fromJson(const QJsonObject &obj);
     void setUsername(const QString &name);
 
+    int getTotalUsedPoints() const ;
+    int getRemainingPoints() const ;
+    int getPointForCourse(const QString &courseCode) const ;
+    void setPointForCourse(const QString &courseCode, int points) ;
+    bool IsTeacher = false;
+
+
 private:
     QString username;
     QString password;
     QString grade;
     QString college;
+
+    QMap<QString, int> courseVotes;
 
     QVector<CourseInfo> currentCourses;
     QVector<CourseInfo> favorites;

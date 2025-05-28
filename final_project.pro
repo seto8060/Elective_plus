@@ -14,9 +14,11 @@ SOURCES += \
     courseinfo.cpp \
     courselistwidget.cpp \
     courseloader.cpp \
+    historypage.cpp \
     homepage.cpp \
     main.cpp \
     mainwindow.cpp \
+    teacherwindow.cpp \
     timetable.cpp \
     timetablepage.cpp \
     userinfo.cpp
@@ -27,8 +29,10 @@ HEADERS += \
     courseinfo.h \
     courselistwidget.h \
     courseloader.h \
+    historypage.h \
     homepage.h \
     mainwindow.h \
+    teacherwindow.h \
     timetable.h \
     timetablepage.h \
     userinfo.h

@@ -11,7 +11,7 @@ class MainWindow : public QMainWindow {
     Q_OBJECT
 
 public:
-    explicit MainWindow(UserInfo userInfo, QWidget *parent = nullptr);
+    explicit MainWindow(UserInfo *userInfo, QWidget *parent = nullptr);
     void setUser(const QString &username, const QString &role);
     void loadCourseData();
     QVector<CourseInfo> All_courses;

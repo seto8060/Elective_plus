@@ -6,5 +6,5 @@
 class HomePage : public QWidget {
     Q_OBJECT
 public:
-    explicit HomePage(const UserInfo &user,QWidget *parent = nullptr);
+    explicit HomePage(UserInfo *user,QWidget *parent = nullptr);
 };

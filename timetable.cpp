@@ -4,7 +4,7 @@
 #include <QLabel>
 
 CustomTimetableWidget::CustomTimetableWidget(QWidget *parent) : QWidget(parent) {
-    setFixedSize(1080, 800);
+    setFixedSize(1180, 800);
     setupBackground();
 }
 
@@ -28,7 +28,7 @@ void CustomTimetableWidget::displayCourses(const QVector<CourseInfo> &courses) {
     QStringList days = {"一", "二", "三", "四", "五", "六", "日"};
     for (int i = 0; i < 7; ++i) {
         QLabel *dayLabel = new QLabel("星期" + days[i], this);
-        dayLabel->setGeometry(100 + i * 130, 50, 120, 30);
+        dayLabel->setGeometry(100 + i * 150, 50, 140, 30);
         dayLabel->setAlignment(Qt::AlignCenter);
         dayLabel->setStyleSheet("font-weight: bold; color: #444; font-size: 14px;");
     }
@@ -61,7 +61,7 @@ void CustomTimetableWidget::displayCourses(const QVector<CourseInfo> &courses) {
             label->setStyleSheet("background-color: rgba(200,220,255,180); border: 1px solid #444; font-size: 12px;");
             label->setWordWrap(true);
             label->setAlignment(Qt::AlignCenter);
-            label->setGeometry(Start_Pos.x(), Start_Pos.y(), 120, 52 * (end-start+1)-5);
+            label->setGeometry(Start_Pos.x(), Start_Pos.y(), 140, 52 * (end-start+1)-5);
             QString key = course.name + course.teacherList.join("");
             int hue = qAbs(qHash(key)) % 360;
             QColor color = QColor::fromHsv(hue, 80, 255, 200);
@@ -73,7 +73,7 @@ void CustomTimetableWidget::displayCourses(const QVector<CourseInfo> &courses) {
 
 QPoint CustomTimetableWidget::getCoursePosition(const QString &day, int section) {
     int col = getDayColumn(day);
-    int x = 100 + col * 130;
+    int x = 100 + col * 150;
     int y = 100 + (section - 1) * 52;
     return QPoint(x, y);
 }

@@ -17,7 +17,7 @@ public:
     LoginWindow(QWidget *parent = nullptr);
 
 signals:
-    void loginSuccess(const UserInfo &user);
+    void loginSuccess(UserInfo *user);
 
 private slots:
     void handleLogin();
@@ -33,5 +33,5 @@ private:
 
     bool validateCredentials(const QString &user, const QString &pass, const QString &role);
 };
-
+void saveUserToJson(UserInfo *user) ;
 #endif // LOGINWINDOW_H

@@ -24,9 +24,9 @@ private slots:
     void Register();
 
 private:
-    QLineEdit *Name_Box, *Pass_Box, *Confirm_Pass_Box;
+    QLineEdit *Name_Box, *Pass_Box, *Confirm_Pass_Box, *verifyBox;
     QComboBox *rolebox, *gradeBox, *collegeBox;
-    QLabel *errorLabel;
+    QLabel *errorLabel, *verifyLabel;
     QPushButton *Register_Button;
     UserInfo newUser;
 };
