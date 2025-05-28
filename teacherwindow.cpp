@@ -1,3 +1,3 @@
 #include "teacherwindow.h"
 
-teacherwindow::teacherwindow() {}
+TeacherWindow::TeacherWindow() {}
