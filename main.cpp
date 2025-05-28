@@ -24,7 +24,7 @@ int main(int argc, char *argv[]) {
             });
         }
         else {
-            TeacherWindow *mainWin = new TeacherWindow(user);
+            TeacherWindow *mainWin = new TeacherWindow();
             mainWin->setAttribute(Qt::WA_DeleteOnClose);
             mainWin->show();
 

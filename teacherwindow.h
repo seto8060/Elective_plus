@@ -1,26 +1,28 @@
+#pragma once
 #include <QWidget>
 #include <QStackedWidget>
 #include <QPushButton>
 #include <QGridLayout>
 #include <QMap>
-#include "userinfo.h"
+#include "teacherinfo.h"
 
 class TeacherWindow : public QWidget {
     Q_OBJECT
 
 public:
-    explicit TeacherWindow(UserInfo *userinfo, QWidget *parent = nullptr);
+    explicit TeacherWindow(QWidget *parent = nullptr);
 
 private slots:
     void showMainPage();
-    void showSubPage(const QString &pageName);
+    void showSubPage(const QString &pageName, const Term &operateTerm) ;
 
 private:
     QWidget* createMainPage();
-    QWidget* createSubPage(const QString &pageName);
+    QWidget* createSubPage(const QString &pageName, const Term &operateTerm);
 
     QStackedWidget *stackedWidget;
     QMap<QString, QWidget*> subPages;
+    TeacherInfo *teacherInfo;
 };
 /*
 教务界面设计：

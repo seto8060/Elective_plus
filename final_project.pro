@@ -21,6 +21,7 @@ SOURCES += \
     homepage.cpp \
     main.cpp \
     mainwindow.cpp \
+    teacherinfo.cpp \
     teacherwindow.cpp \
     timetable.cpp \
     timetablepage.cpp \
@@ -37,7 +38,9 @@ HEADERS += \
     historypage.h \
     homepage.h \
     mainwindow.h \
+    teacherinfo.h \
     teacherwindow.h \
+    term.h \
     timetable.h \
     timetablepage.h \
     userinfo.h
