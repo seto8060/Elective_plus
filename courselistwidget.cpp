@@ -1,5 +1,7 @@
 #include "CourseListWidget.h"
 #include "userinfo.h"
+#include <QSvgRenderer>
+#include <QPainter>
 #include <QMessageBox>
 #include<QVBoxLayout>
 #include<QLabel>
@@ -142,7 +144,19 @@ void CourseListWidget::setCourses(const QVector<CourseInfo> &courses,int type,Us
             voteButton->setStyleSheet("QPushButton { font-size: 12px; padding: 2px; }");
 
             QLabel *infoIcon = new QLabel();
-            infoIcon->setPixmap(QPixmap(":/resources/icon/warning.svg").scaled(16, 16));
+            QSvgRenderer renderer(QString(":/resources/icon/warning.svg"));
+            QPixmap pixmap(16, 16);
+            pixmap.fill(Qt::transparent);
+
+            QPainter painter(&pixmap);
+            painter.setRenderHint(QPainter::Antialiasing);
+            painter.setRenderHint(QPainter::SmoothPixmapTransform);
+
+            renderer.render(&painter, QRectF(0, 0, 16, 16));
+
+            infoIcon->setPixmap(pixmap);
+            // infoIcon->setScaledContents(true);
+            // infoIcon->setPixmap(QPixmap(":/resources/icon/warning1.svg").scaled(16, 16));
             infoIcon->setToolTip(QString("当前中签概率估计为：%1%")
                                      .arg(QString::number(estimateSelectionProbability(
                                                               pointBox->value(), c.Now_person + 1, c.Max_person) * 100, 'f', 1)));

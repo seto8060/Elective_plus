@@ -11,12 +11,16 @@ public:
              const QString &password,
              const QString &grade,
              const QString &college,
+             const QString &Index,
+             const QString &Realname,
              const bool &IsTeacher);
 
     QString getUsername() const;
     QString getPassword() const;
     QString getGrade() const;
     QString getCollege() const;
+    QString getIndex() const;
+    QString getRealname() const;
     int getPoint() const;
 
     void setPassword(const QString &pwd);
@@ -44,6 +48,8 @@ private:
     QString password;
     QString grade;
     QString college;
+    QString Index;
+    QString Realname;
 
     QMap<QString, int> courseVotes;
 

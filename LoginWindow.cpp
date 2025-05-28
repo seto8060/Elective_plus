@@ -114,7 +114,7 @@ LoginWindow::LoginWindow(QWidget *parent) : QWidget(parent) {
 
     connect(Register_Button, &QPushButton::clicked, this, &LoginWindow::handleRegister);
 }
-bool loadUserFromJson(const QString &username, const QString &password, UserInfo *&user) {
+bool loadUserFromJson(const QString &username, const QString &password, bool Role,UserInfo *&user) {
     QFile file("users.json");
     if (!file.open(QIODevice::ReadOnly)) return false;
 
@@ -128,6 +128,7 @@ bool loadUserFromJson(const QString &username, const QString &password, UserInfo
     QJsonObject obj = root.value(username).toObject();
     QString savedPass = obj.value("password").toString();
     if (savedPass != password) return false;
+    if (obj.value("IsTeacher") != Role) return false;
     // qDebug() << 1;
     user = new UserInfo(UserInfo::fromJson(obj));
     // qDebug() << 1;
@@ -139,9 +140,9 @@ bool loadUserFromJson(const QString &username, const QString &password, UserInfo
 void LoginWindow::handleLogin() {
     QString username = Name_Box->text();
     QString password = Pass_Box->text();
-
+    bool Role = roleBox->currentText() == "教务";
     UserInfo *user;
-    if (loadUserFromJson(username, password, user)) {
+    if (loadUserFromJson(username, password, Role, user)) {
         emit loginSuccess(user);
         this->close();
     } else {

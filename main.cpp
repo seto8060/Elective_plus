@@ -11,6 +11,7 @@ int main(int argc, char *argv[]) {
     // MainWindow mainWin();
 
     QObject::connect(&login, &LoginWindow::loginSuccess, [&](UserInfo *user) {
+        // qDebug() << user ;
         if (!user->IsTeacher){
             MainWindow *mainWin = new MainWindow(user);
             mainWin->setAttribute(Qt::WA_DeleteOnClose);
@@ -23,7 +24,7 @@ int main(int argc, char *argv[]) {
             });
         }
         else {
-            MainWindow *mainWin = new MainWindow(user);
+            TeacherWindow *mainWin = new TeacherWindow(user);
             mainWin->setAttribute(Qt::WA_DeleteOnClose);
             mainWin->show();
 

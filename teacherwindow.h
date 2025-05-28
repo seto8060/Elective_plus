@@ -1,10 +1,26 @@
-#ifndef TEACHERWINDOW_H
-#define TEACHERWINDOW_H
+#include <QWidget>
+#include <QStackedWidget>
+#include <QPushButton>
+#include <QGridLayout>
+#include <QMap>
+#include "userinfo.h"
 
-class TeacherWindow
-{
+class TeacherWindow : public QWidget {
+    Q_OBJECT
+
 public:
-    TeacherWindow();
+    explicit TeacherWindow(UserInfo *userinfo, QWidget *parent = nullptr);
+
+private slots:
+    void showMainPage();
+    void showSubPage(const QString &pageName);
+
+private:
+    QWidget* createMainPage();
+    QWidget* createSubPage(const QString &pageName);
+
+    QStackedWidget *stackedWidget;
+    QMap<QString, QWidget*> subPages;
 };
 /*
 教务界面设计：
@@ -17,4 +33,3 @@ public:
 可选功能：
 批量操作用户
 */
-#endif // TEACHERWINDOW_H

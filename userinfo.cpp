@@ -8,11 +8,16 @@ UserInfo::UserInfo() {}
 UserInfo::UserInfo(const QString &username,
                    const QString &password,
                    const QString &grade,
-                   const QString &college,const bool &IsTeacher)
+                   const QString &college,
+                   const QString &Index,
+                   const QString &Realname,
+                   const bool &IsTeacher)
     : username(username),
     password(password),
     grade(grade),
     college(college),
+    Index(Index),
+    Realname(Realname),
     IsTeacher(IsTeacher){
         QVector<CourseInfo> All_courses = loadCoursesFromJsonFile(":/resources/resources/courses.json");
         QVector<int> indices = {2533,2781,2778,2568,2782,2696,2783};
@@ -40,6 +45,14 @@ QString UserInfo::getGrade() const {
 
 QString UserInfo::getCollege() const {
     return college;
+}
+
+QString UserInfo::getIndex() const{
+    return Index;
+}
+
+QString UserInfo::getRealname() const{
+    return Realname;
 }
 
 int UserInfo::getTotalUsedPoints() const {
@@ -98,11 +111,15 @@ QJsonObject UserInfo::toJson() const {
         qDebug() << 12;
         obj["password"] = password;
         obj["IsTeacher"] = true;
+        // qDebug() << obj;
         return obj;
     }
+    obj["IsTeacher"] = false;
     obj["password"] = password;
     obj["grade"] = grade;
     obj["college"] = college;
+    obj["index"] = Index;
+    obj["realname"] = Realname;
     QJsonObject voteObj;
     for (auto it = courseVotes.begin(); it != courseVotes.end(); ++it) {
         voteObj[it.key()] = it.value();
@@ -140,7 +157,7 @@ QJsonObject UserInfo::toJson() const {
 
 UserInfo UserInfo::fromJson(const QJsonObject &obj) {
     UserInfo u;
-    if (obj["isTeacher"].toBool() == true){
+    if (obj["IsTeacher"].toBool() == true){
         u.IsTeacher = true;
         u.password = obj["password"].toString();
         return u;
@@ -148,6 +165,8 @@ UserInfo UserInfo::fromJson(const QJsonObject &obj) {
     u.password = obj["password"].toString();
     u.grade = obj["grade"].toString();
     u.college = obj["college"].toString();
+    u.Index = obj["index"].toString();
+    u.Realname = obj["realname"].toString();
     if (obj.contains("courseVotes") && obj["courseVotes"].isObject()) {
         QJsonObject voteObj = obj["courseVotes"].toObject();
         for (auto it = voteObj.begin(); it != voteObj.end(); ++it) {

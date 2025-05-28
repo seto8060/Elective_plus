@@ -8,6 +8,7 @@
 #include <QMessageBox>
 #include <QLabel>
 #include <QDebug>
+#include <QFile>
 
 RegisterWindow::RegisterWindow(QWidget *parent) : QDialog(parent) {
     setWindowTitle("用户注册");
@@ -16,7 +17,7 @@ RegisterWindow::RegisterWindow(QWidget *parent) : QDialog(parent) {
     auto *layout = new QVBoxLayout(this);
 
     Name_Box = new QLineEdit(this);
-    Name_Box->setPlaceholderText("请输入用户名");
+    Name_Box->setPlaceholderText("请输入昵称");
 
     Pass_Box = new QLineEdit(this);
     Pass_Box->setPlaceholderText("请输入密码");
@@ -31,6 +32,12 @@ RegisterWindow::RegisterWindow(QWidget *parent) : QDialog(parent) {
     Confirm_Pass_Box = new QLineEdit(this);
     Confirm_Pass_Box->setPlaceholderText("请确认密码");
     Confirm_Pass_Box->setEchoMode(QLineEdit::Password);
+
+    Real_name_Box = new QLineEdit(this);
+    Real_name_Box->setPlaceholderText("请输入姓名");
+
+    Index_Box = new QLineEdit(this);
+    Index_Box->setPlaceholderText("请输入学号");
 
     rolebox = new QComboBox(this);
     rolebox->addItems({"学生", "教务"});
@@ -82,6 +89,8 @@ RegisterWindow::RegisterWindow(QWidget *parent) : QDialog(parent) {
     layout->addWidget(Name_Box);
     layout->addWidget(Pass_Box);
     layout->addWidget(Confirm_Pass_Box);
+    layout->addWidget(Real_name_Box);
+    layout->addWidget(Index_Box);
     layout->addWidget(rolebox);
     layout->addWidget(gradeBox);
     layout->addWidget(collegeBox);
@@ -100,7 +109,27 @@ RegisterWindow::RegisterWindow(QWidget *parent) : QDialog(parent) {
         verifyBox->setVisible(!isStudent);
     });
 }
+bool isIndexConflict(const QString &inputIndex) {
+    QFile file("users.json");
+    if (!file.exists() || !file.open(QIODevice::ReadOnly))
+        return false;
 
+    QJsonDocument doc = QJsonDocument::fromJson(file.readAll());
+    file.close();
+
+    if (!doc.isObject())
+        return false;
+
+    QJsonObject root = doc.object();
+
+    for (const QString &key : root.keys()) {
+        QJsonObject student = root.value(key).toObject();
+        if (student.value("index").toString() == inputIndex)
+            return true;
+    }
+
+    return false;
+}
 void RegisterWindow::Register() {
     QString user = Name_Box->text();
     QString pass1 = Pass_Box->text();
@@ -117,7 +146,11 @@ void RegisterWindow::Register() {
         errorLabel->setVisible(true);
         return;
     }
-
+    if (isIndexConflict(Index_Box->text())){
+        errorLabel->setText("该学号已注册！");
+        errorLabel->setVisible(true);
+        return ;
+    }
     if (rolebox->currentText() == "教务") {
         if (verifyBox->text() != "1024") {
             errorLabel->setText("验证码错误!");
@@ -125,7 +158,7 @@ void RegisterWindow::Register() {
             return;
         }
         else {
-            newUser = UserInfo(user,pass1, "","",true);
+            newUser = UserInfo(user,pass1, "","","","",true);
             // qDebug() << newUser.IsTeacher ;
             accept();
         }
@@ -134,14 +167,14 @@ void RegisterWindow::Register() {
     QString confirmText = QString("我超！盒！请问是%1%2的%3同学吗？")
                               .arg(collegeBox->currentText())
                               .arg(gradeBox->currentText())
-                              .arg(Name_Box->text());
+                              .arg(Real_name_Box->text());
 
     int reply = QMessageBox::question(this, "注册确认", confirmText,
                                       QMessageBox::Yes | QMessageBox::No);
 
     if (reply == QMessageBox::Yes) {
         qDebug() << 1;
-        newUser = UserInfo(user, pass1, gradeBox->currentText(), collegeBox->currentText(), false);
+        newUser = UserInfo(user, pass1, gradeBox->currentText(), collegeBox->currentText(), Index_Box->text(),Real_name_Box->text(),false);
         accept();
     }
 }

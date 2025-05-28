@@ -11,5 +11,12 @@
         <file>resources/courses.json</file>
         <file>pictures/table.svg</file>
         <file>icon/warning.svg</file>
+        <file>icon/warning1.svg</file>
+        <file>icon/export.svg</file>
+        <file>icon/semester.svg</file>
+        <file>icon/lottery.svg</file>
+        <file>icon/batch.svg</file>
+        <file>icon/manual.svg</file>
+        <file>icon/edit.svg</file>
     </qresource>
 </RCC>
