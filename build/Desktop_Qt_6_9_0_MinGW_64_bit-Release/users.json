@@ -175,15 +175,12 @@
     },
     "seto1": {
         "IsTeacher": false,
-        "college": "数学科学学院",
+        "college": "信息科学技术学院",
         "courseVotes": {
-            "04830050": 0,
+            "04830050": 1,
             "04831300": 0,
-            "04833420": 0,
-            "04835000": 0,
-            "04835030": 0,
-            "04835040": 0,
-            "04835050": 0
+            "04835000": 11,
+            "04835030": 1
         },
         "currentCourses": [
             {
@@ -335,12 +332,273 @@
             }
         ],
         "favorites": [
+            {
+                "chinese-intro": "培养学生掌握数据结构和算法的设计分析技术，提高程序设计的质量，根据所求解问题的性质选择合理的数据结构并对时间空间复杂性进行必要的控制。使得学生在将来的学习、研究和工作中，具备设计和实现高效的数据结构和算法的能力。\n本课程方案的基本设计原则可以概括为以下三个方面：\n（1）强调基础数据结构与算法的训练，从问题求解的角度，培养学生运用数据结构和算法基本理论来分析和解决问题的能力。\n（2）注重实践能力和工程能力的培养，使得学生遵从软件开发的规范性，并建立起数据结构与算法设计和问题求解的知识体系。\n主要的关注点，是数据知识与算法知识体系以及问题求解的计算思维能力。课程的重点：从广度和深度上把握数据结构与算法的知识体系，了解基本数据结构和经典算法，掌握理论、抽象和设计方法。课程的难点：问题抽象、算法抽象、数据结构抽象等数学抽象能力的培养；树和图结构中搜索和回溯思想；排序等算法的时空效率分析和权衡；检索和索引的效率；AVL、伸展树、红黑树等平衡树、B/B+树等数据结构中的平衡问题；根据实际问题，选择合适的数据模型，设计合适的算法，运用所学理论知识来求解；各种数据结构和算法在学科前沿中的应用和发展。\n针对上述重点和难点，本课程从理论、抽象和设计的三个层次展开数据结构与算法教学，注重数据结构基本概念和抽象数据类型表述，使得学生可以在不同的设计阶段采用不同的抽象数据类型作为设计的基础，在适当的抽象层次上考虑程序的结构和算法。对每种数据结构都从其数学特性入手，先介绍其抽象数据类型；再讨论其不同的存储方法，与学生一起讨论研究不同存储实现下的可能算法；然后结合算法分析来讨论各种存储方法和算法的利弊，摒弃那些不适宜的方法。这样，充分调动学生主动学习的积极性，使得学生学到数据结构与算法所涉及的计算思维方法。",
+                "class": "1",
+                "code": "04830050",
+                "english-intro": "Understand principles and theories of Data Structures and Algorithms; complexity analysis and tradeoff, able to design and implement efficient and effective data structures and algorithms to solve problems.\nCovers programming, data structures, and algorithm analysis. \nTopics include the organization and implementation of fundamental data structures such as list, binary tree, tree and forest, graph; the efficient sorting and searching algorithms; complexity analysis and tradeoff; data abstraction and problem solving.",
+                "first-class": "计算概论、离散数学",
+                "index": "2533",
+                "info": "",
+                "name": "数据结构与算法 (A)",
+                "score": "3",
+                "teacher": [
+                    "王乐业"
+                ],
+                "time": [
+                    "星期三(第3节-第4节)",
+                    "星期五(第1节-第2节)"
+                ],
+                "type": "专业必修",
+                "unit": "信息科学技术学院",
+                "week": "1-16"
+            }
         ],
-        "grade": "2023级",
+        "grade": "2024级",
         "index": "2400011112",
         "password": "123456",
         "pastSemestersCourses": [
+            {
+                "courses": [
+                    {
+                        "chinese-intro": "一、 课程定位：高等数学A（以下简称高数A）是面向对数学要求比较高的理科等专业的同学开设的一门重要的基础课。这里的“要求比较高”，是指在课程的理论、方法、计算和应用等方面有较高的要求（见后面的比较）。这里的“重要的基础课”是指后续的专业课中很有可能依赖于本课程的内容和方法。 二、 高数A在同类课（微积分类课程）难度链中的位置（由难到易）： 数学分析> 高数A> 高数B> 高数C> 高数D> 高数（D类基础） 三、 高数A的特点、与相关课程的比较、教学目的和要求： 高数旨在对微积分体系有一个整体的了解，着重培养学生的抽象思维能力、逻辑推理能力、基本的空间想象能力、一定的运算能力、应用所学知识分析问题和解决问题的能力。 四、 课时：为了便于比较，相关课程的学时如下：高数A两个学期，高数B和高数C两个学期，高数D和高数（D类基础）一个学期。 五、 难度：高数A要求理解思想和概念、掌握方法、领悟本质、熟练应用，高数C要求了解概念、懂得方法、明白现象、知道几个重要公式和结论，能够进行基本的计算。",
+                        "class": "2",
+                        "code": "00132511",
+                        "english-intro": "This course is a preliminary but fundamental course for students from School of EECS (Electronics Engineering and Computer Science), School of Physics, etc. It is harder than “Advanced Mathematics B",
+                        "first-class": "无",
+                        "index": "1",
+                        "info": "习题课时间周二10-11节，三教303、三教505、三教305",
+                        "name": "高等数学A（一）",
+                        "score": "5",
+                        "teacher": [
+                            "吴金彪"
+                        ],
+                        "time": [
+                            "星期二(第1节-第2节)",
+                            "星期四(第3节-第4节)"
+                        ],
+                        "type": "专业必修",
+                        "unit": "数学科学学院",
+                        "week": "1-16"
+                    },
+                    {
+                        "chinese-intro": "本课程主要是高等数学A（一）的配套课程， 提供极限论与一元函数微分学基本习题的解题方法与技巧。 使得学生对高等数学A（一）的内容有深刻的认识与掌握。",
+                        "class": "4",
+                        "code": "00132711",
+                        "english-intro": "This course is mainly for the students to master the knowledge of the course Advanced Mathematics A (no.1). It provides sufficient training for the students to solve problems in the theory of limit of sequences and functions as well as differential of functions of one variable.",
+                        "first-class": "无",
+                        "index": "2",
+                        "info": "",
+                        "name": "高等数学A（一）习题",
+                        "score": "0",
+                        "teacher": [
+                            "吴金彪"
+                        ],
+                        "time": [
+                            "星期二(第10节-第11节)"
+                        ],
+                        "type": "专业必修",
+                        "unit": "数学科学学院",
+                        "week": "1-16"
+                    },
+                    {
+                        "chinese-intro": "本课程将学习线性方程组、行列式、矩阵、向量空间、矩阵的特征值和特征向量、二次型等内容，使学生初步掌握线性代数的基本理论、基本方法和基本技巧，培养学生科学思维和分析问题以及解决问题的能力。",
+                        "class": "2",
+                        "code": "00132611",
+                        "english-intro": "The main contents of the course are system of linear equations, determinants, matrices, vector spaces, eigenvalues and eigenvectors of matrices, and quadratic forms. The students can grasp the basic theory, methods and techniques of linear algebra from the course. The course will educate the students scientific thinking and the ability for analysing and solving problems.",
+                        "first-class": "无",
+                        "index": "3",
+                        "info": "习题课时间双周周一10-11节，二教404、一教208、三教506，请注意最新上课教室",
+                        "name": "线性代数A (I)",
+                        "score": "4",
+                        "teacher": [
+                            "丁一文"
+                        ],
+                        "time": [
+                            "星期一(第3节-第4节)",
+                            "星期三(第1节-第2节)"
+                        ],
+                        "type": "专业必修",
+                        "unit": "数学科学学院",
+                        "week": "1-16"
+                    },
+                    {
+                        "chinese-intro": "函数式程序设计是一种具有悠久历史的程序设计方法。在几十年以来的大多数时间中，函数式程序设计栖身于象牙塔内，慢慢成长，积蓄力量，并没有在软件开发实践中得到广泛使用。世异时移，这种情况正在发生变化。随着软件系统复杂性的不断提高以及软件与现实世界关系的日益紧密，如何严格确保软件系统的正确性和可靠性，逐渐成为一个重要的现实问题。函数式程序设计建立在严格的数学概念的基础上，具有良好的数学性质，为上述问题提供了一种现实可行的解决方案。目前，大多数的主流程序设计语言都在逐渐引入函数式程序设计的各种成分。本课程将系统介绍函数式程序设计的基本思想、核心概念、以及相关的程序设计方法和程序推理方法，为学生从事算法设计、程序语言设计、软件开发等领域的研究和实践工作建立坚实的理论基础。",
+                        "class": "1",
+                        "code": "04830530",
+                        "english-intro": "Functional programming is a formal method for constructing software programs, which has a long history since 1950s. In most time of this long history, functional programming sheltered itself in the ivory tower, growing slowly and accumulating the strength. As a result, functional programming has not been widely used in software development practice. However, this situation is changing. With the growing complexity of software systems and the growing influence of these automated systems on human civilization, an important problem emerges: How to formally ensure the correctness and reliability of software systems. Functional programming builds on formal mathematical concepts, and functional programs possess good mathematical properties for reasoning and synthesis. Currently, most mainstream programming languages are enhancing themselves with various elements from functional programming. This course will give an introduction to the basic ideas and key concepts of functional programming, as well as functional methods for program construction, reasoning, and synthesis. Knowledge from this course will establish a solid foundation for students to do research and development work in algorithm design, programming language design, and software development. ",
+                        "first-class": "1.学生最好已经学习过一种非函数式的主流程序设计语言（例如，C、C++、Java 等）。 2.如果不满足条件1，但确实对函数式程序设计语言感兴趣，那么，学生应在学习这门课程的同时，自学一种非函数式的程序设计语言。",
+                        "index": "15",
+                        "info": "习题课时间双周周一10-11节，二教404、一教208、三教506，请注意最新上课教室",
+                        "name": "计算概论A（实验班）",
+                        "score": "3",
+                        "teacher": [
+                            "张伟",
+                            "胡振江"
+                        ],
+                        "time": [
+                            "星期三(第5节-第6节)",
+                            "星期五(第3节-第4节)"
+                        ],
+                        "type": "专业必修",
+                        "unit": "信息科学技术学院",
+                        "week": "1-16"
+                    },
+                    {
+                        "chinese-intro": "此实验课是《计算概论A》的上机实习课，是程序设计课程的必要环节,有助于理解算法掌握编程方法。主要的教学目标是通过在线编程网格平台，实战编程训练，在助教的辅导下，完成《计算概论A》课堂讲授的内容，",
+                        "class": "7",
+                        "code": "04830042",
+                        "english-intro": "Practicum is the essential process to the course of to help understanding the algorithm and programming method. The is carried out on a programming platform. Under the guidance teaching assistants, students can skill up their programming level.",
+                        "first-class": "大一新生课程，不需要先修课。",
+                        "index": "14",
+                        "info": "1235机房",
+                        "name": "计算概论A上机实习课",
+                        "score": "0",
+                        "teacher": [
+                            "张伟",
+                            "胡振江"
+                        ],
+                        "time": [
+                            "星期五(第5节-第6节)"
+                        ],
+                        "type": "专业必修",
+                        "unit": "信息科学技术学院",
+                        "week": "1-16"
+                    },
+                    {
+                        "chinese-intro": "中国近现代史纲要课程，是中宣部和教育部规定的我国普通高校本科学生必修的一门思想政治理论课。该课主要讲授中国近代以来抵御外来侵略、争取民族独立、推翻反动统治、实现人民解放的历史，帮助学生了解国史、国情，使学生认识近现代中国社会发展和革命发展的历史进程及其内在规律，从而深刻领会人民为什么选择了马克思主义，选择了中国共产党，选择了社会主义道路。 本课程实行专题讲座，教师实行教学组式的组合方式，分成4个教学组；实行课程主持人、课堂主管教师、专题主讲教师和助教“四位一体”的教学管理方法。以课堂讲授为主，辅以其它实践性环节，其中包括播放文献纪录片或电影、写作心得体会、组织课堂讨论、参观展览或博物馆等。采取灵活宽松的考核方法。平时成绩40%，包括课堂讨论小论文，期末考试60%（开卷）。",
+                        "class": "11",
+                        "code": "04031661",
+                        "english-intro": "The course of modern and contemporary history of China is a compulsory course of ideological and political theory for undergraduates, provided by The Central Propaganda Department and the Ministry of Education. This course focus on the history of Chinese people against foreign aggression, fighting for national independence, overthrowing the reactionary rule and achieving national liberation in modern China. It will help students understand the national history, the historical process and internal rules of the modern Chinese society and the revolution. By this way, they will deeply understand why people choose the Marxism, the Communist Party of China and the road of socialism. This course was set up by Peking University since September 2006 and it was named to the quality courses of Beijing and China in 2008. Credit score: 2. schedule type: 2 hours a week, optional during two semesters. level: freshmen required. This course use the form of seminars as teachers will be separated into four teams, include presenters, a competent teacher, lectures and teaching assistants. The teachers will give you some lectures, and the traits of the course is the practical parts, such as broadcasting documentaries or films, writing exercises about the films, class discussion, visiting the exhibitions and so on. The assessment of students is flexible. Final exams accounts for 60%, which is open-book examination, the rest 40% include individual performance and essays.",
+                        "first-class": "无",
+                        "index": "12",
+                        "info": "",
+                        "name": "中国近现代史纲要",
+                        "score": "3",
+                        "teacher": [
+                            "赵诺"
+                        ],
+                        "time": [
+                            "星期四(第10节-第11节)"
+                        ],
+                        "type": "思想政治",
+                        "unit": "马克思主义学院",
+                        "week": "1-16"
+                    },
+                    {
+                        "chinese-intro": "本课程为本科一年级新生必修思想政治理论课，是一门融思想性、政治性、科学性、理论性、实践性于一体的思政课。帮助新时代大学生树立以马克思主义、社会主义和共产主义为基础的世界观、人生观、价值观、道德观、法治观，提高思想道德素质和法治素养，是聚焦人生理论、理想信念、价值观念、精神品格、道德觉悟、法治思维教育、引导大学生健康成长、立志成才、成长为自觉担当民族复兴大任时代新人的关键课程。",
+                        "class": "10",
+                        "code": "04031652",
+                        "english-intro": "This course is designed to cultivate and train freshman to be a moral and political law-biding person who should carry his duty to the society and the country. This course belongs to one of the ideological and political courses, a compulsory course for all undergradutes in Chinese universities. The key contents of this course includes the world outlooks, life values, morality and law-biding qualities for young students.",
+                        "first-class": "无",
+                        "index": "11",
+                        "info": "",
+                        "name": "思想道德与法治",
+                        "score": "3",
+                        "teacher": [
+                            "户国栋"
+                        ],
+                        "time": [
+                            "星期三(第10节-第11节)"
+                        ],
+                        "type": "思想政治",
+                        "unit": "马克思主义学院",
+                        "week": "1-16"
+                    },
+                    {
+                        "chinese-intro": "本课程为创新创业方法课，邀请信息科技领域知名企业家、技术专家和学者，分享解析科技创新企业真实案例。适用于多学科的本科及研究生。本课程旨在强化企业家精神和科技创新的感染力，启蒙学生创新创业意识，引导学生在科技大变革的背景下，思考加速技术转移转化、实现社会经济价值的原理与方法。",
+                        "class": "1",
+                        "code": "67130008",
+                        "english-intro": "This course teaches methodologies on innovation and entrepreneurship. We will invite prestigious businessmen, technical experts and scholars in the field of information science and technology, to share and analyze real cases of technology enterprises. This course is suitable for undergraduates and graduate students in multiple disciplines. This course aims to strengthen the appeal of entrepreneurship and technology innovations, enlighten students' awareness of innovation and entrepreneurship, and guide students to think about the principles and methods of accelerating technology transfer, and realizing social and economic value in the context of technological revolution.",
+                        "first-class": "无",
+                        "index": "9",
+                        "info": "",
+                        "name": "信息科学前沿与产业创新",
+                        "score": "1",
+                        "teacher": [
+                            "王润声",
+                            "贾方健"
+                        ],
+                        "time": [
+                            "星期五(第10节-第11节)"
+                        ],
+                        "type": "全校公选课",
+                        "unit": "创新创业学院",
+                        "week": "1-16"
+                    },
+                    {
+                        "chinese-intro": "本课程将向学生介绍批判性思维与学术写作的要求与规则，关注文本分析、有效论证的建构以及证据和二手资料的使用，讲解写作的基本过程。 学生通过阅读各种文体的具有挑战性的材料以及写作从而强化其批判性思维的能力，提炼其修辞技能，写作过程中着重关注修改和文体风格。",
+                        "class": "6",
+                        "code": "03835780",
+                        "english-intro": "This course introduces students to the demands and conventions of critical thinking and writing. It focuses on analyzing texts, building effective arguments, and using evidence and secondary source materials as well as the instruction on the stages of the writing process, from pre-writing exercises through rough drafts and revisions. Students enhance their critical thinking abilities by reading and writing challenging material, refine their rhetorical strategies, practice writing processes with special attention to revision and style, and write and read in a variety of genres. Their writing exercise includes formal and informal writing and preparing a final portfolio.",
+                        "first-class": "无",
+                        "index": "8",
+                        "info": "",
+                        "name": "批判性思维与学术写作",
+                        "score": "2",
+                        "teacher": [
+                            "张欢瑞"
+                        ],
+                        "time": [
+                            "星期四(第7节-第8节)"
+                        ],
+                        "type": "大学英语",
+                        "unit": "英语语言文学系",
+                        "week": "1-16"
+                    },
+                    {
+                        "chinese-intro": "军事理论课是根据《普通高等学校军事理论课教学大纲》要求开设的北京大学大学一年级本科生的必修课，由人民武装部组织。每学年度上下学期都开课，每学期开4—6个教学班。主要教学内容为：我国国防、军事思想、军事形势、军事高科技、军兵种知识，高技术战争等14--15个课题，主要由中国人民解放军国防大学老师讲授。",
+                        "class": "3",
+                        "code": "60730020",
+                        "english-intro": "The Military Theory Course is a mandatory course for the first-year undergraduate students of the Peking University, as required by the Syllabus for the Military Theoretical Courses of Common Colleges and Universities and organized by the People's Armed Forces. There are classes for each semester of the academic year, and 4-6 classes per semester. The main teaching content are: 14--15 topics such as China's national defense, military ideology, military situation, military high-tech, military arms knowledge, and high-tech warfare, which are mainly taught by the teachers of the National University of Defense Technology.",
+                        "first-class": "无",
+                        "index": "7",
+                        "info": "",
+                        "name": "军事理论",
+                        "score": "2",
+                        "teacher": [
+                            "李纬华",
+                            "王欣涛",
+                            "张烨"
+                        ],
+                        "time": [
+                            "星期三(第7节-第8节)"
+                        ],
+                        "type": "军事理论",
+                        "unit": "学生工作部人民武装部",
+                        "week": "1-16"
+                    },
+                    {
+                        "chinese-intro": "本课程属讲座课，主要由信息科学技术学院各主要研究方向的知名教授讲授信息科学技术各个学科方向的发展历史、发展现状、相关领域基础知识以及发展趋势等方面的内容。同学通过课程的学习能够对信息科学技术领域包含的各个学科、各个领域有一个整体的、全面的了解；使学生对计算机软件、计算机体系结构、计算机理论、纳米电子学、量子电子学、通讯技术、微电子学、智能科学等学科门类有一个比较明确的概念。",
+                        "class": "1",
+                        "code": "04830010",
+                        "english-intro": "This course is a lecture class. Several well-known professors from school of electronics engineering and computer science Peking University are responsible for the particular subjects. The subjects include introduction of information technology, computer software, computer architecture, computer network and information system, computer theory, computational linguistics and machine translation, wireless communication, optical communication, physical electronics and nanotechnology, quantum electronics and laser sciences, microelectronic devices and technology, system on a chip, micro-electromechanical systems, machine perception, and multi-media process. Through this course, students can overview all the information technology and clear the road map of the IT field.",
+                        "first-class": "无",
+                        "index": "6",
+                        "info": "",
+                        "name": "信息科学技术概论",
+                        "score": "1",
+                        "teacher": [
+                            "陆俊林",
+                            "王润声",
+                            "多位教师合上"
+                        ],
+                        "time": [
+                            "星期一(第7节-第8节)"
+                        ],
+                        "type": "专业必修",
+                        "unit": "信息科学技术学院",
+                        "week": "1-16"
+                    }
+                ],
+                "semester": "2024-2025第1学期"
+            },
+            {
+                "courses": [
+                ],
+                "semester": "2024-2025第2学期"
+            }
         ],
-        "realname": "王五"
+        "realname": "张三"
     }
 }
