@@ -29,6 +29,5 @@ QVector<CourseInfo> loadCoursesFromJsonFile(const QString &filePath) {
             courseList.append(parseCourseFromJson(val.toObject()));
         }
     }
-
     return courseList;
 }

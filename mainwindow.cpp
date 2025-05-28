@@ -4,6 +4,7 @@
 #include "historypage.h"
 #include "timetablepage.h"
 #include "courselistwidget.h"
+#include "courseSelectPage.h"
 #include "homepage.h"
 #include <QHBoxLayout>
 #include <QWidget>
@@ -74,7 +75,7 @@ MainWindow::MainWindow(UserInfo *userInfo,QWidget *parent) : QMainWindow(parent)
 
     mainStack = new QStackedWidget(this);
     mainStack->addWidget(new HomePage(userInfo,this));
-    mainStack->addWidget(new QLabel("选课主页"));
+    mainStack->addWidget(new CourseSelectionPage(All_courses,this));//Mytask
     mainStack->addWidget(new QLabel("智能选课系统"));
     CourseListWidget *FavoritePage = new CourseListWidget(this,2,userInfo,"");
     FavoritePage->setCourses(userInfo->getFavorites(),2,userInfo);
@@ -105,6 +106,7 @@ MainWindow::MainWindow(UserInfo *userInfo,QWidget *parent) : QMainWindow(parent)
 
     layout->addWidget(sidebar);
     layout->addWidget(mainStack);
+    //
     // courseTable = new QTableWidget(this);
     // courseTable->setColumnCount(5);
     // courseTable->setHorizontalHeaderLabels({"课程编号", "课程名称", "授课教师", "上课时间", "开课单位"});
@@ -112,6 +114,7 @@ MainWindow::MainWindow(UserInfo *userInfo,QWidget *parent) : QMainWindow(parent)
     // courseTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
     // loadCourseData();
     // layout->addWidget(courseTable);
+    //
     setCentralWidget(central);
 
     connect(sidebar, &QListWidget::currentRowChanged, this, &MainWindow::changeModule);
