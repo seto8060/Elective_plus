@@ -3,7 +3,7 @@
 #include "timetable.h"
 #include "timetablepage.h"
 #include "courselistwidget.h"
-#include "courseSelectPage.h"
+#include "CourseSelection.h"
 #include "homepage.h"
 #include <QHBoxLayout>
 #include <QWidget>
@@ -74,7 +74,7 @@ MainWindow::MainWindow(UserInfo userInfo,QWidget *parent) : QMainWindow(parent) 
 
     mainStack = new QStackedWidget(this);
     mainStack->addWidget(new HomePage(userInfo,this));
-    mainStack->addWidget(new CourseSelectionPage(All_courses,this));//Mytask
+    mainStack->addWidget(new CourseSelection(All_courses,userInfo,this));//Mytask
     mainStack->addWidget(new QLabel("智能选课系统"));
     CourseListWidget *FavoritePage = new CourseListWidget(this,2);
     FavoritePage->setCourses(userInfo.getFavorites(),2);

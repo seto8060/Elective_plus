@@ -1,10 +1,12 @@
 debug/LoginWindow.o
 debug/RegisterWindow.o
-debug/courseSelectPage.o
 debug/coursedetailpage.o
+debug/courseenrolledpage.o
 debug/courseinfo.o
 debug/courselistwidget.o
 debug/courseloader.o
+debug/coursesearchpage.o
+debug/courseselection.o
 debug/homepage.o
 debug/main.o
 debug/mainwindow.o
@@ -15,9 +17,11 @@ debug/qrc_resources.o
 debug/qrc_qmake_qmake_qm_files.o
 debug/moc_LoginWindow.o
 debug/moc_RegisterWindow.o
-debug/moc_courseSelectPage.o
 debug/moc_coursedetailpage.o
+debug/moc_courseenrolledpage.o
 debug/moc_courselistwidget.o
+debug/moc_coursesearchpage.o
+debug/moc_courseselection.o
 debug/moc_homepage.o
 debug/moc_mainwindow.o
 debug/moc_timetable.o
