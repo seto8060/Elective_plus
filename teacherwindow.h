@@ -14,6 +14,7 @@ class TeacherWindow : public QWidget {
 public:
     explicit TeacherWindow(QWidget *parent = nullptr);
     void refreshMainPage();
+    bool checkConflict(const QString &userId, const QString &courseId) ;
 
 private slots:
     void showMainPage();

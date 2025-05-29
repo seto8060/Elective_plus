@@ -5,7 +5,7 @@
 #include <QDebug>
 #include <QJsonObject>
 
-extern CourseInfo parseCourseFromJson(const QJsonObject &obj);  // 声明 CourseInfo.cpp 中的函数
+extern CourseInfo parseCourseFromJson(const QJsonObject &obj);
 
 QVector<CourseInfo> loadCoursesFromJsonFile(const QString &filePath) {
     QVector<CourseInfo> courseList;

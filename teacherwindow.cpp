@@ -1,5 +1,6 @@
 #include "teacherwindow.h"
 #include "term.h"
+#include "CourseLoader.h"
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QLabel>
@@ -8,7 +9,16 @@
 #include <QToolButton>
 #include <QDebug>
 #include <QMessageBox>
-
+#include <QFile>
+#include <QLineEdit>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include "courseinfo.h"
+#include <QJsonArray>
+bool TeacherWindow::checkConflict(const QString &userId, const QString &courseId) {
+    // TODO: 实际检查课表冲突
+    return false;
+}
 TeacherWindow::TeacherWindow(QWidget *parent)
     : QWidget(parent), teacherInfo(new TeacherInfo(this))
 {
@@ -184,7 +194,105 @@ QWidget* TeacherWindow::createSubPage(const QString &pageName, const Term &opera
     connect(backButton, &QPushButton::clicked, this, &TeacherWindow::showMainPage);
     layout->addWidget(backButton);
     layout->addStretch();
-    if (pageName == "修改当前学期"){
+    if (pageName == "手工选课"){
+        QLabel *info = new QLabel("请输入学号与课程索引号进行手工选课：", page);
+        layout->addWidget(info);
+
+        QLineEdit *idBox = new QLineEdit(page);
+        idBox->setPlaceholderText("学号");
+        layout->addWidget(idBox);
+
+        QLineEdit *courseBox = new QLineEdit(page);
+        courseBox->setPlaceholderText("课程索引号");
+        layout->addWidget(courseBox);
+
+        QPushButton *submitBtn = new QPushButton("确认选课", page);
+        layout->addWidget(submitBtn);
+
+        QLabel *result = new QLabel(page);
+        result->setStyleSheet("color: red;");
+        layout->addWidget(result);
+
+        connect(submitBtn, &QPushButton::clicked, this, [=]() {
+            QString userId = idBox->text();
+            QString courseId = courseBox->text();
+
+            if (userId.isEmpty() || courseId.isEmpty()) {
+                result->setText("学号和课程索引不能为空！");
+                return;
+            }
+
+            QFile userFile("users.json");
+            if (!userFile.open(QIODevice::ReadOnly)) {
+                result->setText("无法读取用户数据！");
+                return;
+            }
+            QJsonDocument userDoc = QJsonDocument::fromJson(userFile.readAll());
+            userFile.close();
+            QJsonObject userRoot = userDoc.object();
+            QJsonObject matchedUserObj;
+            QString matchedKey;
+            bool userFound = false;
+
+            for (const QString &key : userRoot.keys()) {
+                QJsonObject obj = userRoot[key].toObject();
+                if (obj["index"].toString() == userId) {
+                    matchedUserObj = obj;
+                    matchedKey = key;
+                    userFound = true;
+                    break;
+                }
+            }
+
+            if (!userFound) {
+                result->setText("用户不存在！");
+                return;
+            }
+
+            QVector<CourseInfo> All_courses = loadCoursesFromJsonFile(":/resources/resources/courses.json");
+
+            bool courseFound = false;
+            CourseInfo foundcourse;
+            for (const CourseInfo &c : All_courses) {
+                if (c.index == courseId) {
+                    courseFound = true;
+                    foundcourse = c;
+                    break;
+                }
+            }
+
+            if (!courseFound) {
+                result->setText("课程不存在！");
+                return;
+            }
+
+            // TODO: 冲突判断
+            if (checkConflict(userId, courseId)) {
+                result->setText("课程与已有课程冲突！");
+                return;
+            }
+
+            QJsonObject userObj = userRoot[matchedKey].toObject();
+            QJsonArray courseArray = userObj["currentCourses"].toArray();
+            courseArray.append(foundcourse.toJson());
+            userObj["currentCourses"] = courseArray;
+            userRoot[matchedKey] = userObj;
+            qDebug() << courseArray;
+            QFile saveFile("users.json");
+            if (!saveFile.open(QIODevice::WriteOnly)) {
+                result->setText("保存失败！");
+                return;
+            }
+            saveFile.write(QJsonDocument(userRoot).toJson(QJsonDocument::Indented));
+            saveFile.close();
+
+            result->setStyleSheet("color: green;");
+            result->setText("手工选课成功！");
+        });
+
+        layout->addStretch();
+    }
+    else if (pageName == "修改当前学期"){
         QLabel *curLabel = new QLabel("当前学期：" + teacherInfo->getCurrentTerm().toString(), page);
         QLabel *enrollLabel = new QLabel("当前选课学期：" + teacherInfo->getEnrollmentTerm().toString(), page);
         QLabel *upcomingLabel = new QLabel("待开始选课学期：" + teacherInfo->getUpcomingTerm().toString(), page);
