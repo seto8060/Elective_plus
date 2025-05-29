@@ -4,6 +4,8 @@
 #include <QPushButton>
 #include <QGridLayout>
 #include <QMap>
+#include <QLabel>
+#include <QToolButton>
 #include "teacherinfo.h"
 
 class TeacherWindow : public QWidget {
@@ -11,6 +13,7 @@ class TeacherWindow : public QWidget {
 
 public:
     explicit TeacherWindow(QWidget *parent = nullptr);
+    void refreshMainPage();
 
 private slots:
     void showMainPage();
@@ -23,6 +26,9 @@ private:
     QStackedWidget *stackedWidget;
     QMap<QString, QWidget*> subPages;
     TeacherInfo *teacherInfo;
+    QLabel *infoLabel = nullptr;
+    QList<QToolButton*> functionButtons;
+    QList<Term> functionTerms;
 };
 /*
 教务界面设计：

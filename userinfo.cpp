@@ -108,7 +108,7 @@ void UserInfo::archiveCurrentCourses(QString year) {
 QJsonObject UserInfo::toJson() const {
     QJsonObject obj;
     if (IsTeacher){
-        qDebug() << 12;
+        // qDebug() << 12;
         obj["password"] = password;
         obj["IsTeacher"] = true;
         // qDebug() << obj;
