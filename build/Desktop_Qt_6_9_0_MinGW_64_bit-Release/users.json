@@ -1,10 +1,5 @@
 {
-    "Admin": {
-        "IsTeacher": true,
-        "password": "adminpass"
-    },
     "Student": {
-        "IsTeacher": false,
         "college": "数学科学学院",
         "courseVotes": {
             "04830050": 0,
@@ -174,7 +169,6 @@
         "realname": "李四"
     },
     "seto1": {
-        "IsTeacher": false,
         "college": "信息科学技术学院",
         "courseVotes": {
             "04830050": 1,

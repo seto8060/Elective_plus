@@ -23,11 +23,11 @@ RegisterWindow::RegisterWindow(QWidget *parent) : QDialog(parent) {
     Pass_Box->setPlaceholderText("请输入密码");
     Pass_Box->setEchoMode(QLineEdit::Password);
 
-    verifyLabel = new QLabel("请输入验证码：", this);
-    verifyBox = new QLineEdit(this);
-    verifyBox->setPlaceholderText("验证码");
-    verifyLabel->setVisible(false);
-    verifyBox->setVisible(false);
+    // verifyLabel = new QLabel("请输入验证码：", this);
+    // verifyBox = new QLineEdit(this);
+    // verifyBox->setPlaceholderText("验证码");
+    // verifyLabel->setVisible(false);
+    // verifyBox->setVisible(false);
 
     Confirm_Pass_Box = new QLineEdit(this);
     Confirm_Pass_Box->setPlaceholderText("请确认密码");
@@ -39,8 +39,8 @@ RegisterWindow::RegisterWindow(QWidget *parent) : QDialog(parent) {
     Index_Box = new QLineEdit(this);
     Index_Box->setPlaceholderText("请输入学号");
 
-    rolebox = new QComboBox(this);
-    rolebox->addItems({"学生", "教务"});
+    // rolebox = new QComboBox(this);
+    // rolebox->addItems({"学生", "教务"});
 
     gradeBox = new QComboBox(this);
     gradeBox->addItems({"2020级", "2021级", "2022级", "2023级", "2024级"});
@@ -91,23 +91,23 @@ RegisterWindow::RegisterWindow(QWidget *parent) : QDialog(parent) {
     layout->addWidget(Confirm_Pass_Box);
     layout->addWidget(Real_name_Box);
     layout->addWidget(Index_Box);
-    layout->addWidget(rolebox);
+    // layout->addWidget(rolebox);
     layout->addWidget(gradeBox);
     layout->addWidget(collegeBox);
-    layout->addWidget(verifyLabel);
-    layout->addWidget(verifyBox);
+    // layout->addWidget(verifyLabel);
+    // layout->addWidget(verifyBox);
     layout->addWidget(Register_Button);
     layout->addWidget(errorLabel);
 
     connect(Register_Button, &QPushButton::clicked, this, &RegisterWindow::Register);
 
-    connect(rolebox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [=](int index){
-        bool isStudent = (rolebox->currentText() == "学生");
-        gradeBox->setVisible(isStudent);
-        collegeBox->setVisible(isStudent);
-        verifyLabel->setVisible(!isStudent);
-        verifyBox->setVisible(!isStudent);
-    });
+    // connect(rolebox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [=](int index){
+    //     bool isStudent = (rolebox->currentText() == "学生");
+    //     gradeBox->setVisible(isStudent);
+    //     collegeBox->setVisible(isStudent);
+    //     verifyLabel->setVisible(!isStudent);
+    //     verifyBox->setVisible(!isStudent);
+    // });
 }
 bool isIndexConflict(const QString &inputIndex) {
     QFile file("users.json");
@@ -151,19 +151,19 @@ void RegisterWindow::Register() {
         errorLabel->setVisible(true);
         return ;
     }
-    if (rolebox->currentText() == "教务") {
-        if (verifyBox->text() != "1024") {
-            errorLabel->setText("验证码错误!");
-            errorLabel->setVisible(true);
-            return;
-        }
-        else {
-            newUser = UserInfo(user,pass1, "","","","",true);
-            // qDebug() << newUser.IsTeacher ;
-            accept();
-        }
-        return ;
-    }
+    // if (rolebox->currentText() == "教务") {
+    //     if (verifyBox->text() != "1024") {
+    //         errorLabel->setText("验证码错误!");
+    //         errorLabel->setVisible(true);
+    //         return;
+    //     }
+    //     else {
+    //         newUser = UserInfo(user,pass1, "","","","",true);
+    //         // qDebug() << newUser.IsTeacher ;
+    //         accept();
+    //     }
+    //     return ;
+    // }
     QString confirmText = QString("我超！盒！请问是%1%2的%3同学吗？")
                               .arg(collegeBox->currentText())
                               .arg(gradeBox->currentText())
@@ -173,8 +173,8 @@ void RegisterWindow::Register() {
                                       QMessageBox::Yes | QMessageBox::No);
 
     if (reply == QMessageBox::Yes) {
-        qDebug() << 1;
-        newUser = UserInfo(user, pass1, gradeBox->currentText(), collegeBox->currentText(), Index_Box->text(),Real_name_Box->text(),false);
+        // qDebug() << 1;
+        newUser = UserInfo(user, pass1, gradeBox->currentText(), collegeBox->currentText(), Index_Box->text(),Real_name_Box->text());
         accept();
     }
 }
@@ -187,9 +187,9 @@ QString RegisterWindow::getPassword() const {
     return Pass_Box->text();
 }
 
-QString RegisterWindow::getRole() const {
-    return rolebox->currentText();
-}
+// QString RegisterWindow::getRole() const {
+//     return rolebox->currentText();
+// }
 
 const UserInfo& RegisterWindow::getUserInfo() const {
     return newUser;

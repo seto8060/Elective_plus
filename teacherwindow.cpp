@@ -41,13 +41,13 @@ void TeacherWindow::refreshMainPage() {
             operateTerm = teacherInfo->canDoLottery();
         else if (text == "导出信息")
             operateTerm = teacherInfo->canExportStudentInfo();
-        else if (text == "批量操作用户")
-            operateTerm = teacherInfo->canBatchUpdateUsers() ? teacherInfo->getCurrentTerm() : Term(-1, -1);
+        else if (text == "刷新验证码") ;
         else if (text == "修改当前学期")
             operateTerm = teacherInfo->getCurrentTerm();
 
         functionTerms[i] = operateTerm;
         bool available = operateTerm.isValid();
+        if (text == "刷新验证码") available = true;
         btn->setEnabled(available);
         btn->setToolTip(available ? "" : "当前不可用");
     }
@@ -79,7 +79,7 @@ QWidget* TeacherWindow::createMainPage() {
         { "修改当前学期", ":/resources/icon/semester.svg" },
         { "抽签", ":/resources/icon/lottery.svg" },
         { "导出信息", ":/resources/icon/export.svg" },
-        { "批量操作用户", ":/resources/icon/batch.svg" }
+        { "刷新验证码", ":/resources/icon/reset.svg" }
     };
 
     int row = 0, col = 0;
@@ -102,17 +102,25 @@ QWidget* TeacherWindow::createMainPage() {
             operateTerm = teacherInfo->canDoLottery();
         else if (info.text == "导出信息")
             operateTerm = teacherInfo->canExportStudentInfo();
-        else if (info.text == "批量操作用户")
-            operateTerm = teacherInfo->canBatchUpdateUsers() ? teacherInfo->getCurrentTerm() : Term(-1, -1);
+        else if (info.text == "刷新验证码");
         else if (info.text == "修改当前学期")
             operateTerm = teacherInfo->getCurrentTerm();
 
         bool available = operateTerm.isValid();
+        if (info.text == "刷新验证码") available = true;
         button->setEnabled(available);
         if (!available) button->setToolTip("当前不可用");
 
         connect(button, &QToolButton::clicked, this, [=]() {
-            showSubPage(info.text, operateTerm);
+            if (info.text == "刷新验证码") {
+                teacherInfo->refreshVerifyCode();
+                teacherInfo->save();
+                QMessageBox::information(this, "验证码已更新",
+                                         QString("已更新验证码为：%1")
+                                             .arg(teacherInfo->getverifycode()));
+            } else {
+                showSubPage(info.text, operateTerm);
+            }
         });
         functionButtons.append(button);
         functionTerms.append(operateTerm);
@@ -139,7 +147,7 @@ void styleButton(QPushButton *btn, const QString &baseColor = "#4CAF50") {
                            "}"
                            "QPushButton:hover {"
                            "  background-color: #388E3C;"
-                           "  cursor: pointer;"
+                           // "  cursor: pointer;"
                            "}"
                            "QPushButton:disabled {"
                            "  background-color: #cccccc;"
@@ -328,6 +336,7 @@ QWidget* TeacherWindow::createSubPage(const QString &pageName, const Term &opera
 
         layout->addStretch();
     }
+    // else if
     else{
         QLabel *label = new QLabel(
         QString("功能：%1\n操作学期：%2（待实现）")

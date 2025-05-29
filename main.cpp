@@ -11,8 +11,8 @@ int main(int argc, char *argv[]) {
     // MainWindow mainWin();
 
     QObject::connect(&login, &LoginWindow::loginSuccess, [&](UserInfo *user) {
-        // qDebug() << user ;
-        if (!user->IsTeacher){
+        qDebug() << user->getIndex() ;
+        if (user->getIndex() != "teacher"){
             MainWindow *mainWin = new MainWindow(user);
             mainWin->setAttribute(Qt::WA_DeleteOnClose);
             mainWin->show();
@@ -25,14 +25,14 @@ int main(int argc, char *argv[]) {
         }
         else {
             TeacherWindow *mainWin = new TeacherWindow();
-            mainWin->setAttribute(Qt::WA_DeleteOnClose);
+            // mainWin->setAttribute(Qt::WA_DeleteOnClose);
             mainWin->show();
 
-            QObject::connect(mainWin, &QObject::destroyed, [=]() {
-                saveUserToJson(user);
-                qDebug() << "saved teacher " << user->getUsername() << Qt::endl;
-                delete user;
-            });
+            // QObject::connect(mainWin, &QObject::destroyed, [=]() {
+            //     saveUserToJson(user);
+            //     qDebug() << "saved teacher " << user->getUsername() << Qt::endl;
+            //     delete user;
+            // });
         }
     });
 

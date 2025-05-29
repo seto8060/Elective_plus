@@ -7,13 +7,13 @@
 class UserInfo {
 public:
     UserInfo();
+    UserInfo(int index);
     UserInfo(const QString &username,
              const QString &password,
              const QString &grade,
              const QString &college,
              const QString &Index,
-             const QString &Realname,
-             const bool &IsTeacher);
+             const QString &Realname);
 
     QString getUsername() const;
     QString getPassword() const;
@@ -40,7 +40,7 @@ public:
     int getRemainingPoints() const ;
     int getPointForCourse(const QString &courseCode) const ;
     void setPointForCourse(const QString &courseCode, int points) ;
-    bool IsTeacher = false;
+    // bool IsTeacher = false;
 
 
 private:

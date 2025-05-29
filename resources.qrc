@@ -18,5 +18,6 @@
         <file>icon/batch.svg</file>
         <file>icon/manual.svg</file>
         <file>icon/edit.svg</file>
+        <file>icon/reset.svg</file>
     </qresource>
 </RCC>

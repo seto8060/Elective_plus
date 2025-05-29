@@ -25,11 +25,11 @@ private slots:
 
 private:
     QLineEdit *Name_Box;
-    QLineEdit *Pass_Box;
+    QLineEdit *Pass_Box, *verifyBox;
     QPushButton *Display_Pass;
     QComboBox *roleBox;
     QPushButton *Login_Button, *Register_Button;
-    QLabel *errorLabel;
+    QLabel *errorLabel, *verifyLabel;
 
     bool validateCredentials(const QString &user, const QString &pass, const QString &role);
 };

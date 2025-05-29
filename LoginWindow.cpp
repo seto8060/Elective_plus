@@ -1,5 +1,6 @@
 #include "LoginWindow.h"
 #include "RegisterWindow.h"
+#include "teacherinfo.h"
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QFile>
@@ -96,6 +97,30 @@ LoginWindow::LoginWindow(QWidget *parent) : QWidget(parent) {
     roleBox->addItem("学生");
     roleBox->addItem("教务");
 
+    verifyLabel = new QLabel("请输入验证码：", this);
+    verifyBox = new QLineEdit(this);
+    verifyBox->setPlaceholderText("验证码");
+    verifyLabel->setVisible(false);
+    verifyBox->setVisible(false);
+    connect(roleBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [=](int index){
+        bool isStudent = (roleBox->currentText() == "学生");
+        verifyLabel->setVisible(!isStudent);
+        verifyBox->setVisible(!isStudent);
+    });
+    // if (roleBox->currentText() == "教务") {
+    //     if (verifyBox->text() != "1024") {
+    //         errorLabel->setText("验证码错误!");
+    //         errorLabel->setVisible(true);
+    //         return;
+    //     }
+    //     else {
+    //         newUser = UserInfo(user,pass1, "","","","",true);
+    //         // qDebug() << newUser.IsTeacher ;
+    //         accept();
+    //     }
+    //     return ;
+    // }
+
     Login_Button = new QPushButton("登录", this);
     errorLabel = new QLabel(this);
     errorLabel->setStyleSheet("color: red");
@@ -106,6 +131,8 @@ LoginWindow::LoginWindow(QWidget *parent) : QWidget(parent) {
     layout->addWidget(Name_Box);
     layout->addLayout(Pass_Layout);
     layout->addWidget(roleBox);
+    layout->addWidget(verifyLabel);
+    layout->addWidget(verifyBox);
     layout->addWidget(Login_Button);
     layout->addWidget(Register_Button);
     layout->addWidget(errorLabel);
@@ -114,7 +141,7 @@ LoginWindow::LoginWindow(QWidget *parent) : QWidget(parent) {
 
     connect(Register_Button, &QPushButton::clicked, this, &LoginWindow::handleRegister);
 }
-bool loadUserFromJson(const QString &username, const QString &password, bool Role,UserInfo *&user) {
+bool loadUserFromJson(const QString &username, const QString &password, UserInfo *&user) {
     QFile file("users.json");
     if (!file.open(QIODevice::ReadOnly)) return false;
 
@@ -128,7 +155,7 @@ bool loadUserFromJson(const QString &username, const QString &password, bool Rol
     QJsonObject obj = root.value(username).toObject();
     QString savedPass = obj.value("password").toString();
     if (savedPass != password) return false;
-    if (obj.value("IsTeacher") != Role) return false;
+    // if (obj.value("IsTeacher") != Role) return false;
     // qDebug() << 1;
     user = new UserInfo(UserInfo::fromJson(obj));
     // qDebug() << 1;
@@ -141,8 +168,28 @@ void LoginWindow::handleLogin() {
     QString username = Name_Box->text();
     QString password = Pass_Box->text();
     bool Role = roleBox->currentText() == "教务";
+    if (Role == true){
+        if (username != "admin" || password != "adminpass") {
+            errorLabel->setText("用户名或密码错误！");
+            errorLabel->setVisible(true);
+            return ;
+        }
+        TeacherInfo *t = new TeacherInfo(this);
+        qDebug() << t->getverifycode();
+        if (verifyBox->text() != QString::number(t->getverifycode())){
+            errorLabel->setText("验证码错误！");
+            errorLabel->setVisible(true);
+            return;
+        }
+        qDebug() << 1;
+        UserInfo *user= new UserInfo(0);
+        qDebug() << user->getIndex();
+        emit loginSuccess(user);
+        this->close();
+        return ;
+    }
     UserInfo *user;
-    if (loadUserFromJson(username, password, Role, user)) {
+    if (loadUserFromJson(username, password, user)) {
         emit loginSuccess(user);
         this->close();
     } else {

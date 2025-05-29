@@ -4,21 +4,19 @@
 #include <QJsonArray>
 
 UserInfo::UserInfo() {}
-
+UserInfo::UserInfo(int index){Index = "teacher";}
 UserInfo::UserInfo(const QString &username,
                    const QString &password,
                    const QString &grade,
                    const QString &college,
                    const QString &Index,
-                   const QString &Realname,
-                   const bool &IsTeacher)
+                   const QString &Realname)
     : username(username),
     password(password),
     grade(grade),
     college(college),
     Index(Index),
-    Realname(Realname),
-    IsTeacher(IsTeacher){
+    Realname(Realname){
         QVector<CourseInfo> All_courses = loadCoursesFromJsonFile(":/resources/resources/courses.json");
         QVector<int> indices = {2533,2781,2778,2568,2782,2696,2783};
         // currentCourses;
@@ -107,14 +105,14 @@ void UserInfo::archiveCurrentCourses(QString year) {
 
 QJsonObject UserInfo::toJson() const {
     QJsonObject obj;
-    if (IsTeacher){
-        // qDebug() << 12;
-        obj["password"] = password;
-        obj["IsTeacher"] = true;
-        // qDebug() << obj;
-        return obj;
-    }
-    obj["IsTeacher"] = false;
+    // if (IsTeacher){
+    //     // qDebug() << 12;
+    //     obj["password"] = password;
+    //     obj["IsTeacher"] = true;
+    //     // qDebug() << obj;
+    //     return obj;
+    // }
+    // obj["IsTeacher"] = false;
     obj["password"] = password;
     obj["grade"] = grade;
     obj["college"] = college;
@@ -157,11 +155,11 @@ QJsonObject UserInfo::toJson() const {
 
 UserInfo UserInfo::fromJson(const QJsonObject &obj) {
     UserInfo u;
-    if (obj["IsTeacher"].toBool() == true){
-        u.IsTeacher = true;
-        u.password = obj["password"].toString();
-        return u;
-    }
+    // if (obj["IsTeacher"].toBool() == true){
+    //     u.IsTeacher = true;
+    //     u.password = obj["password"].toString();
+    //     return u;
+    // }
     u.password = obj["password"].toString();
     u.grade = obj["grade"].toString();
     u.college = obj["college"].toString();

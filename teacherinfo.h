@@ -2,6 +2,7 @@
 #include <QObject>
 #include <QVector>
 #include <QSet>
+#include <QRandomGenerator>
 #include "term.h"
 class TeacherInfo : public QObject {
     Q_OBJECT
@@ -20,6 +21,9 @@ public:
     }
     Term getRecentlyEndedTerm() const{
         return lastEnrollmentEnded;
+    }
+    int getverifycode() const{
+        return verifycode;
     }
 
     void TermPass(){
@@ -54,10 +58,10 @@ public:
         if (enrollmentTerm.semester != 0) return enrollmentTerm;
         return Term(-1,-1);
     }
-    bool canBatchUpdateUsers() const{
-        return currentTerm.semester == 1;
-    }
     void save();
+    void refreshVerifyCode(){
+        verifycode = QRandomGenerator::global()->bounded(1000, 10000);
+    }
 
 private:
     //作为教务维护以下变量：
@@ -66,4 +70,5 @@ private:
     Term upcomingTerm = Term(2025,0);           // 即将开始选课的学期
     Term lastEnrollmentEnded = Term(2025,0);    // 刚刚结束选课的学期
     bool HasDoneLottery = false;
+    int verifycode = 1024;
 };
