@@ -9,6 +9,7 @@
 #include <QComboBox>
 #include <QLabel>
 #include "userinfo.h"
+#include <QJsonDocument>
 
 class RegisterWindow : public QDialog {
     Q_OBJECT

@@ -5,13 +5,13 @@
 #include <QFormLayout>
 #include <QScrollArea>
 
-CourseDetailPage::CourseDetailPage(const CourseInfo& course, QWidget *parent)
+CourseDetailPage::CourseDetailPage(const CourseInfo& course, const courseComment& comment,QWidget *parent)
     : QWidget(parent) {
-    setupUI(course);
+    setupUI(course,comment);
 }
 
 // CourseDetailPage.cpp
-void CourseDetailPage::setupUI(const CourseInfo& course) {
+void CourseDetailPage::setupUI(const CourseInfo& course,const courseComment& comment) {
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
     mainLayout->setSpacing(20);
     mainLayout->setContentsMargins(20, 20, 20, 20);
@@ -26,6 +26,9 @@ void CourseDetailPage::setupUI(const CourseInfo& course) {
     // 课程介绍区
     QWidget *introSection = createIntroSection(course);
 
+    // 添加评论区域
+    QWidget *commentsSection = createCommentsSection(comment);
+
     // 操作按钮区
     QHBoxLayout *buttonLayout = new QHBoxLayout();
     QPushButton *backButton = new QPushButton("返回列表", this);
@@ -38,6 +41,7 @@ void CourseDetailPage::setupUI(const CourseInfo& course) {
     mainLayout->addWidget(titleLabel);
     mainLayout->addWidget(infoSection);
     mainLayout->addWidget(introSection);
+    mainLayout->addWidget(commentsSection);
     mainLayout->addStretch();
     mainLayout->addLayout(buttonLayout);
 
@@ -115,4 +119,98 @@ QWidget* CourseDetailPage::createIntroSection(const CourseInfo& course) {
     layout->addWidget(englishIntro);
 
     return container;
+}
+
+QWidget* CourseDetailPage::createCommentsSection(const courseComment& comment) {
+    QWidget *container = new QWidget(this);
+    QVBoxLayout *layout = new QVBoxLayout(container);
+    
+    // 评论标题
+    layout->addWidget(createSectionTitle("课程评价"));
+    
+    m_comments=comment.comments;
+    // 评论展示区域
+    QScrollArea *scrollArea = new QScrollArea(this);
+    scrollArea->setFrameShape(QFrame::NoFrame);
+    scrollArea->setWidgetResizable(true);
+
+    QWidget *commentsContainer = new QWidget();
+    m_commentsLayout=new QVBoxLayout(commentsContainer);
+    m_commentsLayout->setSpacing(15);
+    m_commentsLayout->setContentsMargins(5,5,5,5);
+
+    scrollArea->setWidget(commentsContainer);
+    layout->addWidget(scrollArea);
+    // 翻页按钮
+    QHBoxLayout *pageLayout = new QHBoxLayout();
+    QPushButton *prevButton = new QPushButton("上一页", this);
+    QPushButton *nextButton = new QPushButton("下一页", this);
+    pageLayout->addWidget(prevButton);
+    pageLayout->addStretch();
+    pageLayout->addWidget(nextButton);
+    layout->addLayout(pageLayout);
+    
+    // 连接信号槽
+    connect(prevButton, &QPushButton::clicked, [this]() {
+        if (m_currentPage > 0) {
+            m_currentPage--;
+            updateCommentsDisplay();
+        }
+    });
+    
+    connect(nextButton, &QPushButton::clicked, [this]() {
+        if ((m_currentPage + 1) * COMMENTS_PER_PAGE < m_comments.size()) {
+            m_currentPage++;
+            updateCommentsDisplay();
+        }
+    });
+    
+    // 初始显示
+    updateCommentsDisplay();
+    
+    return container;
+}
+
+void CourseDetailPage::updateCommentsDisplay() {
+    // 清空现有评论
+    QLayoutItem *child;
+    while ((child = m_commentsLayout->takeAt(0)) != nullptr) {
+        delete child->widget();
+        delete child;
+    }
+    if(m_comments.isEmpty()){
+        QLabel* noCommentLabel = new QLabel("暂无课程评价",this);
+        noCommentLabel->setAlignment(Qt::AlignCenter);
+        noCommentLabel->setStyleSheet("color:#95a5a6; font-style: italic;");
+        m_commentsLayout->addWidget(noCommentLabel);
+    }
+    // 显示当前页评论
+    int start = m_currentPage * COMMENTS_PER_PAGE;
+    int end = qMin(start + COMMENTS_PER_PAGE, m_comments.size());
+    
+    for (int i = start; i < end; i++) {
+        const auto &comment = m_comments[i];
+        QWidget *commentWidget = new QWidget();
+        commentWidget->setStyleSheet(R"(
+            QWidget {
+                background: #f9f9f9;
+                border-radius: 5px;
+                padding: 10px;
+                border: 1px solid #e0e0e0;
+            }
+        )");
+        QVBoxLayout *commentLayout = new QVBoxLayout(commentWidget);
+        commentLayout->setSpacing(5);
+        QLabel *criticLabel = new QLabel("评价人: " + comment.critc);
+        QLabel *contentLabel = new QLabel(comment.content);
+        contentLabel->setWordWrap(true);
+        QLabel *priorityLabel = new QLabel("评分: " + QString::number(comment.priority));
+        
+        commentLayout->addWidget(criticLabel);
+        commentLayout->addWidget(contentLabel);
+        commentLayout->addWidget(priorityLabel);
+        
+        m_commentsLayout->addWidget(commentWidget);
+    }
+    m_commentsLayout->addStretch();
 }

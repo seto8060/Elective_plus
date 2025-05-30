@@ -12,11 +12,15 @@ CONFIG += c++17
 SOURCES += \
     LoginWindow.cpp \
     RegisterWindow.cpp \
-    courseSelectPage.cpp \
+    commentloader.cpp \
+    coursecomment.cpp \
     coursedetailpage.cpp \
+    courseenrolledpage.cpp \
     courseinfo.cpp \
     courselistwidget.cpp \
     courseloader.cpp \
+    coursesearchpage.cpp \
+    courseselection.cpp \
     historypage.cpp \
     homepage.cpp \
     main.cpp \
@@ -30,11 +34,15 @@ SOURCES += \
 HEADERS += \
     LoginWindow.h \
     RegisterWindow.h \
-    courseSelectPage.h \
+    commentloader.h \
+    coursecomment.h \
     coursedetailpage.h \
+    courseenrolledpage.h \
     courseinfo.h \
     courselistwidget.h \
     courseloader.h \
+    coursesearchpage.h \
+    courseselection.h \
     historypage.h \
     homepage.h \
     mainwindow.h \

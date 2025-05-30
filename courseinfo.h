@@ -24,5 +24,9 @@ public:
     int Now_person = 100;
     QJsonObject obj;
     QJsonObject toJson() const;
+
+    bool operator==(const CourseInfo& other) const{
+        return index==other.index;
+    }
 };
 CourseInfo parseCourseFromJson(const QJsonObject &obj);

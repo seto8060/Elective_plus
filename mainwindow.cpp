@@ -4,8 +4,9 @@
 #include "historypage.h"
 #include "timetablepage.h"
 #include "courselistwidget.h"
-#include "courseSelectPage.h"
+#include "courseSelection.h"
 #include "homepage.h"
+#include "commentloader.h"
 #include <QHBoxLayout>
 #include <QWidget>
 #include <QLabel>
@@ -13,8 +14,9 @@
 #include <QHeaderView>
 #include <QDebug>
 
-MainWindow::MainWindow(UserInfo *userInfo,QWidget *parent) : QMainWindow(parent) {
+MainWindow::MainWindow(UserInfo *userInfo,QWidget *parent) : QMainWindow(parent),user(userInfo) {
     All_courses = loadCoursesFromJsonFile(":/resources/resources/courses.json");
+    All_comments=loadCommentsFromJsonFile(":/resources/resources/comments.json");
     setWindowTitle("选课系统");
     resize(1000, 700);
 
@@ -75,11 +77,20 @@ MainWindow::MainWindow(UserInfo *userInfo,QWidget *parent) : QMainWindow(parent)
 
     mainStack = new QStackedWidget(this);
     mainStack->addWidget(new HomePage(userInfo,this));
-    mainStack->addWidget(new CourseSelectionPage(All_courses,this));//Mytask
+    
+    // 创建选课页面并连接信号
+    CourseSelection *courseSelectionPage = new CourseSelection(All_courses, userInfo, All_comments,this);
+    // 连接收藏夹更新信号
+    connect(courseSelectionPage, &CourseSelection::favoritesUpdated, this, &MainWindow::updateFavoritesPage);
+    mainStack->addWidget(courseSelectionPage);
+    
     mainStack->addWidget(new QLabel("智能选课系统"));
-    CourseListWidget *FavoritePage = new CourseListWidget(this,2,userInfo,"");
-    FavoritePage->setCourses(userInfo->getFavorites(),2,userInfo);
-    mainStack->addWidget(FavoritePage);
+    
+    // 保存收藏夹页面的指针，以便后续更新
+    m_favoritePage = new CourseListWidget(this, 2, userInfo, "");
+    m_favoritePage->setCourses(userInfo->getFavorites(), 2, userInfo);
+    mainStack->addWidget(m_favoritePage);
+    
     QVector<CourseInfo> courseList = userInfo->getCurrentCourses();
 
 
@@ -122,9 +133,17 @@ MainWindow::MainWindow(UserInfo *userInfo,QWidget *parent) : QMainWindow(parent)
 }
 
 void MainWindow::changeModule(int index) {
+    // 当切换到收藏夹页面时，更新收藏夹内容
+    if (index == 3) { // 收藏夹的索引是3
+        updateFavoritesPage();
+    }
     mainStack->setCurrentIndex(index);
 }
-
+void MainWindow::updateFavoritesPage(){
+    if(m_favoritePage){
+        m_favoritePage->setCourses(user->getFavorites(), 2, user);
+    }
+}
 // void MainWindow::setUser(const QString &username, const QString &role) {
 //     setWindowTitle(QString("%1%2您好，欢迎来到选课网++！").arg(user.getUsername(), user.getGrade()));
 // }
@@ -144,3 +163,4 @@ void MainWindow::loadCourseData() {
         courseTable->setItem(i, 4, new QTableWidgetItem(c.unit));
     }
 }
+

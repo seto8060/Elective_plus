@@ -6,7 +6,9 @@
 #include<QLabel>
 #include<QPushButton>
 #include<QTextEdit>
+#include<QVBoxLayout>
 #include "CourseInfo.h"
+#include "courseComment.h"
 
 class QLabel;
 class QPushButton;
@@ -14,14 +16,14 @@ class QPushButton;
 class CourseDetailPage : public QWidget {
     Q_OBJECT
 public:
-    explicit CourseDetailPage(const CourseInfo& course, QWidget *parent = nullptr);
+    explicit CourseDetailPage(const CourseInfo& course, const courseComment& comment,QWidget *parent = nullptr);
 
 signals:
     void backRequested();
     void enrollRequested(const QString& courseCode);
 
 private:
-    void setupUI(const CourseInfo& course);
+    void setupUI(const CourseInfo& course,const courseComment& comment);
 
     QLabel* createSectionTitle(const QString& text);
     QWidget* createInfoSection(const CourseInfo& course);
@@ -34,6 +36,13 @@ private:
     QLabel *m_descriptionLabel;
     QPushButton *m_enrollButton;
     QPushButton *m_backButton;
+    QVector<comment> m_comments;
+    QVBoxLayout* m_commentsLayout;
+    int m_currentPage = 0;
+    const int COMMENTS_PER_PAGE = 5;
+    
+    QWidget* createCommentsSection(const courseComment& comment);
+    void updateCommentsDisplay();
 };
 
 #endif // COURSEDETAILPAGE_H

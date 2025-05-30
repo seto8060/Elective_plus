@@ -19,5 +19,6 @@
         <file>icon/manual.svg</file>
         <file>icon/edit.svg</file>
         <file>icon/reset.svg</file>
+        <file>resources/comments.json</file>
     </qresource>
 </RCC>
