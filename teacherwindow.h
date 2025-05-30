@@ -5,8 +5,12 @@
 #include <QGridLayout>
 #include <QMap>
 #include <QLabel>
+#include <QFile>
 #include <QToolButton>
+#include <QTableWidget>
+#include <QJsonArray>
 #include "teacherinfo.h"
+#include "CourseInfo.h"
 
 class TeacherWindow : public QWidget {
     Q_OBJECT
@@ -15,6 +19,24 @@ public:
     explicit TeacherWindow(QWidget *parent = nullptr);
     void refreshMainPage();
     bool checkConflict(const QString &userId, const QString &courseId) ;
+    void importCoursesFromCSV();
+    void refreshCourseTable();
+    void saveCoursesToFile();
+    void loadCoursesFromFile() {
+        courses.clear();
+
+        QFile file(currentCourseFilePath);
+        if (!file.open(QIODevice::ReadOnly)) return;
+
+        QJsonDocument doc = QJsonDocument::fromJson(file.readAll());
+        file.close();
+        if (!doc.isArray()) return;
+
+        for (const auto &v : doc.array()) {
+            if (v.isObject())
+                courses.append(parseCourseFromJson(v.toObject()));
+        }
+    }
 
 private slots:
     void showMainPage();
@@ -30,6 +52,9 @@ private:
     QLabel *infoLabel = nullptr;
     QList<QToolButton*> functionButtons;
     QList<Term> functionTerms;
+    QVector<CourseInfo> courses;
+    QTableWidget *courseTable = nullptr;
+    QString currentCourseFilePath;
 };
 /*
 教务界面设计：

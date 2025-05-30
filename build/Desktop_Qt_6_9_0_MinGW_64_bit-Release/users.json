@@ -171,6 +171,7 @@
     "seto1": {
         "college": "信息科学技术学院",
         "courseVotes": {
+            "00130211": 0,
             "04830050": 1,
             "04831300": 0,
             "04835000": 11,
@@ -343,6 +344,26 @@
                 "type": "体育",
                 "unit": "体育教研部",
                 "week": "1-16"
+            },
+            {
+                "chinese-intro": "地板球（FLOORBALL），于20世纪70年代起源于瑞典。它首先在学校开始，得到学生的广泛喜爱，目前，这项新兴的运动已经在全世界30多个国家开展，100多万人参与，注册运动员达到30多万。1994年，首届地板球（FLOORBALL）世界锦标赛在瑞士举行，至今已经举行了5届。正式地板球比赛是在室内进行的团队运动项目，比赛场地可用木板、硬塑橡胶等材料，标准场地为长40米、宽20米的场地，四周需设置挡板。地板球与冰球和曲棍球相似，比赛中用脚跑动，类似于篮球；其中每队6名队员，可以男女混合组队，其中包括一名守门员。地板球器材简便，易于操作。通过地板球（FLOORBALL）锻炼，可以培养速度、耐力、力量、灵敏、协调等综合能力，全面提升身体素质；能够提高有氧代谢能力，改善心肺机能；培养挑战自我、战胜自我、勇往直前的优秀品质；培养团队精神，促进身心素质的全面发展。地板球（FLOORBALL）课主要教授基本技术、基本知识，使学生掌握地板球（FLOORBALL）的基本技能，学会传、接、击、防、带等技术。地板球比赛身体的冲撞对抗不多，强调灵活性和协调性。",
+                "class": "3",
+                "code": "04130450",
+                "english-intro": "Floorball is a versatile indoor team sport developed in the 1970s in Sweden, Known as \"innebandy\" in Sweden, \"salibandy\" in Finland, and \"unihockey\" in other parts of Europe, \"floorball\" is the official IFF term, which is used worldwide. As of 2014, there are over 300,133 registered floorball players worldwide.\nIn official floorball competition, teams play 5 v 5 with goalies just like in ice hockey and the games consist of three 20-minute periods. However, floorball is extremely versatile. At the recreational level, games can be played with any number of players on any size court (indoors or outside) for any length of time.\nA regulation floorball court is 20 meters by 40 meters. The boards surrounding the court are usually made of heavy-duty plastic, composites or high-density foam that measure 50 cm high.\nFloorball is a fast and exciting game that promotes end-to-end plays with quick transitions and fluid game play. The rules stress the importance of safety and sportsmanship and are designed to limit the chance of injury without decreasing the speed or skill of the game. The emphasis is on speed and skill rather than strength. \nAfter floorball exercises, we can develop comprehensive capabilities such as speed, endurance, strength, agility, and coordination; improve aerobic capacity and teams Spirit, promote the full development of physical and mental qualities. Mainly teach basic skills and basic knowledge,learn to pass, shoot, defense and other technologies.",
+                "first-class": "无",
+                "index": "2360",
+                "info": "邱德拔B2",
+                "name": "地板球",
+                "score": "1",
+                "teacher": [
+                    "周正卿"
+                ],
+                "time": [
+                    "星期一(第3节-第4节)"
+                ],
+                "type": "体育",
+                "unit": "体育教研部",
+                "week": "1-16"
             }
         ],
         "favorites": [
@@ -365,6 +386,68 @@
                 ],
                 "type": "专业必修",
                 "unit": "信息科学技术学院",
+                "week": "1-16"
+            },
+            {
+                "chinese-intro": "我们生活在数字的时代，数据的生成、传播、整合、分析和处理已经成为了我们生活中不可缺少的一部分。而图像无疑是最重要的数据种类之一，这不仅是因为我们在日常交流中频繁的使用图像，也因为图像能够十分简洁的呈现物理世界、并在诸多领域被广泛的使用。计算机技术的飞速发展使得我们可以用很深奥精妙的数学工具来为图像处理中的问题设计有效的解决方案，因此，很多图像处理中的数学方法被诸多不同领域接纳并被广泛的使用，其中包括自然科学领域、高新技术领域、社交媒体领域等等。\n\n本课程适合于应用与计算数学、工程、计算机专业的研究生和高年级本科生，课程内容包括（但不限于）变分法、偏微分方程、小波分析及其在图像处理中的应用，其中包括图像去燥、去模糊、分割、配准、医学成像、计算机图形学、计算机视觉等等。",
+                "class": "1",
+                "code": "00100873",
+                "english-intro": "As we are living in a digital world now, the creation, distribution, integration, interpretation and manipulation of data have become an important part of our society. Digital images are no doubt one of the most important components of data. This is not only because image is a powerful and widely used medium of communication, but also because it is an easy, compact, and widespread way to represent the physical world. Advances in computer technology have made it possible to apply some of the most sophisticated developments in mathematics to the design and implementation of fast algorithms running on a large number of processors to process image data. As a result, image processing and analysis techniques are now widely applied to natural sciences, technical disciplines and social medias; and digital images have come into everyone’s life. This course is suitable for both senior undergraduate and graduate students majoring in mathematics, applied mathematics, engineering, computer science, operation research, etc. The topics we will cover in this course include, but not limited to, variational methods, PDE methods, wavelet and wavelet frame based methods in various problems in imaging science such as image denoising, deblurring, inpainting, segmentation, registration, medical imaging, computer graphics, computer vision etc.",
+                "first-class": "数学分析，线性代数，数值方法",
+                "index": "1",
+                "info": "研本合上",
+                "name": "图像处理中的数学方法",
+                "score": "3",
+                "teacher": [
+                    "董彬"
+                ],
+                "time": [
+                    "星期三(第7节-第8节)",
+                    "星期五(第5节-第6节)(单)"
+                ],
+                "type": "专业任选",
+                "unit": "数学科学学院",
+                "week": "1-16"
+            },
+            {
+                "chinese-intro": "本课程通过习题讲解巩固所学教科书内容。",
+                "class": "23",
+                "code": "00130211",
+                "english-intro": "This course helps students to better master knowledges  from the textbooks.",
+                "first-class": "无",
+                "index": "56",
+                "info": "",
+                "name": "高等数学 (B) (一)习题课",
+                "score": "0",
+                "teacher": [
+                    "安冬"
+                ],
+                "time": [
+                    "星期二(第10节-第11节)"
+                ],
+                "type": "专业必修",
+                "unit": "数学科学学院",
+                "week": "1-16"
+            },
+            {
+                "chinese-intro": "本课为选讲性质，初步计划每年开一次，每次开课讲授代数几何的某一分支。本次课题是代数几何中的相交理论。代数闭链及其相交理论在经典与现代代数几何中均扮演重要角色，也为很多代数几何分支（如算术几何，双有理几何，计数几何）提供工具。本课介绍相交理论的基本概念与构造，代数闭链与代数簇拓扑性质间的联系，以及如何用代数闭链构建Grothendieck提出的motive理论。",
+                "class": "1",
+                "code": "00100885",
+                "english-intro": "This semester’s topic is intersection theory. The intersection theory of algebraic cycles plays a central role in algebraic geometry and provides important tools for many other branches of algebraic geometry (such as arithmetic geometry, birational geometry, and enumerative geometry). In this course we will give basic constructions of the intersection product, discuss connections between algebraic cycles and the topology of algebraic varieties, and introduce Grothendieck’s idea of motives.",
+                "first-class": "代数几何初步（最好自学过Hartshorne前两章），代数拓扑，交换代数",
+                "index": "3",
+                "info": "研本合上",
+                "name": "代数几何选讲",
+                "score": "3",
+                "teacher": [
+                    "訚琪峥"
+                ],
+                "time": [
+                    "星期二(第3节-第4节)",
+                    "星期四(第1节-第2节)(双)"
+                ],
+                "type": "专业任选",
+                "unit": "数学科学学院",
                 "week": "1-16"
             }
         ],

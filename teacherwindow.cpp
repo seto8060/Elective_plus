@@ -13,8 +13,19 @@
 #include <QLineEdit>
 #include <QJsonDocument>
 #include <QJsonObject>
-#include "courseinfo.h"
+#include <QTableWidget>
+#include <QTableWidgetItem>
+#include <QHeaderView>
+#include <QFileDialog>
+#include <QFormLayout>
+#include <QPlainTextEdit>
+#include <QTextStream>
+#include <QComboBox>
+#include <QCompleter>
+#include <QSpinBox>
+#include "CourseInfo.h"
 #include <QJsonArray>
+
 bool TeacherWindow::checkConflict(const QString &userId, const QString &courseId) {
     // TODO: 实际检查课表冲突
     return false;
@@ -28,6 +39,118 @@ TeacherWindow::TeacherWindow(QWidget *parent)
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
     mainLayout->addWidget(stackedWidget);
     setLayout(mainLayout);
+}
+void TeacherWindow::refreshCourseTable() {
+    if (!courseTable) return;
+    courseTable->setRowCount(courses.size());
+
+    for (int i = 0; i < courses.size(); ++i) {
+        const CourseInfo &c = courses[i];
+        auto setCenteredItem = [&](int col, const QString &text) {
+            QTableWidgetItem *item = new QTableWidgetItem(text);
+            item->setTextAlignment(Qt::AlignCenter);
+            courseTable->setItem(i, col, item);
+        };
+
+        setCenteredItem(0, c.code);
+        setCenteredItem(1, c.type);
+        setCenteredItem(2, c.name);
+        setCenteredItem(3, c.classNumber);
+        setCenteredItem(4, c.teacherList.join(", "));
+        setCenteredItem(5, c.week);
+        setCenteredItem(6, c.timeList.join("；\n"));
+        setCenteredItem(7, c.unit);
+        setCenteredItem(8, c.score);
+        setCenteredItem(9, c.info);
+
+        QTableWidgetItem *checkItem = new QTableWidgetItem();
+        checkItem->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
+        checkItem->setCheckState(Qt::Unchecked);
+        checkItem->setTextAlignment(Qt::AlignCenter);
+        courseTable->setItem(i, 10, checkItem);
+    }
+}
+void TeacherWindow::importCoursesFromCSV() {
+    QString filePath = QFileDialog::getOpenFileName(this, "选择课程 CSV 文件", "", "CSV 文件 (*.csv)");
+    if (filePath.isEmpty()) return;
+
+    QFile file(filePath);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        QMessageBox::warning(this, "文件打开失败", "无法打开所选文件！");
+        return;
+    }
+
+    QTextStream in(&file);
+    // in.setCodec("UTF-8");
+    int lineNum = 0;
+    while (!in.atEnd()) {
+        QString line = in.readLine().trimmed();
+        if (line.isEmpty()) continue;
+        if (++lineNum == 1) continue; // 跳过表头
+
+        QStringList fields = line.split(QRegularExpression(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)")); // 支持引号包裹
+        if (fields.size() <10) continue;
+
+        CourseInfo course;
+        course.index = QString::number(courses.size() + courses.size() + 1);
+        course.code = fields[1].trimmed();
+        course.name = fields[2].trimmed();
+        course.unit = fields[3].trimmed();
+        course.type = fields[4].trimmed();
+        course.classNumber = fields[5].trimmed();
+        course.score = fields[6].trimmed();
+        course.week = fields[7].trimmed();
+
+        QString rawTime = fields[8].trimmed();
+        course.timeList = rawTime.split("\n", Qt::SkipEmptyParts);
+
+        QString rawTeachers = fields[9].trimmed();
+        course.teacherList = rawTeachers.split(QRegularExpression("[，,\\s]+"), Qt::SkipEmptyParts);
+
+        course.info = fields.size()>=11 ? fields[10].trimmed() : "";
+        course.firstClass = "无";
+        course.chineseIntro = "暂无介绍";
+        course.englishIntro = "No introduction.";
+
+        // 更新JSON对象（以便toJson()可用）
+        QJsonObject obj;
+        obj["index"] = course.index;
+        obj["code"] = course.code;
+        obj["type"] = course.type;
+        obj["name"] = course.name;
+        obj["class"] = course.classNumber;
+        obj["teacher"] = QJsonArray::fromStringList(course.teacherList);
+        obj["week"] = course.week;
+        obj["time"] = QJsonArray::fromStringList(course.timeList);
+        obj["unit"] = course.unit;
+        obj["score"] = course.score;
+        obj["info"] = course.info;
+        obj["first-class"] = course.firstClass;
+        obj["chinese-intro"] = course.chineseIntro;
+        obj["english-intro"] = course.englishIntro;
+        course.obj = obj;
+
+        courses.append(course);
+    }
+
+    file.close();
+    refreshCourseTable();
+    saveCoursesToFile();
+    QMessageBox::information(this, "导入完成", "课程数据已成功导入！");
+}
+void TeacherWindow::saveCoursesToFile() {
+    QJsonArray arr;
+    for (const auto &c : courses)
+        arr.append(c.toJson());
+
+    QFile file(currentCourseFilePath);
+    if (!file.open(QIODevice::WriteOnly)) {
+        QMessageBox::warning(this, "保存失败", "无法保存课程数据到文件！");
+        return;
+    }
+    QJsonDocument doc(arr);
+    file.write(doc.toJson(QJsonDocument::Indented));
+    file.close();
 }
 void TeacherWindow::refreshMainPage() {
     if (!infoLabel) return;
@@ -193,8 +316,549 @@ QWidget* TeacherWindow::createSubPage(const QString &pageName, const Term &opera
     )");
     connect(backButton, &QPushButton::clicked, this, &TeacherWindow::showMainPage);
     layout->addWidget(backButton);
-    layout->addStretch();
-    if (pageName == "手工选课"){
+    // layout->addStretch();
+    if (pageName == "编辑课程列表") {
+
+        currentCourseFilePath = QString("course_%1.json").arg(operateTerm.toString());
+        loadCoursesFromFile();
+        refreshCourseTable();
+        QLineEdit *searchBox = new QLineEdit(page);
+        searchBox->setPlaceholderText("搜索课程号/名称...");
+        layout->addWidget(searchBox);
+
+        QTableWidget *table = new QTableWidget(page);
+        table->setColumnCount(11);
+        table->setHorizontalHeaderLabels({"课程号", "类型", "课程名", "班号", "教师", "上课周", "时间", "开课单位", "学分", "备注", "选择"});
+        table->horizontalHeader()->setStretchLastSection(true);
+        table->setColumnWidth(10, 40);
+        courseTable = table;
+        refreshCourseTable();
+        layout->addWidget(table);
+
+        QPushButton *importBtn = new QPushButton("从csv文件中导入", page);
+        QPushButton *addBtn = new QPushButton("手动添加", page);
+        QPushButton *editBtn = new QPushButton("编辑课程", page);
+        QPushButton *deleteBtn = new QPushButton("删除课程", page);
+
+        editBtn->setEnabled(false);
+        deleteBtn->setEnabled(false);
+
+        QHBoxLayout *btnLayout = new QHBoxLayout;
+        btnLayout->addWidget(importBtn);
+        btnLayout->addWidget(addBtn);
+        btnLayout->addWidget(editBtn);
+        btnLayout->addWidget(deleteBtn);
+        layout->addLayout(btnLayout);
+
+        connect(table, &QTableWidget::itemChanged, this, [=]() {
+            int selected = 0;
+            for (int i = 0; i < table->rowCount(); ++i) {
+                QTableWidgetItem *item = table->item(i, 10);
+                if (item && item->checkState() == Qt::Checked) ++selected;
+            }
+            addBtn->setEnabled(selected == 0);
+            editBtn->setEnabled(selected == 1);
+            deleteBtn->setEnabled(selected >= 1);
+        });
+
+        connect(searchBox, &QLineEdit::textChanged, this, [=]() {
+            for (int i = 0; i < table->rowCount(); ++i) {
+                bool match = false;
+                for (int j : {0, 2}) {
+                    auto *item = table->item(i, j);
+                    if (item && item->text().contains(searchBox->text(), Qt::CaseInsensitive)) {
+                        match = true;
+                        break;
+                    }
+                }
+                table->setRowHidden(i, !match);
+            }
+        });
+
+        // TODO: connect importBtn, addBtn, editBtn, deleteBtn with actual logic
+        connect(importBtn, &QPushButton::clicked, this, &TeacherWindow::importCoursesFromCSV);
+        connect(addBtn, &QPushButton::clicked, this, [=]() {
+            QDialog dialog(this);
+            dialog.setWindowTitle("添加课程");
+            QFormLayout form(&dialog);
+
+            QLineEdit *codeEdit = new QLineEdit(&dialog);
+            QLineEdit *nameEdit = new QLineEdit(&dialog);
+            QStringList colleges = {
+                "数学科学学院",
+                "物理学院",
+                "化学与分子工程学院",
+                "生命科学学院",
+                "地球与空间科学学院",
+                "心理与认知科学学院",
+                "新闻与传播学院",
+                "中国语言文学系",
+                "历史学系",
+                "考古文博学院",
+                "哲学系",
+                "国际关系学院",
+                "经济学院",
+                "光华管理学院",
+                "法学院",
+                "信息管理系",
+                "社会学系",
+                "政府管理学院",
+                "英语语言文学系",
+                "外国语学院",
+                "马克思主义学院",
+                "体育教研部",
+                "艺术学院",
+                "元培学院",
+                "信息科学技术学院",
+                "国家发展研究院",
+                "工学院",
+                "城市与环境学院",
+                "环境科学与工程学院"
+            };
+
+            QComboBox *collegeBox = new QComboBox(this);
+            collegeBox->setEditable(true);
+            collegeBox->addItems(colleges);
+            collegeBox->setCompleter(new QCompleter(colleges, this));
+            // QLineEdit *unitEdit = new QLineEdit(&dialog);
+            // QLineEdit *typeEdit = new QLineEdit(&dialog);
+            QComboBox *typeEdit = new QComboBox(&dialog);
+            typeEdit->addItems({"毕业论文/设计",
+                              "大学英语",
+                              "军事理论",
+                              "理科生必修",
+                              "全校公选课",
+                              "实习实践",
+                              "双学位",
+                              "思想政治",
+                              "体育",
+                              "通选课",
+                              "文科生必修",
+                              "专业必修",
+                              "专业任选",
+                              "专业限选"});
+            QLineEdit *classEdit = new QLineEdit(&dialog);
+            QSpinBox *scoreEdit = new QSpinBox(&dialog);
+            scoreEdit->setRange(0, 100);
+            QSpinBox *weekStartEdit = new QSpinBox(&dialog);
+            QSpinBox *weekEndEdit = new QSpinBox(&dialog);
+            weekStartEdit->setRange(1, 16);
+            weekEndEdit->setRange(1, 16);
+            // QLineEdit *timeEdit = new QLineEdit(&dialog);
+            // QLineEdit *teacherEdit = new QLineEdit(&dialog);
+            QLineEdit *infoEdit = new QLineEdit(&dialog);
+            QLineEdit *firstClassEdit = new QLineEdit(&dialog);
+            QPlainTextEdit *chineseIntroEdit = new QPlainTextEdit(&dialog);
+            QPlainTextEdit *englishIntroEdit = new QPlainTextEdit(&dialog);
+
+            // 教师
+            QLineEdit *teacherInput = new QLineEdit;
+            QPushButton *addTeacherBtn = new QPushButton("➕");
+            QVBoxLayout *teacherListLayout = new QVBoxLayout;
+            QHBoxLayout *teacherInputLayout = new QHBoxLayout;
+            teacherInputLayout->addWidget(teacherInput);
+            teacherInputLayout->addWidget(addTeacherBtn);
+            QStringList teacherList;
+            connect(addTeacherBtn, &QPushButton::clicked, &dialog, [&]() {
+                QString name = teacherInput->text().trimmed();
+                if (!name.isEmpty()) {
+                    teacherList.append(name);
+                    QLabel *lbl = new QLabel("👤 " + name);
+                    QPushButton *delBtn = new QPushButton("❌");
+                    delBtn->setFixedSize(20, 20);
+                    QHBoxLayout *h = new QHBoxLayout;
+                    h->addWidget(lbl);
+                    h->addWidget(delBtn);
+                    QWidget *container = new QWidget;
+                    container->setLayout(h);
+                    teacherListLayout->addWidget(container);
+                    connect(delBtn, &QPushButton::clicked, &dialog, [=, &teacherList]() {
+                        teacherList.removeAll(name);
+                        container->deleteLater();
+                    });
+                    teacherInput->clear();
+                }
+            });
+
+            // 上课时间
+            QComboBox *dayBox = new QComboBox;
+            dayBox->addItems({"星期一", "星期二", "星期三", "星期四", "星期五", "星期六", "星期日"});
+            QSpinBox *startPeriod = new QSpinBox;
+            QSpinBox *endPeriod = new QSpinBox;
+            startPeriod->setRange(1, 13);
+            endPeriod->setRange(1, 13);
+            QComboBox *weekTypeBox = new QComboBox;
+            weekTypeBox->addItems({"每周", "单周", "双周"});
+            QPushButton *addTimeBtn = new QPushButton("➕");
+            QVBoxLayout *timeListLayout = new QVBoxLayout;
+            QHBoxLayout *timeInputLayout = new QHBoxLayout;
+            timeInputLayout->addWidget(dayBox);
+            timeInputLayout->addWidget(new QLabel("第"));
+            timeInputLayout->addWidget(startPeriod);
+            timeInputLayout->addWidget(new QLabel("节-第"));
+            timeInputLayout->addWidget(endPeriod);
+            timeInputLayout->addWidget(new QLabel("节"));
+            timeInputLayout->addWidget(weekTypeBox);
+            timeInputLayout->addWidget(addTimeBtn);
+            QStringList timeList;
+            connect(addTimeBtn, &QPushButton::clicked, &dialog, [&]() {
+                int a = startPeriod->value(), b = endPeriod->value();
+                if (a > b) {
+                    QMessageBox::warning(nullptr, "错误", "起始节必须小于等于结束节！");
+                    return;
+                }
+                QString t = QString("%1(第%2节-第%3节)%4")
+                                .arg(dayBox->currentText())
+                                .arg(a).arg(b)
+                                .arg(weekTypeBox->currentText() == "每周" ? "" :
+                                         weekTypeBox->currentText() == "单周" ? "（单）" : "（双）");
+                timeList.append(t);
+                QLabel *lbl = new QLabel("🕓 " + t);
+                QPushButton *delBtn = new QPushButton("❌");
+                delBtn->setFixedSize(20, 20);
+                QHBoxLayout *h = new QHBoxLayout;
+                h->addWidget(lbl);
+                h->addWidget(delBtn);
+                QWidget *container = new QWidget;
+                container->setLayout(h);
+                timeListLayout->addWidget(container);
+                connect(delBtn, &QPushButton::clicked, &dialog, [=, &timeList]() {
+                    timeList.removeAll(t);
+                    container->deleteLater();
+                });
+            });
+
+            form.addRow("课程号：", codeEdit);
+            form.addRow("课程名：", nameEdit);
+            form.addRow("开课单位：", collegeBox);
+            form.addRow("课程类型：", typeEdit);
+            form.addRow("班级：", classEdit);
+            form.addRow("学分：", scoreEdit);
+            QHBoxLayout *weekLayout = new QHBoxLayout;
+            weekLayout->addWidget(weekStartEdit);
+            weekLayout->addWidget(new QLabel(" - "));
+            weekLayout->addWidget(weekEndEdit);
+            form.addRow("上课周（1~16）：", weekLayout);
+            form.addRow("教师：", teacherInputLayout);
+            form.addRow("", teacherListLayout);
+            form.addRow("上课时间：", timeInputLayout);
+            form.addRow("", timeListLayout);
+            form.addRow("备注：", infoEdit);
+            form.addRow("先修课程：", firstClassEdit);
+            form.addRow("中文简介：", chineseIntroEdit);
+            form.addRow("英文简介：", englishIntroEdit);
+
+            QPushButton *okBtn = new QPushButton("确认", &dialog);
+            form.addWidget(okBtn);
+            connect(okBtn, &QPushButton::clicked, &dialog, [&]() {
+                if (weekStartEdit->value() > weekEndEdit->value()) {
+                    QMessageBox::warning(&dialog, "输入错误", "起始周必须小于等于结束周！");
+                    return;
+                }
+                dialog.accept();
+            });
+
+            if (dialog.exec() == QDialog::Accepted) {
+                int start = weekStartEdit->value();
+                int end = weekEndEdit->value();
+                // if (start > end) {
+                //     QMessageBox::warning(this, "输入错误", "起始周必须小于等于结束周！");
+                //     return;
+                // }
+                CourseInfo c;
+                c.index = QString::number(courses.size());
+                c.code = codeEdit->text();
+                c.name = nameEdit->text();
+                c.unit = collegeBox->currentText();
+                c.type = typeEdit->currentText();
+                c.classNumber = classEdit->text();
+                c.score = QString::number(scoreEdit->value());
+                c.week = QString("%1-%2").arg(start).arg(end);
+                c.teacherList = teacherList;
+                c.timeList = timeList;
+                c.info = infoEdit->text();
+                c.firstClass = firstClassEdit->text();
+                c.chineseIntro = chineseIntroEdit->toPlainText();
+                c.englishIntro = englishIntroEdit->toPlainText();
+
+                QJsonObject obj;
+                obj["index"] = c.index;
+                obj["code"] = c.code;
+                obj["name"] = c.name;
+                obj["unit"] = c.unit;
+                obj["type"] = c.type;
+                obj["class"] = c.classNumber;
+                obj["score"] = c.score;
+                obj["week"] = c.week;
+                obj["time"] = QJsonArray::fromStringList(c.timeList);
+                obj["teacher"] = QJsonArray::fromStringList(c.teacherList);
+                obj["info"] = c.info;
+                obj["first-class"] = c.firstClass;
+                obj["chinese-intro"] = c.chineseIntro;
+                obj["english-intro"] = c.englishIntro;
+                c.obj = obj;
+
+                courses.append(c);
+                refreshCourseTable();
+                saveCoursesToFile();
+
+                QMessageBox::information(this, "成功", "课程已添加并保存。");
+            }
+        });
+        connect(editBtn, &QPushButton::clicked, this, [=]() {
+            int targetRow = -1;
+            for (int i = 0; i < courseTable->rowCount(); ++i) {
+                auto *item = courseTable->item(i, 10);
+                if (item && item->checkState() == Qt::Checked) {
+                    targetRow = i;
+                    break;
+                }
+            }
+            if (targetRow != -1) {
+                CourseInfo &c = courses[targetRow];
+                QDialog dialog(this);
+                dialog.setWindowTitle("编辑课程：" + c.name);
+                QFormLayout form(&dialog);
+
+                QLineEdit *codeEdit = new QLineEdit(c.code, &dialog);
+                QLineEdit *nameEdit = new QLineEdit(c.name, &dialog);
+                QComboBox *collegeBox = new QComboBox(&dialog);
+                QStringList colleges = {"数学科学学院", "物理学院", "化学与分子工程学院", "生命科学学院", "地球与空间科学学院", "心理与认知科学学院", "新闻与传播学院", "中国语言文学系", "历史学系", "考古文博学院", "哲学系", "国际关系学院", "经济学院", "光华管理学院", "法学院", "信息管理系", "社会学系", "政府管理学院", "英语语言文学系", "外国语学院", "马克思主义学院", "体育教研部", "艺术学院", "元培学院", "信息科学技术学院", "国家发展研究院", "工学院", "城市与环境学院", "环境科学与工程学院"};
+                collegeBox->addItems(colleges);
+                collegeBox->setCurrentText(c.unit);
+                collegeBox->setEditable(true);
+
+                QComboBox *typeEdit = new QComboBox(&dialog);
+                typeEdit->addItems({"毕业论文/设计", "大学英语", "军事理论", "理科生必修", "全校公选课", "实习实践", "双学位", "思想政治", "体育", "通选课", "文科生必修", "专业必修", "专业任选", "专业限选"});
+                typeEdit->setCurrentText(c.type);
+
+                QLineEdit *classEdit = new QLineEdit(c.classNumber, &dialog);
+                QSpinBox *scoreEdit = new QSpinBox(&dialog);
+                scoreEdit->setRange(0, 100);
+                scoreEdit->setValue(c.score.toInt());
+
+                QSpinBox *weekStartEdit = new QSpinBox(&dialog);
+                QSpinBox *weekEndEdit = new QSpinBox(&dialog);
+                weekStartEdit->setRange(1, 16);
+                weekEndEdit->setRange(1, 16);
+                QStringList weekParts = c.week.split("-");
+                if (weekParts.size() == 2) {
+                    weekStartEdit->setValue(weekParts[0].toInt());
+                    weekEndEdit->setValue(weekParts[1].toInt());
+                }
+
+                QLineEdit *infoEdit = new QLineEdit(c.info, &dialog);
+                QLineEdit *firstClassEdit = new QLineEdit(c.firstClass, &dialog);
+                QPlainTextEdit *chineseIntroEdit = new QPlainTextEdit(c.chineseIntro, &dialog);
+                QPlainTextEdit *englishIntroEdit = new QPlainTextEdit(c.englishIntro, &dialog);
+
+                QLineEdit *teacherInput = new QLineEdit;
+                QPushButton *addTeacherBtn = new QPushButton("➕");
+                QVBoxLayout *teacherListLayout = new QVBoxLayout;
+                QHBoxLayout *teacherInputLayout = new QHBoxLayout;
+                teacherInputLayout->addWidget(teacherInput);
+                teacherInputLayout->addWidget(addTeacherBtn);
+                QStringList teacherList = c.teacherList;
+                for (const auto &t : teacherList) {
+                    QLabel *lbl = new QLabel("👤 " + t);
+                    QPushButton *delBtn = new QPushButton("❌");
+                    delBtn->setFixedSize(20, 20);
+                    QHBoxLayout *h = new QHBoxLayout;
+                    h->addWidget(lbl);
+                    h->addWidget(delBtn);
+                    QWidget *container = new QWidget;
+                    container->setLayout(h);
+                    teacherListLayout->addWidget(container);
+                    connect(delBtn, &QPushButton::clicked, &dialog, [=, &teacherList]() {
+                        teacherList.removeAll(t);
+                        container->deleteLater();
+                    });
+                }
+                connect(addTeacherBtn, &QPushButton::clicked, &dialog, [&]() {
+                    QString name = teacherInput->text().trimmed();
+                    if (!name.isEmpty()) {
+                        teacherList.append(name);
+                        QLabel *lbl = new QLabel("👤 " + name);
+                        QPushButton *delBtn = new QPushButton("❌");
+                        delBtn->setFixedSize(20, 20);
+                        QHBoxLayout *h = new QHBoxLayout;
+                        h->addWidget(lbl);
+                        h->addWidget(delBtn);
+                        QWidget *container = new QWidget;
+                        container->setLayout(h);
+                        teacherListLayout->addWidget(container);
+                        connect(delBtn, &QPushButton::clicked, &dialog, [=, &teacherList]() {
+                            teacherList.removeAll(name);
+                            container->deleteLater();
+                        });
+                        teacherInput->clear();
+                    }
+                });
+
+                QComboBox *dayBox = new QComboBox;
+                dayBox->addItems({"星期一", "星期二", "星期三", "星期四", "星期五", "星期六", "星期日"});
+                QSpinBox *startPeriod = new QSpinBox;
+                QSpinBox *endPeriod = new QSpinBox;
+                startPeriod->setRange(1, 13);
+                endPeriod->setRange(1, 13);
+                QComboBox *weekTypeBox = new QComboBox;
+                weekTypeBox->addItems({"每周", "单周", "双周"});
+                QPushButton *addTimeBtn = new QPushButton("➕");
+                QVBoxLayout *timeListLayout = new QVBoxLayout;
+                QHBoxLayout *timeInputLayout = new QHBoxLayout;
+                timeInputLayout->addWidget(dayBox);
+                timeInputLayout->addWidget(new QLabel("第"));
+                timeInputLayout->addWidget(startPeriod);
+                timeInputLayout->addWidget(new QLabel("节-第"));
+                timeInputLayout->addWidget(endPeriod);
+                timeInputLayout->addWidget(new QLabel("节"));
+                timeInputLayout->addWidget(weekTypeBox);
+                timeInputLayout->addWidget(addTimeBtn);
+                QStringList timeList = c.timeList;
+                for (const auto &t : timeList) {
+                    QLabel *lbl = new QLabel("🕓 " + t);
+                    QPushButton *delBtn = new QPushButton("❌");
+                    delBtn->setFixedSize(20, 20);
+                    QHBoxLayout *h = new QHBoxLayout;
+                    h->addWidget(lbl);
+                    h->addWidget(delBtn);
+                    QWidget *container = new QWidget;
+                    container->setLayout(h);
+                    timeListLayout->addWidget(container);
+                    connect(delBtn, &QPushButton::clicked, &dialog, [=, &timeList]() {
+                        timeList.removeAll(t);
+                        container->deleteLater();
+                    });
+                }
+                connect(addTimeBtn, &QPushButton::clicked, &dialog, [&]() {
+                    int a = startPeriod->value(), b = endPeriod->value();
+                    if (a > b) {
+                        QMessageBox::warning(nullptr, "错误", "起始节必须小于等于结束节！");
+                        return;
+                    }
+                    QString t = QString("%1(第%2节-第%3节)%4")
+                                    .arg(dayBox->currentText())
+                                    .arg(a).arg(b)
+                                    .arg(weekTypeBox->currentText() == "每周" ? "" :
+                                             weekTypeBox->currentText() == "单周" ? "（单）" : "（双）");
+                    timeList.append(t);
+                    QLabel *lbl = new QLabel("🕓 " + t);
+                    QPushButton *delBtn = new QPushButton("❌");
+                    delBtn->setFixedSize(20, 20);
+                    QHBoxLayout *h = new QHBoxLayout;
+                    h->addWidget(lbl);
+                    h->addWidget(delBtn);
+                    QWidget *container = new QWidget;
+                    container->setLayout(h);
+                    timeListLayout->addWidget(container);
+                    connect(delBtn, &QPushButton::clicked, &dialog, [=, &timeList]() {
+                        timeList.removeAll(t);
+                        container->deleteLater();
+                    });
+                });
+
+                form.addRow("课程号：", codeEdit);
+                form.addRow("课程名：", nameEdit);
+                form.addRow("开课单位：", collegeBox);
+                form.addRow("课程类型：", typeEdit);
+                form.addRow("班级：", classEdit);
+                form.addRow("学分：", scoreEdit);
+                QHBoxLayout *weekLayout = new QHBoxLayout;
+                weekLayout->addWidget(weekStartEdit);
+                weekLayout->addWidget(new QLabel(" - "));
+                weekLayout->addWidget(weekEndEdit);
+                form.addRow("上课周：", weekLayout);
+                form.addRow("教师：", teacherInputLayout);
+                form.addRow("", teacherListLayout);
+                form.addRow("上课时间：", timeInputLayout);
+                form.addRow("", timeListLayout);
+                form.addRow("备注：", infoEdit);
+                form.addRow("先修课程：", firstClassEdit);
+                form.addRow("中文简介：", chineseIntroEdit);
+                form.addRow("英文简介：", englishIntroEdit);
+
+                QPushButton *okBtn = new QPushButton("保存", &dialog);
+                form.addWidget(okBtn);
+                connect(okBtn, &QPushButton::clicked, &dialog, [&]() {
+                    if (weekStartEdit->value() > weekEndEdit->value()) {
+                        QMessageBox::warning(&dialog, "输入错误", "起始周必须小于等于结束周！");
+                        return;
+                    }
+                    dialog.accept();
+                });
+
+                if (dialog.exec() == QDialog::Accepted) {
+                    // if (weekStartEdit->value() > weekEndEdit->value()) {
+                    //     QMessageBox::warning(this, "错误", "起始周不能大于结束周！");
+                    //     return;
+                    // }
+                    c.code = codeEdit->text();
+                    c.name = nameEdit->text();
+                    c.unit = collegeBox->currentText();
+                    c.type = typeEdit->currentText();
+                    c.classNumber = classEdit->text();
+                    c.score = QString::number(scoreEdit->value());
+                    c.week = QString("%1-%2").arg(weekStartEdit->value()).arg(weekEndEdit->value());
+                    c.teacherList = teacherList;
+                    c.timeList = timeList;
+                    c.info = infoEdit->text();
+                    c.firstClass = firstClassEdit->text();
+                    c.chineseIntro = chineseIntroEdit->toPlainText();
+                    c.englishIntro = englishIntroEdit->toPlainText();
+
+                    QJsonObject obj;
+                    obj["index"] = c.index;
+                    obj["code"] = c.code;
+                    obj["name"] = c.name;
+                    obj["unit"] = c.unit;
+                    obj["type"] = c.type;
+                    obj["class"] = c.classNumber;
+                    obj["score"] = c.score;
+                    obj["week"] = c.week;
+                    obj["time"] = QJsonArray::fromStringList(c.timeList);
+                    obj["teacher"] = QJsonArray::fromStringList(c.teacherList);
+                    obj["info"] = c.info;
+                    obj["first-class"] = c.firstClass;
+                    obj["chinese-intro"] = c.chineseIntro;
+                    obj["english-intro"] = c.englishIntro;
+                    c.obj = obj;
+
+                    refreshCourseTable();
+                    saveCoursesToFile();
+                    QMessageBox::information(this, "成功", "课程信息已更新。");
+                }
+            }
+        });
+
+        connect(deleteBtn, &QPushButton::clicked, this, [=]() {
+            QVector<int> selected;
+            for (int i = 0; i < courseTable->rowCount(); ++i) {
+                auto *item = courseTable->item(i, 10);
+                if (item && item->checkState() == Qt::Checked) {
+                    selected.append(i);
+                }
+            }
+            if (selected.isEmpty()) return;
+
+            QMessageBox::StandardButton reply = QMessageBox::question(
+                this, "删除课程", "确定要删除选中的课程吗？", QMessageBox::Yes | QMessageBox::No
+                );
+            if (reply == QMessageBox::Yes) {
+                std::sort(selected.begin(), selected.end(), std::greater<>());
+                for (int i : selected) {
+                    courses.remove(i);
+                    courseTable->removeRow(i);
+                }
+                for (int i = 0; i < courses.size(); ++i) {
+                    courses[i].index = QString::number(i);
+                }
+                refreshCourseTable();
+                saveCoursesToFile();
+                QMessageBox::information(this, "提示", "课程已删除。");
+            }
+        });
+    }
+    else if (pageName == "手工选课"){
         QLabel *info = new QLabel("请输入学号与课程索引号进行手工选课：", page);
         layout->addWidget(info);
 
@@ -461,7 +1125,7 @@ QWidget* TeacherWindow::createSubPage(const QString &pageName, const Term &opera
 
 void TeacherWindow::showSubPage(const QString &pageName, const Term &operateTerm) {
     QString key = pageName + operateTerm.toString();
-
+    if (pageName == "编辑课程列表") this->resize(1130, 700);
     if (!subPages.contains(key)) {
         QWidget *subPage = createSubPage(pageName, operateTerm);
         subPages[key] = subPage;
@@ -471,6 +1135,7 @@ void TeacherWindow::showSubPage(const QString &pageName, const Term &operateTerm
 }
 
 void TeacherWindow::showMainPage() {
+    resize(300, 300);
     refreshMainPage();
     stackedWidget->setCurrentIndex(0);
 }
