@@ -8,9 +8,10 @@ courseComment parseCommentsFromJson(const QJsonObject &obj){
     for(const auto &v:comArr){
         comment c;
         QJsonObject item=v.toObject();
-        c.critc=item.value("critic").toString();
+        c.critic=item.value("critic").toString();
         c.content=item.value("content").toString();
         c.priority=item.value("priority").toInt();
+        c.semester=item.value("semestr").toString();
         course.comments.append(c);
     }
     course.obj = obj;

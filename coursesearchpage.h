@@ -22,7 +22,7 @@ class QStackedWidget;
 class CourseSearchPage : public QWidget {
     Q_OBJECT
 public:
-    explicit CourseSearchPage(const QVector<CourseInfo>& allCourses, UserInfo* user,const QVector<courseComment>& courseComments,QWidget *parent = nullptr);
+    explicit CourseSearchPage(const QVector<CourseInfo>& allCourses, UserInfo* user,QVector<courseComment>* courseComments,QWidget *parent = nullptr);
 
 private:
     void setupUI();
@@ -37,7 +37,8 @@ private slots:
 private:
     UserInfo* m_user;
     QVector<CourseInfo> m_allCourses;
-    QVector<courseComment> m_courseComments;
+    // 修改为指针传递
+    QVector<courseComment>* m_courseComments;
     QLineEdit *m_searchLineEdit;
     QPushButton *m_searchButton;
     QTableWidget *m_courseTable;

@@ -1,6 +1,7 @@
 #ifndef COURSECOMMENT_H
 #define COURSECOMMENT_H
 
+#include "term.h"
 #include <QString>
 #include <QStringList>
 #include <QJsonObject>
@@ -9,10 +10,11 @@
 class comment{
 public:
     //int index;
-    QString critc;
+    QString critic;
     int priority;//总评
     QString content;
-    
+    QString semester;
+
 };
 
 class courseComment {
@@ -24,7 +26,7 @@ public:
 
 
 };
-courseComment parseCommentsFromJson(const QJsonObject &obj); 
+courseComment parseCommentsFromJson(const QJsonObject &obj);
 
 
 #endif // COURSECOMMENT_H

@@ -1,5 +1,6 @@
 #include "CourseListWidget.h"
 #include "userinfo.h"
+#include "commentloader.h"
 #include <QSvgRenderer>
 #include <QPainter>
 #include <QMessageBox>
@@ -7,6 +8,8 @@
 #include<QLabel>
 #include<QHeaderView>
 #include<QSpinBox>
+#include<QFormLayout>
+#include<QLineEdit>
 double estimateAverageVoteWeight(double omega) {
     return std::max(0.0, 46.0 * std::tanh(omega - 1.0));
 }
@@ -20,7 +23,7 @@ double estimateSelectionProbability(int P_i, int N, int K) {
     double prob_not_selected = pow(1.0 - self_weight / total_weight, K);
     return 1.0 - prob_not_selected;
 }
-CourseListWidget::CourseListWidget(QWidget *parent,int type,UserInfo *userinfo,const QString& semester) : QWidget(parent) {
+CourseListWidget::CourseListWidget(QWidget *parent,int type,UserInfo *userinfo,const QString& semester,QVector<courseComment> *allcoursecomment) : QWidget(parent),semester(semester),m_allCourseComments(allcoursecomment) {
     //type = 0: CourseList; type = 1: HistoryList; type = 2: LoveList
     table = new QTableWidget(this);
     QLabel *titleLabel = nullptr;
@@ -123,7 +126,75 @@ void CourseListWidget::setCourses(const QVector<CourseInfo> &courses,int type,Us
         setCenteredItem(8, c.score);
         setCenteredItem(9, c.info);
         if (type!=1) setCenteredItem(10, QString::number(c.Now_person) + "/" + QString::number(c.Max_person));
-        else /*添加测评*/;
+        else {
+            QPushButton *reviewButton = new QPushButton("课程评价");
+            reviewButton->setFixedSize(80, 24);
+            reviewButton->setStyleSheet("QPushButton { font-size: 12px; padding: 2px; background-color: #f0f0f0;}QPushButton:hover { background-color: #e0e0e0;}");
+            
+            QWidget *cellWidget = new QWidget();
+            QHBoxLayout *layout = new QHBoxLayout(cellWidget);
+            layout->setContentsMargins(0, 0, 0, 0);
+            layout->setSpacing(4);
+            layout->addWidget(reviewButton);
+            layout->setAlignment(Qt::AlignCenter);
+            cellWidget->setLayout(layout);
+            table->setCellWidget(i, 10, cellWidget);
+            
+            connect(reviewButton, &QPushButton::clicked, this, [=]() {
+                // 创建输入对话框
+                QDialog dialog(this);
+                dialog.setWindowTitle("课程评价");
+                
+                QFormLayout form(&dialog);
+                
+                // 添加内容输入框
+                QLineEdit *contentEdit = new QLineEdit(&dialog);
+                form.addRow("评论内容:", contentEdit);
+                
+                // 添加优先级选择框
+                QSpinBox *prioritySpin = new QSpinBox(&dialog);
+                prioritySpin->setRange(1, 5);
+                form.addRow("优先级(1-5):", prioritySpin);
+                
+                // 添加确定按钮
+                QDialogButtonBox buttonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel,
+                             Qt::Horizontal, &dialog);
+                form.addRow(&buttonBox);
+                
+                // 连接按钮信号
+                QObject::connect(&buttonBox, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
+                QObject::connect(&buttonBox, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
+                
+                if (dialog.exec() == QDialog::Accepted) {
+                    comment comment;
+                    comment.content = contentEdit->text();
+                    comment.priority = prioritySpin->value();
+                    comment.critic=userinfo->getUsername();
+                    comment.semester=semester;
+
+                    // 查找或创建对应的courseComment
+                    bool found = false;
+                    for (auto &courseComment : *m_allCourseComments) {
+                        if (courseComment.code == c.code) {
+                            courseComment.comments.append(comment);
+                            found = true;
+                            break;
+                        }
+                    }
+                    
+                    if (!found) {
+                        courseComment newCourseComment;
+                        newCourseComment.code = c.code;
+                        newCourseComment.comments.append(comment);
+                        m_allCourseComments->append(newCourseComment);
+                    }
+                    qDebug()<<"Have found\n";                    // 保存评论到JSON文件
+                    saveCommentToJson(m_allCourseComments);
+                    qDebug() << "Saved comment for course: " << c.code<<Qt::endl;
+                    QMessageBox::information(this, "成功", "课程评价已保存！");
+                }
+            });
+        }/*添加测评*/;
 
         if (type == 0){
             QWidget *cellWidget = new QWidget();

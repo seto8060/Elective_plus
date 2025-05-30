@@ -5,13 +5,13 @@
 #include <QFormLayout>
 #include <QScrollArea>
 
-CourseDetailPage::CourseDetailPage(const CourseInfo& course, const courseComment& comment,QWidget *parent)
+CourseDetailPage::CourseDetailPage(const CourseInfo& course,courseComment* comment,QWidget *parent)
     : QWidget(parent) {
     setupUI(course,comment);
 }
 
 // CourseDetailPage.cpp
-void CourseDetailPage::setupUI(const CourseInfo& course,const courseComment& comment) {
+void CourseDetailPage::setupUI(const CourseInfo& course,courseComment* comment) {
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
     mainLayout->setSpacing(20);
     mainLayout->setContentsMargins(20, 20, 20, 20);
@@ -121,14 +121,14 @@ QWidget* CourseDetailPage::createIntroSection(const CourseInfo& course) {
     return container;
 }
 
-QWidget* CourseDetailPage::createCommentsSection(const courseComment& comment) {
+QWidget* CourseDetailPage::createCommentsSection(courseComment* comment) {
     QWidget *container = new QWidget(this);
     QVBoxLayout *layout = new QVBoxLayout(container);
     
     // 评论标题
     layout->addWidget(createSectionTitle("课程评价"));
     
-    m_comments=comment.comments;
+    m_comments=comment->comments;
     // 评论展示区域
     QScrollArea *scrollArea = new QScrollArea(this);
     scrollArea->setFrameShape(QFrame::NoFrame);
@@ -189,7 +189,7 @@ void CourseDetailPage::updateCommentsDisplay() {
     int end = qMin(start + COMMENTS_PER_PAGE, m_comments.size());
     
     for (int i = start; i < end; i++) {
-        const auto &comment = m_comments[i];
+        auto comment = m_comments[i];
         QWidget *commentWidget = new QWidget();
         commentWidget->setStyleSheet(R"(
             QWidget {
@@ -201,7 +201,7 @@ void CourseDetailPage::updateCommentsDisplay() {
         )");
         QVBoxLayout *commentLayout = new QVBoxLayout(commentWidget);
         commentLayout->setSpacing(5);
-        QLabel *criticLabel = new QLabel("评价人: " + comment.critc);
+        QLabel *criticLabel = new QLabel("评价人: " + comment.critic);
         QLabel *contentLabel = new QLabel(comment.content);
         contentLabel->setWordWrap(true);
         QLabel *priorityLabel = new QLabel("评分: " + QString::number(comment.priority));

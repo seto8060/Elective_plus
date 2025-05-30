@@ -4,8 +4,8 @@
 #include <QPushButton>
 #include <QStackedWidget>
 
-CourseSelection::CourseSelection(const QVector<CourseInfo>& allCourses, UserInfo* user, const QVector<courseComment>& courseComments,QWidget *parent)
-    : QWidget(parent),  m_user(user),m_allCourses(allCourses)
+CourseSelection::CourseSelection(const QVector<CourseInfo>& allCourses, UserInfo* user, QVector<courseComment>* courseComments,QWidget *parent)
+    : QWidget(parent),  m_user(user),m_allCourses(allCourses),m_courseComments(courseComments)
 {
     setupUI();
 }

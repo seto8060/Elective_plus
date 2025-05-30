@@ -6,6 +6,6 @@
 #include <QString>
 
 QVector<courseComment> loadCommentsFromJsonFile(const QString &filePath);
-
-
+void saveCommentToJson(QVector<courseComment> *comments);
 #endif // COMMENTLOADER_H
+

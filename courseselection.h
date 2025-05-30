@@ -14,7 +14,7 @@
 class CourseSelection : public QWidget {
     Q_OBJECT
 public:
-    explicit CourseSelection(const QVector<CourseInfo>& allCourses, UserInfo* user,const QVector<courseComment>& courseComments, QWidget *parent = nullptr);
+    explicit CourseSelection(const QVector<CourseInfo>& allCourses, UserInfo* user,QVector<courseComment>* courseComments, QWidget *parent = nullptr);
 
 signals:
     void favoritesUpdated();
@@ -31,7 +31,7 @@ private slots:
 private:
     UserInfo* m_user;
     QVector<CourseInfo> m_allCourses;
-    QVector<courseComment> m_courseComments;
+    QVector<courseComment>* m_courseComments;
     QPushButton *m_searchModButton;
     QPushButton *m_currentCourseButton;
     QStackedWidget *m_stackWidget;

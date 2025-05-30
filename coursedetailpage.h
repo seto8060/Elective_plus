@@ -16,14 +16,14 @@ class QPushButton;
 class CourseDetailPage : public QWidget {
     Q_OBJECT
 public:
-    explicit CourseDetailPage(const CourseInfo& course, const courseComment& comment,QWidget *parent = nullptr);
+    explicit CourseDetailPage(const CourseInfo& course, courseComment* comment,QWidget *parent = nullptr);
 
 signals:
     void backRequested();
     void enrollRequested(const QString& courseCode);
 
 private:
-    void setupUI(const CourseInfo& course,const courseComment& comment);
+    void setupUI(const CourseInfo& course,courseComment* comment);
 
     QLabel* createSectionTitle(const QString& text);
     QWidget* createInfoSection(const CourseInfo& course);
@@ -41,7 +41,7 @@ private:
     int m_currentPage = 0;
     const int COMMENTS_PER_PAGE = 5;
     
-    QWidget* createCommentsSection(const courseComment& comment);
+    QWidget* createCommentsSection( courseComment* comment);
     void updateCommentsDisplay();
 };
 

@@ -8,7 +8,7 @@
 #include <QDebug>
 #include<QInputDialog>
 
-CourseSearchPage::CourseSearchPage(const QVector<CourseInfo>& allCourses, UserInfo* user,const QVector<courseComment>& courseComments,QWidget *parent)
+CourseSearchPage::CourseSearchPage(const QVector<CourseInfo>& allCourses, UserInfo* user,QVector<courseComment>* courseComments,QWidget *parent)
     : QWidget(parent),m_user(user) , m_allCourses(allCourses),m_courseComments(courseComments) {
     setupUI();
     populateCourseTable(allCourses);
@@ -70,11 +70,18 @@ void CourseSearchPage::populateCourseTable(const QVector<CourseInfo>& courses) {
         m_courseTable->setItem(i, 3, new QTableWidgetItem(c.timeList.join("；")));
         m_courseTable->setItem(i, 4, new QTableWidgetItem(c.unit));
 
-        courseComment tar;
-        for(const auto& v:m_courseComments){
+
+        
+        // 修改后:
+        courseComment* tar = nullptr;
+        for(auto& v:*m_courseComments){
             if(v.code==c.code){
-                tar=v;
+                tar=&v;
+                break;
             }
+        }
+        if(!tar){
+            tar = &m_courseComments->emplace_back(courseComment{c.code});
         }
         // 添加操作按钮
         QPushButton *detailButton = new QPushButton("查看详情", this);

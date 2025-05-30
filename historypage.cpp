@@ -10,7 +10,7 @@
 #include <QStackedWidget>
 #include <QDebug>
 
-HistoryPage::HistoryPage(UserInfo* userInfo, QStackedWidget* mainStack, QWidget* parent)
+HistoryPage::HistoryPage(UserInfo* userInfo, QStackedWidget* mainStack, QVector<courseComment>* allcourseptr,QWidget* parent)
         : QWidget(parent), user(userInfo), stack(mainStack) {
 
     QVBoxLayout* layout = new QVBoxLayout(this);
@@ -68,7 +68,7 @@ HistoryPage::HistoryPage(UserInfo* userInfo, QStackedWidget* mainStack, QWidget*
 
 
             auto* historytimetable = new TimetablePage(this);
-            auto* historyList = new CourseListWidget(this, 1, user,term);
+            auto* historyList = new CourseListWidget(this, 1, user,term,allcourseptr);
             qDebug() << 1 ;
             historytimetable->setCourses(courses);
             historyList->setCourses(courses, 1, user);

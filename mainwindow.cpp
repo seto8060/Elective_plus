@@ -16,7 +16,8 @@
 
 MainWindow::MainWindow(UserInfo *userInfo,QWidget *parent) : QMainWindow(parent),user(userInfo) {
     All_courses = loadCoursesFromJsonFile(":/resources/resources/courses.json");
-    All_comments=loadCommentsFromJsonFile(":/resources/resources/comments.json");
+    All_comments=loadCommentsFromJsonFile("comments.json");
+    QVector<courseComment> *allCoursesPtr=&All_comments;
     setWindowTitle("选课系统");
     resize(1000, 700);
 
@@ -79,7 +80,7 @@ MainWindow::MainWindow(UserInfo *userInfo,QWidget *parent) : QMainWindow(parent)
     mainStack->addWidget(new HomePage(userInfo,this));
     
     // 创建选课页面并连接信号
-    CourseSelection *courseSelectionPage = new CourseSelection(All_courses, userInfo, All_comments,this);
+    CourseSelection *courseSelectionPage = new CourseSelection(All_courses, userInfo, allCoursesPtr,this);
     // 连接收藏夹更新信号
     connect(courseSelectionPage, &CourseSelection::favoritesUpdated, this, &MainWindow::updateFavoritesPage);
     mainStack->addWidget(courseSelectionPage);
@@ -87,7 +88,7 @@ MainWindow::MainWindow(UserInfo *userInfo,QWidget *parent) : QMainWindow(parent)
     mainStack->addWidget(new QLabel("智能选课系统"));
     
     // 保存收藏夹页面的指针，以便后续更新
-    m_favoritePage = new CourseListWidget(this, 2, userInfo, "");
+    m_favoritePage = new CourseListWidget(this, 2, userInfo, "",allCoursesPtr);
     m_favoritePage->setCourses(userInfo->getFavorites(), 2, userInfo);
     mainStack->addWidget(m_favoritePage);
     
@@ -95,7 +96,7 @@ MainWindow::MainWindow(UserInfo *userInfo,QWidget *parent) : QMainWindow(parent)
 
 
     TimetablePage *timetablePage = new TimetablePage(this);
-    CourseListWidget *courseListPage = new CourseListWidget(this,0,userInfo,"");
+    CourseListWidget *courseListPage = new CourseListWidget(this,0,userInfo,"",allCoursesPtr);
 
     timetablePage->setCourses(courseList);
     courseListPage->setCourses(courseList,0,userInfo);
@@ -112,7 +113,7 @@ MainWindow::MainWindow(UserInfo *userInfo,QWidget *parent) : QMainWindow(parent)
     });
 
 
-    HistoryPage* historyPage = new HistoryPage(userInfo, mainStack);
+    HistoryPage* historyPage = new HistoryPage(userInfo, mainStack,allCoursesPtr);
     mainStack->addWidget(historyPage);
 
     layout->addWidget(sidebar);
