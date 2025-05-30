@@ -62,6 +62,12 @@ public:
     void refreshVerifyCode(){
         verifycode = QRandomGenerator::global()->bounded(1000, 10000);
     }
+    void SetLottery(){
+        HasDoneLottery = !HasDoneLottery;
+    }
+    bool GetHasDoneLottery(){
+        return HasDoneLottery;
+    }
 
 private:
     //作为教务维护以下变量：

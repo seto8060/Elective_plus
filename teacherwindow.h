@@ -37,6 +37,7 @@ public:
                 courses.append(parseCourseFromJson(v.toObject()));
         }
     }
+    void refreshLotteryPage(QWidget *page, QVBoxLayout *layout) ;
 
 private slots:
     void showMainPage();

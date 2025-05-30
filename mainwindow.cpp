@@ -4,7 +4,7 @@
 #include "historypage.h"
 #include "timetablepage.h"
 #include "courselistwidget.h"
-#include "courseSelection.h"
+#include "courseselection.h"
 #include "homepage.h"
 #include "commentloader.h"
 #include <QHBoxLayout>
@@ -15,7 +15,7 @@
 #include <QDebug>
 
 MainWindow::MainWindow(UserInfo *userInfo,QWidget *parent) : QMainWindow(parent),user(userInfo) {
-    All_courses = loadCoursesFromJsonFile(":/resources/resources/courses.json");
+    All_courses = loadCoursesFromJsonFile("courses.json");
     All_comments=loadCommentsFromJsonFile("comments.json");
     QVector<courseComment> *allCoursesPtr=&All_comments;
     setWindowTitle("选课系统");

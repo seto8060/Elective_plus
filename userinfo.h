@@ -52,6 +52,7 @@ private:
     QString Realname;
 
     QMap<QString, int> courseVotes;
+    QMap<QString, bool> courseLottery;
 
     QVector<CourseInfo> currentCourses;
     QVector<CourseInfo> favorites;
