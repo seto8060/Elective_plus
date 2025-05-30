@@ -99,6 +99,7 @@ void courseEnrolledPage::populateCourseTable(QVector<CourseInfo>& courses)
         coursesTable->setItem(row, 8, new QTableWidgetItem(personInfo));
 
         // 添加退课按钮
+        //退课按钮的功能
         QPushButton *dropButton = new QPushButton("退课", coursesTable);
         dropButton->setProperty("courseCode", course.code);
         dropButton->setStyleSheet("padding: 2px 5px;");
@@ -115,7 +116,7 @@ void courseEnrolledPage::populateCourseTable(QVector<CourseInfo>& courses)
         });
 
         coursesTable->setCellWidget(row, 9, dropButton);
-
+        //退课按钮的实现
         // 设置行高以适应多行文本
         coursesTable->setRowHeight(row, qMax(30, (timeStr.count('\n') + 1) * 20));
     }

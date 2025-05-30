@@ -8,6 +8,7 @@
 #include "userinfo.h"
 #include "coursecomment.h"
 #include "courselistwidget.h"
+#include "timetablepage.h"
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
@@ -24,13 +25,16 @@ private slots:
 
 public slots:
     void updateFavoritesPage();
+    void updateCurrentCourse();
 
 private:
     UserInfo* user;//这里是不是忘记改了？
     // QString currentUser;
     // QString currentRole;
     CourseListWidget *m_favoritePage;
+    CourseListWidget *m_courselist;
     QTableWidget *courseTable = nullptr;
+    TimetablePage *m_timetablePage;
     QListWidget *sidebar;
     QStackedWidget *mainStack;
 };

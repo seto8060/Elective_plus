@@ -18,6 +18,7 @@ public:
 
 signals:
     void favoritesUpdated();
+    void coursesUpdated();
     void searchModRequested();
     void currentCourseRequested();
 
