@@ -1,0 +1,7 @@
+*.pro.user
+build/
+*.o
+*.exe
+*.idx
+*.user
+*.qrc
