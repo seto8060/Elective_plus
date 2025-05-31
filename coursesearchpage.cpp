@@ -37,10 +37,23 @@ void CourseSearchPage::setupUI() {
     m_courseTable = new QTableWidget(this);
     m_courseTable->setColumnCount(7); // 编号、名称、教师、时间、单位、操作、marks
     m_courseTable->setHorizontalHeaderLabels({"课程编号", "课程名称", "授课教师", "上课时间", "开课单位", "操作","评分"});
-    m_courseTable->horizontalHeader()->setStretchLastSection(true);
+    m_courseTable->horizontalHeader()->setStretchLastSection(false);
     m_courseTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
     m_courseTable->setSelectionBehavior(QAbstractItemView::SelectRows);
 
+    m_courseTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
+    m_courseTable->setColumnWidth(0, 130);   // 课程编号
+    m_courseTable->setColumnWidth(1, 150);  // 课程名称
+    m_courseTable->setColumnWidth(2, 100);  // 授课教师
+    m_courseTable->setColumnWidth(3, 350);  // 上课时间
+    m_courseTable->setColumnWidth(4, 150);  // 开课单位
+    m_courseTable->setColumnWidth(5, 300);  // 操作按钮
+    m_courseTable->setColumnWidth(6, 80);   // 评分
+
+    // 启用换行
+    m_courseTable->setWordWrap(true);
+    m_courseTable->resizeRowsToContents();
+    m_courseTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
 
     // 添加到内容布局
     contentLayout->addLayout(searchLayout);
@@ -83,10 +96,20 @@ void CourseSearchPage::populateCourseTable(const QVector<CourseInfo>& courses) {
         if(!tar){
             tar = &m_courseComments->emplace_back(courseComment{c.code});
         }
-        int cnt=tar->comments.size();
+        QVector<comment> thisCourseComments;
+        for(const auto& v:tar->comments){
+            qDebug()<<v.teacher.join("")<<'\n';
+            qDebug()<<c.teacherList.join("")<<'\n';
+            if(v.teacher.join("")==c.teacherList.join("")){
+                
+                qDebug()<<"+1";
+                thisCourseComments.append(v);
+            }
+        }
+        int cnt=thisCourseComments.size();
         double total,listen,exam,hw;
         total=listen=exam=hw=0;
-        for(const auto& v:tar->comments){
+        for(const auto& v:thisCourseComments){
             total+=v.priority;
             listen+=v.listenPrefer;
             exam+=v.scorePrefer;
@@ -155,6 +178,7 @@ void CourseSearchPage::populateCourseTable(const QVector<CourseInfo>& courses) {
         
         
         // 可以在这里连接按钮的信号
+
     }
 }
 

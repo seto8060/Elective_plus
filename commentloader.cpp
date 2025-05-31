@@ -74,6 +74,11 @@ QVector<courseComment> loadCommentsFromJsonFile(const QString &filePath) {
                 singleComment["scorePrefer"]=comment.scorePrefer;
                 singleComment["hwPrefer"]=comment.hwPrefer;
                 singleComment["listenPrefer"]=comment.listenPrefer;
+                QJsonArray teacherList;
+                for(const QString& v:comment.teacher){
+                    teacherList.append(v);
+                }
+                singleComment["teacher"]=teacherList;
                 
                 commentsArray.append(singleComment);
             }

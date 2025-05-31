@@ -15,6 +15,15 @@ courseComment parseCommentsFromJson(const QJsonObject &obj){
         c.hwPrefer=item.value("hwPrefer").toInt();
         c.listenPrefer=item.value("ListenPrefer").toInt();
         c.scorePrefer=item.value("scorePrefer").toInt();
+
+        QJsonArray teacherArray = item.value("teacher").toArray();
+        QVector<QString> teacherVector;
+
+        for (const QJsonValue &value : teacherArray) {
+            teacherVector.append(value.toString());
+        }
+
+        c.teacher = teacherVector;
         course.comments.append(c);
     }
     course.obj = obj;

@@ -186,6 +186,7 @@ void CourseListWidget::setCourses(const QVector<CourseInfo> &courses,int type,Us
                     comment.scorePrefer=scSpin->value();
                     comment.critic=userinfo->getUsername();
                     comment.semester=semester;
+                    comment.teacher=c.teacherList.toVector();
 
                     // 查找或创建对应的courseComment
                     bool found = false;
@@ -207,7 +208,7 @@ void CourseListWidget::setCourses(const QVector<CourseInfo> &courses,int type,Us
                     saveCommentToJson(m_allCourseComments);
                     qDebug() << "Saved comment for course: " << c.code<<Qt::endl;
                     QMessageBox::information(this, "成功", "课程评价已保存！");
-                    emit commentUpdated();
+                    //emit commentUpdated();
                 }
             });
         }/*添加测评*/;

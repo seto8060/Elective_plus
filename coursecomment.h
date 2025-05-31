@@ -17,6 +17,7 @@ public:
     int listenPrefer;
     QString content;
     QString semester;
+    QVector<QString> teacher;
 
 };
 
