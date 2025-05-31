@@ -3,6 +3,7 @@
 #include <QJsonArray>
 #include <QFile>
 #include <QString>
+#include<QJsonDocument>
 
 CourseInfo parseCourseFromJson(const QJsonObject &obj) {
     CourseInfo course;

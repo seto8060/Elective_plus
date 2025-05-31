@@ -104,10 +104,10 @@ void TeacherWindow::importCoursesFromCSV() {
         course.week = fields[7].trimmed();
 
         QString rawTime = fields[8].trimmed();
-        course.timeList = rawTime.split("\n", Qt::SkipEmptyParts);
+        course.timeList = rawTime.split(QRegularExpression("[；]+"), Qt::SkipEmptyParts);
 
         QString rawTeachers = fields[9].trimmed();
-        course.teacherList = rawTeachers.split(QRegularExpression("[，,\\s]+"), Qt::SkipEmptyParts);
+        course.teacherList = rawTeachers.split(QRegularExpression("[；]+"), Qt::SkipEmptyParts);
 
         course.info = fields.size()>=11 ? fields[10].trimmed() : "";
         course.firstClass = "无";
