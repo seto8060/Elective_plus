@@ -35,12 +35,25 @@ void CourseSearchPage::setupUI() {
 
     // 课程表格
     m_courseTable = new QTableWidget(this);
-    m_courseTable->setColumnCount(6); // 编号、名称、教师、时间、单位、操作
-    m_courseTable->setHorizontalHeaderLabels({"课程编号", "课程名称", "授课教师", "上课时间", "开课单位", "操作"});
-    m_courseTable->horizontalHeader()->setStretchLastSection(true);
+    m_courseTable->setColumnCount(7); // 编号、名称、教师、时间、单位、操作、marks
+    m_courseTable->setHorizontalHeaderLabels({"课程编号", "课程名称", "授课教师", "上课时间", "开课单位", "操作","评分"});
+    m_courseTable->horizontalHeader()->setStretchLastSection(false);
     m_courseTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
     m_courseTable->setSelectionBehavior(QAbstractItemView::SelectRows);
 
+    m_courseTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
+    m_courseTable->setColumnWidth(0, 130);   // 课程编号
+    m_courseTable->setColumnWidth(1, 150);  // 课程名称
+    m_courseTable->setColumnWidth(2, 100);  // 授课教师
+    m_courseTable->setColumnWidth(3, 350);  // 上课时间
+    m_courseTable->setColumnWidth(4, 150);  // 开课单位
+    m_courseTable->setColumnWidth(5, 300);  // 操作按钮
+    m_courseTable->setColumnWidth(6, 80);   // 评分
+
+    // 启用换行
+    m_courseTable->setWordWrap(true);
+    m_courseTable->resizeRowsToContents();
+    m_courseTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
 
     // 添加到内容布局
     contentLayout->addLayout(searchLayout);
@@ -83,6 +96,34 @@ void CourseSearchPage::populateCourseTable(const QVector<CourseInfo>& courses) {
         if(!tar){
             tar = &m_courseComments->emplace_back(courseComment{c.code});
         }
+        QVector<comment> thisCourseComments;
+        for(const auto& v:tar->comments){
+            qDebug()<<v.teacher.join("")<<'\n';
+            qDebug()<<c.teacherList.join("")<<'\n';
+            if(v.teacher.join("")==c.teacherList.join("")){
+                
+                qDebug()<<"+1";
+                thisCourseComments.append(v);
+            }
+        }
+        int cnt=thisCourseComments.size();
+        double total,listen,exam,hw;
+        total=listen=exam=hw=0;
+        for(const auto& v:thisCourseComments){
+            total+=v.priority;
+            listen+=v.listenPrefer;
+            exam+=v.scorePrefer;
+            hw+=v.hwPrefer;
+        }
+
+        total=total/cnt;
+        listen=listen/cnt;
+        exam=exam/cnt;
+        hw=hw/cnt;
+
+        QTableWidgetItem *ratingItem = new QTableWidgetItem();
+        setRatingDisplay(ratingItem, total,hw,exam,listen,cnt);
+        m_courseTable->setItem(i, 6, ratingItem);
         // 添加操作按钮
         QPushButton *detailButton = new QPushButton("查看详情", this);
         connect(detailButton, &QPushButton::clicked, [this, tar,c]() {
@@ -90,6 +131,13 @@ void CourseSearchPage::populateCourseTable(const QVector<CourseInfo>& courses) {
             connect(detailPage, &CourseDetailPage::backRequested, [this, detailPage]() {
                 m_stackWidget->removeWidget(detailPage);
                 detailPage->deleteLater();
+            });
+            connect(detailPage, &CourseDetailPage::enrollRequested, this, [this, c](const QString& code) {
+                if (code == c.code) {
+                    handleElectCourse(c);
+                } else {
+                    QMessageBox::warning(this, "错误", "课程编号不匹配，请刷新页面后重试。");
+                }
             });
             m_stackWidget->addWidget(detailPage);
             m_stackWidget->setCurrentWidget(detailPage);
@@ -111,45 +159,7 @@ void CourseSearchPage::populateCourseTable(const QVector<CourseInfo>& courses) {
 
         QPushButton *electCourseButton=new QPushButton("选课",this);
         connect(electCourseButton,&QPushButton::clicked,[this,c]{
-            bool ok;
-            int votees=QInputDialog::getInt(this,"海淀赌场","投点数：",0,0,100,1,&ok);
-            if(!ok){
-                return;
-            }
-            
-            
-            QSet<QPair<QString,QString>> existingCourses;//(time,week);
-            for(const auto& course: m_user->getCurrentCourses()){
-                for(const auto& time: course.timeList){
-                    for(const auto&w: course.week){
-                        existingCourses.insert(qMakePair(time,w));
-                    }
-                }
-            }
-
-            bool hasConflict=false;
-            if(votees>m_user->getRemainingPoints()){
-                QMessageBox::information(this,"Tips","超额投点.");
-                return;
-            }
-            for(const auto&time:c.timeList){
-                for(const auto& w:c.week){
-                    if(existingCourses.contains(qMakePair(time,w))){
-                        hasConflict=true;
-                        break;
-                    }
-                }
-            }
-
-            if(hasConflict){
-                QMessageBox::information(this,"Tips","选课失败，与已选课程时间冲突！");
-            }
-            else{
-                m_user->getCurrentCourses().push_back(c);
-                m_user->setPointForCourse(c.code,votees);
-                QMessageBox::information(this,"Tips","选课成功！");
-                emit coursesUpdated();
-            }
+            handleElectCourse(c);
         });
         // 在populateCourseTable函数中
         // 创建一个容器来放置3个按钮
@@ -168,6 +178,7 @@ void CourseSearchPage::populateCourseTable(const QVector<CourseInfo>& courses) {
         
         
         // 可以在这里连接按钮的信号
+
     }
 }
 
@@ -191,6 +202,77 @@ void CourseSearchPage::onSearchButtonClicked() {
     populateCourseTable(filteredCourses);
 }
 
+void CourseSearchPage::handleElectCourse(const CourseInfo& course) {
+    if (m_isHandlingEnroll) return;
+    m_isHandlingEnroll = true;
+    bool ok;
+    int votees = QInputDialog::getInt(this, "海淀赌场", "投点数：", 0, 0, 100, 1, &ok);
+    if (!ok) return;
 
+    QSet<QPair<QString, QString>> existingCourses;
+    for (const auto& enrolled : m_user->getCurrentCourses()) {
+        for (const auto& time : enrolled.timeList) {
+            for (const auto& w : enrolled.week) {
+                existingCourses.insert({time, w});
+            }
+        }
+    }
+
+    bool hasConflict = false;
+    if (votees > m_user->getRemainingPoints()) {
+        QMessageBox::information(this, "Tips", "超额投点。");
+        return;
+    }
+
+    for (const auto& time : course.timeList) {
+        for (const auto& w : course.week) {
+            if (existingCourses.contains({time, w})) {
+                hasConflict = true;
+                break;
+            }
+        }
+        if (hasConflict) break;
+    }
+
+    if (hasConflict) {
+        QMessageBox::information(this, "Tips", "选课失败，与已选课程时间冲突！");
+    } else {
+        m_user->getCurrentCourses().push_back(course);
+        m_user->setPointForCourse(course.code, votees);
+        QMessageBox::information(this, "Tips", "选课成功！");
+        emit coursesUpdated();
+    }
+    m_isHandlingEnroll=false;
+}
+
+void CourseSearchPage::setRatingDisplay(QTableWidgetItem *item, double total,double hw,double exam, double listen,int cnt)
+{
+    QString emoji;
+    if(cnt==0){
+        emoji="😶‍🌫️";
+    }
+    else{
+        if (total >= 4) {
+            emoji = "😍";
+        } else if (total >= 2.0) {
+            emoji = "😑";
+        } else {
+            emoji = "😞";
+        }
+
+    }
+
+    item->setText(emoji);
+    item->setTextAlignment(Qt::AlignCenter);
+
+    // 设置 ToolTip 提示
+    QString toolTip = QString("评价数：%1\n总评: %2\n听感: %3\n作业量: %4\n给分: %5")
+                          .arg(cnt)
+                          .arg(total)
+                          .arg(listen)
+                          .arg(hw)
+                          .arg(exam);
+    item->setToolTip(toolTip);
+}
 
 

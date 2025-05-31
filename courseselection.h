@@ -20,6 +20,7 @@ signals:
     void favoritesUpdated();
     void searchModRequested();
     void currentCourseRequested();
+    void coursesUpdated();
 
 private:
     void setupUI();

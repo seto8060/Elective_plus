@@ -12,8 +12,12 @@ public:
     //int index;
     QString critic;
     int priority;//总评
+    int scorePrefer;
+    int hwPrefer;
+    int listenPrefer;
     QString content;
     QString semester;
+    QVector<QString> teacher;
 
 };
 

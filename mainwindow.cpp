@@ -110,6 +110,10 @@ MainWindow::MainWindow(UserInfo *userInfo,QWidget *parent) : QMainWindow(parent)
     QVector<CourseInfo> courseList = userInfo->getCurrentCourses();
 
 
+    //TimetablePage *timetablePage = new TimetablePage(this);
+    //m_timetablePage=timetablePage;
+    //CourseListWidget *courseListPage = new CourseListWidget(this,0,userInfo,"",allCoursesPtr);
+    //m_courselist=courseListPage;
     timetablePage = new TimetablePage(this);
     courseListPage = new CourseListWidget(this,0,userInfo,"",allCoursesPtr);
 
@@ -118,6 +122,11 @@ MainWindow::MainWindow(UserInfo *userInfo,QWidget *parent) : QMainWindow(parent)
 
     mainStack->addWidget(timetablePage);    // index 5
     mainStack->addWidget(courseListPage);   // index 6
+
+    //connect(courseSelectionPage,&CourseSelection::coursesUpdated,this,[courseList,timetablePage](){
+    //    timetablePage->setCourses(courseList);
+    //});
+    connect(courseSelectionPage,&CourseSelection::coursesUpdated,this,&MainWindow::updateCurrentCourse);
 
     connect(timetablePage, &TimetablePage::requestSwitchToList, this, [=]() {
         mainStack->setCurrentWidget(courseListPage);
@@ -181,6 +190,9 @@ void MainWindow::changeModule(int index) {
         timetablePage->refreshCourses(user);
         courseListPage->setCourses(user->getCurrentCourses(), 0, user);
     }
+    if(index==0){
+        updateCurrentCourse();
+    }
     mainStack->setCurrentIndex(index);
 }
 void MainWindow::updateFavoritesPage(){
@@ -192,6 +204,12 @@ void MainWindow::updateFavoritesPage(){
 //     setWindowTitle(QString("%1%2您好，欢迎来到选课网++！").arg(user.getUsername(), user.getGrade()));
 // }
 
+void MainWindow::updateCurrentCourse(){
+    if(m_courselist){
+        m_courselist->setCourses(user->getCurrentCourses(),0,user);
+        m_timetablePage->setCourses(user->getCurrentCourses());
+    }
+}
 
 void MainWindow::loadCourseData() {
     // QVector<CourseInfo> All_courses = loadCoursesFromJsonFile(":/resources/resources/courses.json");

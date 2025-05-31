@@ -27,6 +27,9 @@ public:
 private:
     void setupUI();
     void populateCourseTable(const QVector<CourseInfo>& courses);
+    void handleElectCourse(const CourseInfo& course);
+    void setRatingDisplay(QTableWidgetItem *item, double total,double hw,double exam, double listen,int cnt);
+
 signals:
     void favoritesUpdated();
     void coursesUpdated();
@@ -35,6 +38,7 @@ private slots:
 
 
 private:
+    bool m_isHandlingEnroll=false;
     UserInfo* m_user;
     QVector<CourseInfo> m_allCourses;
     // 修改为指针传递

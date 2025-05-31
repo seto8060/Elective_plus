@@ -81,9 +81,11 @@ void CourseSelection::setupUI()
         m_enrollPage->populateCourseTable(m_user->getCurrentCourses());
 
         QMessageBox::information(this,"Success!",QString("成功退选%1").arg(courseCode));
+        emit coursesUpdated();
     });
     connect(m_searchPage,&CourseSearchPage::coursesUpdated, m_enrollPage, [this, m_enrollPage](){
         m_enrollPage->populateCourseTable(m_user->getCurrentCourses());
+        emit coursesUpdated();
     });
     connect(m_enrollPage,&courseEnrolledPage::backRequested,this,[this](){
         m_stackWidget->setCurrentIndex(0);
