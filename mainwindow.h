@@ -7,6 +7,7 @@
 #include "CourseInfo.h"
 #include "userinfo.h"
 #include "coursecomment.h"
+#include "timetablepage.h"
 #include "courselistwidget.h"
 
 class MainWindow : public QMainWindow {
@@ -33,4 +34,6 @@ private:
     QTableWidget *courseTable = nullptr;
     QListWidget *sidebar;
     QStackedWidget *mainStack;
+    TimetablePage *timetablePage = nullptr;
+    CourseListWidget *courseListPage = nullptr;
 };

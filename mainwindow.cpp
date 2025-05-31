@@ -54,7 +54,11 @@ MainWindow::MainWindow(UserInfo *userInfo,QWidget *parent) : QMainWindow(parent)
     // sidebar->setFont(QFont("Segoe UI", 11));
     // sidebar->setFixedWidth(180);
     sidebar->setSpacing(20);
-    sidebar->setIconSize(QSize(40, 40));
+    sidebar->setIconSize(QSize(45, 45));
+    QFont font;
+    font.setPointSize(13);
+    // font.setFamily("微软雅黑");
+    sidebar->setFont(font);
 
     // sidebar->addItem("选课主页");
     // sidebar->addItem("智能选课系统");
@@ -75,7 +79,7 @@ MainWindow::MainWindow(UserInfo *userInfo,QWidget *parent) : QMainWindow(parent)
     sidebar->addItem(hiddenItem);
     QListWidgetItem *item6 = new QListWidgetItem(QIcon(":/resources/icon/history.svg"), "历史选课");
     sidebar->addItem(item6);
-    sidebar->setFixedWidth(150);
+    sidebar->setFixedWidth(220);
     TeacherInfo *teacher2 = new TeacherInfo(this);
     bool flag = teacher2->getEnrollmentTerm().semester > 0;
     if (!flag){
@@ -106,8 +110,8 @@ MainWindow::MainWindow(UserInfo *userInfo,QWidget *parent) : QMainWindow(parent)
     QVector<CourseInfo> courseList = userInfo->getCurrentCourses();
 
 
-    TimetablePage *timetablePage = new TimetablePage(this);
-    CourseListWidget *courseListPage = new CourseListWidget(this,0,userInfo,"",allCoursesPtr);
+    timetablePage = new TimetablePage(this);
+    courseListPage = new CourseListWidget(this,0,userInfo,"",allCoursesPtr);
 
     timetablePage->setCourses(courseList,user);
     courseListPage->setCourses(courseList,0,userInfo);
@@ -127,7 +131,31 @@ MainWindow::MainWindow(UserInfo *userInfo,QWidget *parent) : QMainWindow(parent)
     HistoryPage* historyPage = new HistoryPage(userInfo, mainStack,allCoursesPtr);
     mainStack->addWidget(historyPage);
 
-    layout->addWidget(sidebar);
+    auto *sidebarContainer = new QWidget(this);
+    auto *sidebarLayout = new QVBoxLayout(sidebarContainer);
+    sidebarLayout->setContentsMargins(0, 0, 0, 0);
+    sidebarLayout->setSpacing(10);
+
+    sidebarLayout->addWidget(sidebar);
+    TeacherInfo *teacher3 = new TeacherInfo(this);
+    QLabel *footerLabel = new QLabel("当前学期："+teacher3->getCurrentTerm().toString(), this);
+    footerLabel->setAlignment(Qt::AlignCenter);
+    footerLabel->setStyleSheet("font-size: 12px;font-weight: bold;");
+
+    QLabel *footerLabel2 = new QLabel("当前选课学期："+teacher3->getEnrollmentTerm().toString(), this);
+    footerLabel2->setAlignment(Qt::AlignCenter);
+    footerLabel2->setStyleSheet("font-size: 12px;font-weight: bold;");
+
+
+    QLabel *footerLabel3 = new QLabel("当前选课学期："+teacher3->GetHasDoneLottery()?"抽签已完成":"抽签未完成", this);
+    footerLabel3->setAlignment(Qt::AlignCenter);
+    footerLabel3->setStyleSheet("font-size: 12px;font-weight: bold;");
+
+    sidebarLayout->addWidget(footerLabel);
+    sidebarLayout->addWidget(footerLabel2);
+    sidebarLayout->addWidget(footerLabel3);
+
+    layout->addWidget(sidebarContainer);
     layout->addWidget(mainStack);
     //
     // courseTable = new QTableWidget(this);
@@ -145,9 +173,13 @@ MainWindow::MainWindow(UserInfo *userInfo,QWidget *parent) : QMainWindow(parent)
 }
 
 void MainWindow::changeModule(int index) {
+    qDebug() << index;
     // 当切换到收藏夹页面时，更新收藏夹内容
     if (index == 3) { // 收藏夹的索引是3
         updateFavoritesPage();
+    }else if (index == 4) {
+        timetablePage->refreshCourses(user);
+        courseListPage->setCourses(user->getCurrentCourses(), 0, user);
     }
     mainStack->setCurrentIndex(index);
 }

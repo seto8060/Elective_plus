@@ -10,6 +10,7 @@ class TimetablePage : public QWidget {
 public:
     explicit TimetablePage(QWidget *parent = nullptr);
     void setCourses(const QVector<CourseInfo> &courses,UserInfo *userinfo);
+    void refreshCourses(UserInfo *user);
 
 signals:
     void requestSwitchToList();
