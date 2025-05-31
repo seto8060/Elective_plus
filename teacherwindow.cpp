@@ -433,7 +433,6 @@ void TeacherWindow::exportAllCourseStudentLists() {
 }
 void TeacherWindow::refreshMainPage() {
     if (!infoLabel) return;
-
     infoLabel->setText(
         QString("当前学期：%1\n当前选课学期：%2")
             .arg(teacherInfo->getCurrentTerm().toString())
@@ -616,8 +615,8 @@ QWidget* TeacherWindow::createSubPage(const QString &pageName, const Term &opera
     }
     else if (pageName == "抽签") {
         // refreshLotteryPage(page, layout);
-        TeacherInfo *Teacher = new TeacherInfo(this);
-        bool flag = !Teacher->GetHasDoneLottery();
+        // TeacherInfo *Teacher = new TeacherInfo(this);
+        bool flag = !teacherInfo->GetHasDoneLottery();
         QLabel *title = new QLabel(flag?"以下课程人数超限，需要抽签：":"抽签已完成，点击下方按钮查看抽签结果：", page);
         title->setStyleSheet("font-weight: bold; font-size: 16px;");
         layout->addWidget(title);
@@ -794,12 +793,12 @@ QWidget* TeacherWindow::createSubPage(const QString &pageName, const Term &opera
                 outFile.write(QJsonDocument(userRoot).toJson(QJsonDocument::Indented));
                 outFile.close();
                 QMessageBox::information(this, "抽签完成", "所有抽签已完成，结果已保存！");
-                TeacherInfo *teacher = new TeacherInfo(this);
-                teacher->SetLottery();
-                teacher->ElectiveTermPass();
+                // TeacherInfo *teacher = new TeacherInfo(this);
+                teacherInfo->SetLottery();
+                teacherInfo->ElectiveTermPass();
                 // teacherInfo->save();
-                teacher->save();
-                delete teacher;
+                teacherInfo->save();
+                // delete teacher;
                 refreshLotteryPage(page, layout);
             } else {
                 QMessageBox::warning(this, "写入失败", "无法保存 users.json 文件！");
