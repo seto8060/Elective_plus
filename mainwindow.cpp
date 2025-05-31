@@ -99,14 +99,14 @@ MainWindow::MainWindow(UserInfo *userInfo,QWidget *parent) : QMainWindow(parent)
     // 连接收藏夹更新信号
     connect(courseSelectionPage, &CourseSelection::favoritesUpdated, this, &MainWindow::updateFavoritesPage);
     mainStack->addWidget(courseSelectionPage);
-    
+    qDebug()<<"CourseSelectionPage\n";
     mainStack->addWidget(new QLabel("智能选课系统"));
     
     // 保存收藏夹页面的指针，以便后续更新
     m_favoritePage = new CourseListWidget(this, 2, userInfo, "",allCoursesPtr);
     m_favoritePage->setCourses(userInfo->getFavorites(), 2, userInfo);
     mainStack->addWidget(m_favoritePage);
-    
+    qDebug()<<"favorpage\n";
     QVector<CourseInfo> courseList = userInfo->getCurrentCourses();
 
 
@@ -126,7 +126,6 @@ MainWindow::MainWindow(UserInfo *userInfo,QWidget *parent) : QMainWindow(parent)
     //connect(courseSelectionPage,&CourseSelection::coursesUpdated,this,[courseList,timetablePage](){
     //    timetablePage->setCourses(courseList);
     //});
-    // connect(courseSelectionPage,&CourseSelection::coursesUpdated,this,&MainWindow::updateCurrentCourse);
 
     connect(timetablePage, &TimetablePage::requestSwitchToList, this, [=]() {
         mainStack->setCurrentWidget(courseListPage);
@@ -190,9 +189,6 @@ void MainWindow::changeModule(int index) {
         timetablePage->refreshCourses(user);
         courseListPage->setCourses(user->getCurrentCourses(), 0, user);
     }
-    // if(index==0){
-    //     updateCurrentCourse();
-    // }
     mainStack->setCurrentIndex(index);
 }
 void MainWindow::updateFavoritesPage(){
@@ -204,12 +200,12 @@ void MainWindow::updateFavoritesPage(){
 //     setWindowTitle(QString("%1%2您好，欢迎来到选课网++！").arg(user.getUsername(), user.getGrade()));
 // }
 
-// void MainWindow::updateCurrentCourse(){
-//     if(m_courselist){
-//         m_courselist->setCourses(user->getCurrentCourses(),0,user);
-//         m_timetablePage->setCourses(user->getCurrentCourses());
-//     }
-// }
+//void MainWindow::updateCurrentCourse(){
+//    if(m_courselist){
+//        m_courselist->setCourses(user->getCurrentCourses(),0,user);
+        //m_timetablePage->setCourses(user->getCurrentCourses());
+//    }
+//}
 
 void MainWindow::loadCourseData() {
     // QVector<CourseInfo> All_courses = loadCoursesFromJsonFile(":/resources/resources/courses.json");

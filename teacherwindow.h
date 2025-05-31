@@ -9,6 +9,7 @@
 #include <QToolButton>
 #include <QTableWidget>
 #include <QJsonArray>
+#include <QJsonDocument>
 #include "teacherinfo.h"
 #include "CourseInfo.h"
 

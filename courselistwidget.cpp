@@ -11,6 +11,7 @@
 #include<QSpinBox>
 #include<QFormLayout>
 #include<QLineEdit>
+#include <QPlainTextEdit>
 double estimateAverageVoteWeight(double omega) {
     return std::max(0.0, 46.0 * std::tanh(omega - 1.0));
 }
@@ -150,7 +151,7 @@ void CourseListWidget::setCourses(const QVector<CourseInfo> &courses,int type,Us
                 QFormLayout form(&dialog);
                 
                 // 添加内容输入框
-                QLineEdit *contentEdit = new QLineEdit(&dialog);
+                QPlainTextEdit *contentEdit = new QPlainTextEdit(&dialog);
                 form.addRow("评论内容:", contentEdit);
                 
                 // 添加优先级选择框
@@ -181,7 +182,7 @@ void CourseListWidget::setCourses(const QVector<CourseInfo> &courses,int type,Us
                 
                 if (dialog.exec() == QDialog::Accepted) {
                     comment comment;
-                    comment.content = contentEdit->text();
+                    comment.content = contentEdit->toPlainText();
                     comment.priority = prioritySpin->value();
                     comment.hwPrefer=hwSpin->value();
                     comment.listenPrefer=lisSpin->value();

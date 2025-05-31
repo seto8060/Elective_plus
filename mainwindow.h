@@ -23,7 +23,6 @@ public:
 
 private slots:
     void changeModule(int index);
-    // void updateCurrentCourse();
 
 public slots:
     void updateFavoritesPage();
@@ -33,8 +32,6 @@ private:
     // QString currentUser;
     // QString currentRole;
     CourseListWidget *m_favoritePage;
-    // CourseListWidget *m_courselist;
-    // TimetablePage *m_timetablePage;
     QTableWidget *courseTable = nullptr;
     QListWidget *sidebar;
     QStackedWidget *mainStack;
