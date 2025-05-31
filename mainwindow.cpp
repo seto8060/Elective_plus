@@ -15,7 +15,7 @@
 #include <QDebug>
 
 MainWindow::MainWindow(UserInfo *userInfo,QWidget *parent) : QMainWindow(parent),user(userInfo) {
-    All_courses = loadCoursesFromJsonFile(":/resources/resources/courses.json");
+    All_courses = loadCoursesFromJsonFile("courses.json");
     All_comments=loadCommentsFromJsonFile("comments.json");
     QVector<courseComment> *allCoursesPtr=&All_comments;
     setWindowTitle("选课系统");
@@ -147,21 +147,19 @@ void MainWindow::changeModule(int index) {
     }
     if(index==0){
         updateCurrentCourse();
-
     }
     mainStack->setCurrentIndex(index);
 }
 void MainWindow::updateFavoritesPage(){
     if(m_favoritePage){
         m_favoritePage->setCourses(user->getFavorites(), 2, user);
-
     }
 }
 // void MainWindow::setUser(const QString &username, const QString &role) {
 //     setWindowTitle(QString("%1%2您好，欢迎来到选课网++！").arg(user.getUsername(), user.getGrade()));
 // }
+
 void MainWindow::updateCurrentCourse(){
-    qDebug() << "Updating timetable with courses:" << user->getCurrentCourses().size();
     if(m_courselist){
         m_courselist->setCourses(user->getCurrentCourses(),0,user);
         m_timetablePage->setCourses(user->getCurrentCourses());

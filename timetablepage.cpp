@@ -38,6 +38,5 @@ TimetablePage::TimetablePage(QWidget *parent) : QWidget(parent) {
 }
 
 void TimetablePage::setCourses(const QVector<CourseInfo> &courses) {
-    qDebug()<<"len of course in timetablepage:"<<courses.size()<<'\n';
     timetable->setCourses(courses);
 }

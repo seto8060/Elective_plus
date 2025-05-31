@@ -21,7 +21,6 @@ void CustomTimetableWidget::setupBackground() {
 }
 
 void CustomTimetableWidget::setCourses(const QVector<CourseInfo> &courses) {
-    qDebug()<<"timetable:"<<courses.size()<<"\n";
     displayCourses(courses);
 }
 

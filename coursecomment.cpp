@@ -12,6 +12,9 @@ courseComment parseCommentsFromJson(const QJsonObject &obj){
         c.content=item.value("content").toString();
         c.priority=item.value("priority").toInt();
         c.semester=item.value("semestr").toString();
+        c.hwPrefer=item.value("hwPrefer").toInt();
+        c.listenPrefer=item.value("ListenPrefer").toInt();
+        c.scorePrefer=item.value("scorePrefer").toInt();
         course.comments.append(c);
     }
     course.obj = obj;

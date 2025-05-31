@@ -17,6 +17,7 @@ public:
 
 signals:
     void requestSwitchToTable();
+    void commentUpdated();
 
 private:
     QTableWidget *table;

@@ -155,6 +155,18 @@ void CourseListWidget::setCourses(const QVector<CourseInfo> &courses,int type,Us
                 QSpinBox *prioritySpin = new QSpinBox(&dialog);
                 prioritySpin->setRange(1, 5);
                 form.addRow("优先级(1-5):", prioritySpin);
+
+                QSpinBox *lisSpin=new QSpinBox(&dialog);
+                lisSpin->setRange(1,5);
+                form.addRow("听感好坏(1-5)",lisSpin);
+
+                QSpinBox *hwSpin=new QSpinBox(&dialog);
+                hwSpin->setRange(1,5);
+                form.addRow("作业量大小(1-5)",hwSpin);
+
+                QSpinBox *scSpin=new QSpinBox(&dialog);
+                scSpin->setRange(1,5);
+                form.addRow("给分好坏(1-5)",scSpin);
                 
                 // 添加确定按钮
                 QDialogButtonBox buttonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel,
@@ -169,6 +181,9 @@ void CourseListWidget::setCourses(const QVector<CourseInfo> &courses,int type,Us
                     comment comment;
                     comment.content = contentEdit->text();
                     comment.priority = prioritySpin->value();
+                    comment.hwPrefer=hwSpin->value();
+                    comment.listenPrefer=lisSpin->value();
+                    comment.scorePrefer=scSpin->value();
                     comment.critic=userinfo->getUsername();
                     comment.semester=semester;
 
@@ -192,6 +207,7 @@ void CourseListWidget::setCourses(const QVector<CourseInfo> &courses,int type,Us
                     saveCommentToJson(m_allCourseComments);
                     qDebug() << "Saved comment for course: " << c.code<<Qt::endl;
                     QMessageBox::information(this, "成功", "课程评价已保存！");
+                    emit commentUpdated();
                 }
             });
         }/*添加测评*/;

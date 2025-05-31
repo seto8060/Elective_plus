@@ -1,6 +1,8 @@
 #include "CourseInfo.h"
 #include <QJsonObject>
 #include <QJsonArray>
+#include<QJsonDocument>
+#include <QFile>
 
 CourseInfo parseCourseFromJson(const QJsonObject &obj) {
     CourseInfo course;
@@ -30,4 +32,17 @@ CourseInfo parseCourseFromJson(const QJsonObject &obj) {
 }
 QJsonObject CourseInfo::toJson() const {
     return obj;
+}
+static bool saveCoursesToFile(const QString &filename, const QList<CourseInfo> &courses) {
+    QJsonArray arr;
+    for (const auto &c : courses)
+        arr.append(c.toJson());
+
+    QFile file(filename);
+    if (!file.open(QIODevice::WriteOnly)) return false;
+
+    QJsonDocument doc(arr);
+    file.write(doc.toJson(QJsonDocument::Indented));
+    file.close();
+    return true;
 }

@@ -22,10 +22,10 @@ public:
 
 private slots:
     void changeModule(int index);
+    void updateCurrentCourse();
 
 public slots:
     void updateFavoritesPage();
-    void updateCurrentCourse();
 
 private:
     UserInfo* user;//这里是不是忘记改了？
@@ -33,8 +33,8 @@ private:
     // QString currentRole;
     CourseListWidget *m_favoritePage;
     CourseListWidget *m_courselist;
-    QTableWidget *courseTable = nullptr;
     TimetablePage *m_timetablePage;
+    QTableWidget *courseTable = nullptr;
     QListWidget *sidebar;
     QStackedWidget *mainStack;
 };
