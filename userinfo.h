@@ -39,6 +39,7 @@ public:
     int getTotalUsedPoints() const ;
     int getRemainingPoints() const ;
     int getPointForCourse(const QString &courseCode) const ;
+    bool getResultForCourse(const QString &courseCode) const;
     void setPointForCourse(const QString &courseCode, int points) ;
     // bool IsTeacher = false;
 
@@ -52,6 +53,7 @@ private:
     QString Realname;
 
     QMap<QString, int> courseVotes;
+    QMap<QString, bool> courseLottery;
 
     QVector<CourseInfo> currentCourses;
     QVector<CourseInfo> favorites;

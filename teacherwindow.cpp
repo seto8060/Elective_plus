@@ -23,6 +23,7 @@
 #include <QComboBox>
 #include <QCompleter>
 #include <QSpinBox>
+#include <QProgressBar>
 #include "CourseInfo.h"
 #include <QJsonArray>
 
@@ -35,6 +36,7 @@ TeacherWindow::TeacherWindow(QWidget *parent)
 {
     stackedWidget = new QStackedWidget(this);
     stackedWidget->addWidget(createMainPage());
+    setWindowTitle("选课网++：教务系统");
 
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
     mainLayout->addWidget(stackedWidget);
@@ -86,13 +88,13 @@ void TeacherWindow::importCoursesFromCSV() {
     while (!in.atEnd()) {
         QString line = in.readLine().trimmed();
         if (line.isEmpty()) continue;
-        if (++lineNum == 1) continue; // 跳过表头
+        if (++lineNum == 1) continue;
 
-        QStringList fields = line.split(QRegularExpression(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)")); // 支持引号包裹
+        QStringList fields = line.split(QRegularExpression(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)"));
         if (fields.size() <10) continue;
 
         CourseInfo course;
-        course.index = QString::number(courses.size() + courses.size() + 1);
+        course.index = QString::number(courses.size() + 1);
         course.code = fields[1].trimmed();
         course.name = fields[2].trimmed();
         course.unit = fields[3].trimmed();
@@ -143,7 +145,7 @@ void TeacherWindow::saveCoursesToFile() {
     for (const auto &c : courses)
         arr.append(c.toJson());
 
-    QFile file(currentCourseFilePath);
+    QFile file("courses.json");
     if (!file.open(QIODevice::WriteOnly)) {
         QMessageBox::warning(this, "保存失败", "无法保存课程数据到文件！");
         return;
@@ -151,6 +153,283 @@ void TeacherWindow::saveCoursesToFile() {
     QJsonDocument doc(arr);
     file.write(doc.toJson(QJsonDocument::Indented));
     file.close();
+}
+void TeacherWindow::refreshLotteryPage(QWidget *page, QVBoxLayout *layout) {
+    qDeleteAll(page->findChildren<QWidget *>(QString(), Qt::FindDirectChildrenOnly));
+
+    QPushButton *backButton = new QPushButton("←", page);
+    backButton->setFixedSize(36, 36);
+
+    backButton->setStyleSheet(R"(
+    QPushButton {
+        background-color: #a7e6a5;
+        border: 2px solid #59c959;
+        border-radius: 18px;
+        font-size: 18px;
+        font-weight: bold;
+        color: #2d7035;
+    }
+
+    QPushButton:hover {
+        background-color: #91db91;
+        border-color: #4fb54f;
+    }
+
+    QPushButton:pressed {
+        background-color: #7dcd7d;
+    }
+    )");
+    connect(backButton, &QPushButton::clicked, this, &TeacherWindow::showMainPage);
+    layout->addWidget(backButton);
+    TeacherInfo *Teacher = new TeacherInfo(this);
+    bool flag = !Teacher->GetHasDoneLottery();
+    QLabel *title = new QLabel(flag ? "以下课程人数超限，需要抽签：" : "抽签已完成，点击下方按钮查看抽签结果：", page);
+    title->setStyleSheet("font-weight: bold; font-size: 16px;");
+    layout->addWidget(title);
+
+    QTableWidget *table = new QTableWidget(page);
+    table->setColumnCount(6);
+    table->setHorizontalHeaderLabels({"索引号", "课程号", "课程名称", "教师", "已选/限选", "操作"});
+    table->horizontalHeader()->setStretchLastSection(true);
+    layout->addWidget(table);
+
+    QVector<CourseInfo> All_courses = loadCoursesFromJsonFile("courses.json");
+
+    for (const CourseInfo &c : All_courses) {
+        if (c.Now_person > c.Max_person) {
+            int row = table->rowCount();
+            table->insertRow(row);
+            table->setItem(row, 0, new QTableWidgetItem(c.index));
+            table->setItem(row, 1, new QTableWidgetItem(c.code));
+            table->setItem(row, 2, new QTableWidgetItem(c.name));
+            table->setItem(row, 3, new QTableWidgetItem(c.teacherList.join("、")));
+            table->setItem(row, 4, new QTableWidgetItem(QString("%2 / %1").arg(c.Max_person).arg(c.Now_person)));
+
+            QPushButton *btn = new QPushButton(flag ? "查看选课学生" : "查看选课结果", table);
+            connect(btn, &QPushButton::clicked, this, [=]() {
+                QString courseCode = c.code;
+                QString courseName = c.name;
+                QString teachers = c.teacherList.join(", ");
+
+                QDialog dialog(this);
+                dialog.setWindowTitle(QString("%1 %2（%3）抽签名单").arg(courseCode, courseName, teachers));
+                dialog.resize(600, 400);
+                QVBoxLayout *dialogLayout = new QVBoxLayout(&dialog);
+
+                QTableWidget *studentTable = new QTableWidget(&dialog);
+                if (flag) studentTable->setColumnCount(4),studentTable->setHorizontalHeaderLabels({"学号", "姓名", "院系", "投点"});
+                else studentTable->setColumnCount(5),studentTable->setHorizontalHeaderLabels({"学号", "姓名", "院系", "投点","状态"});
+
+                studentTable->horizontalHeader()->setStretchLastSection(true);
+                dialogLayout->addWidget(studentTable);
+
+                QFile userFile("users.json");
+                if (userFile.open(QIODevice::ReadOnly)) {
+                    QJsonObject root = QJsonDocument::fromJson(userFile.readAll()).object();
+                    userFile.close();
+
+                    int row = 0;
+                    for (const QString &username : root.keys()) {
+                        QJsonObject u = root[username].toObject();
+                        QJsonArray current = u["currentCourses"].toArray();
+                        bool hasCourse = std::any_of(current.begin(), current.end(), [&](const QJsonValue &v) {
+                            return v.toObject().value("code").toString() == courseCode;
+                        });
+
+                        if (hasCourse) {
+                            studentTable->insertRow(row);
+                            auto setCell = [&](int col, const QString &text) {
+                                QTableWidgetItem *item = new QTableWidgetItem(text);
+                                item->setTextAlignment(Qt::AlignCenter);
+                                if (text == "未选上") item->setForeground(QBrush(Qt::red));
+                                else item->setForeground(QBrush(Qt::black));
+                                studentTable->setItem(row, col, item);
+                            };
+                            setCell(0, u.value("index").toString());
+                            setCell(1, u.value("realname").toString());
+                            setCell(2, u.value("college").toString());
+                            int vote = u["courseVotes"].toObject().value(courseCode).toInt(0);
+                            setCell(3, QString::number(vote));
+                            bool status = u["courseLottery"].toObject().value(courseCode).toBool();
+                            if (!flag) setCell(4, status?"已选上":"未选上");
+                            row++;
+                        }
+                    }
+                } else {
+                    QMessageBox::warning(this, "读取失败", "无法打开用户数据！");
+                }
+
+                QPushButton *closeBtn = new QPushButton("关闭", &dialog);
+                dialogLayout->addWidget(closeBtn, 0, Qt::AlignCenter);
+                connect(closeBtn, &QPushButton::clicked, &dialog, &QDialog::accept);
+
+                dialog.exec();
+            });
+            table->setCellWidget(row, 5, btn);
+        }
+    }
+
+    QPushButton *lotteryBtn = new QPushButton("开始抽签", page);
+    if (!flag) lotteryBtn->setVisible(false);
+    lotteryBtn->setStyleSheet("font-size: 18px; background-color: #4CAF50; color: white; padding: 10px; border-radius: 5px;");
+    layout->addWidget(lotteryBtn);
+
+    QProgressBar *progressBar = new QProgressBar(page);
+    if (!flag) progressBar->setVisible(false);
+    progressBar->setRange(0, 100);
+    layout->addWidget(progressBar);
+
+    connect(lotteryBtn, &QPushButton::clicked, this, [=]() {
+        QVector<CourseInfo> allCourses = loadCoursesFromJsonFile("courses.json");
+        QFile userFile("users.json");
+
+        if (!userFile.open(QIODevice::ReadOnly)) {
+            QMessageBox::warning(this, "错误", "无法读取用户信息！");
+            return;
+        }
+
+        QJsonObject userRoot = QJsonDocument::fromJson(userFile.readAll()).object();
+        userFile.close();
+
+        int processed = 0;
+        int total = 0;
+        for (const CourseInfo &course : allCourses)
+            if (course.Now_person > course.Max_person)
+                ++total;
+
+        for (const CourseInfo &course : allCourses) {
+            if (course.Now_person <= course.Max_person) continue;
+
+            QString courseCode = course.code;
+            QString courseName = course.name;
+            QStringList teachers = course.teacherList;
+
+            QVector<QString> pool;
+            QSet<QString> allApplicants;
+
+            for (const QString &username : userRoot.keys()) {
+                QJsonObject u = userRoot[username].toObject();
+                QJsonArray currentCourses = u["currentCourses"].toArray();
+                bool hasCourse = std::any_of(currentCourses.begin(), currentCourses.end(), [&](const QJsonValue &v) {
+                    return v.toObject().value("code").toString() == courseCode;
+                });
+                if (hasCourse) {
+                    int vote = u["courseVotes"].toObject().value(courseCode).toInt(0);
+                    for (int i = 0; i < vote + 1; ++i)
+                        pool.append(username);
+                    allApplicants.insert(username);
+                }
+            }
+
+            std::shuffle(pool.begin(), pool.end(), *QRandomGenerator::global());
+            QSet<QString> selected;
+            for (const QString &u : pool) {
+                if (selected.size() >= course.Max_person) break;
+                selected.insert(u);
+            }
+
+            for (const QString &username : allApplicants) {
+                QJsonObject u = userRoot[username].toObject();
+                QJsonObject lottery = u["courseLottery"].toObject();
+                lottery[courseCode] = selected.contains(username);
+                u["courseLottery"] = lottery;
+                userRoot[username] = u;
+            }
+
+            ++processed;
+            progressBar->setValue(processed * 100 / total);
+            QCoreApplication::processEvents();
+        }
+
+        QFile outFile("users.json");
+        if (outFile.open(QIODevice::WriteOnly)) {
+            outFile.write(QJsonDocument(userRoot).toJson(QJsonDocument::Indented));
+            outFile.close();
+            QMessageBox::information(this, "抽签完成", "所有抽签已完成，结果已保存！");
+            TeacherInfo *teacher = new TeacherInfo(this);
+            teacher->SetLottery();
+            teacher->save();
+            delete teacher;
+            refreshLotteryPage(page, layout);
+        } else {
+            QMessageBox::warning(this, "写入失败", "无法保存 users.json 文件！");
+        }
+    });
+}
+void TeacherWindow::exportAllCourseStudentLists() {
+    QVector<CourseInfo> allCourses = loadCoursesFromJsonFile("courses.json");
+
+    QFile userFile("users.json");
+    if (!userFile.open(QIODevice::ReadOnly)) {
+        QMessageBox::warning(this, "错误", "无法读取用户数据！");
+        return;
+    }
+    QJsonObject userRoot = QJsonDocument::fromJson(userFile.readAll()).object();
+    userFile.close();
+
+    QDialog dialog(this);
+    dialog.setWindowTitle("正在导出所有课程名单...");
+    QVBoxLayout *layout = new QVBoxLayout(&dialog);
+    QProgressBar *progressBar = new QProgressBar(&dialog);
+    layout->addWidget(progressBar);
+    dialog.resize(400, 100);
+    dialog.show();
+
+    int totalCourses = allCourses.size();
+    int processed = 0;
+
+    for (const CourseInfo &course : allCourses) {
+        QString courseCode = course.code;
+        QString title = QString("curriculum/%1-%2-%3-%4.csv")
+                            .arg(course.index)
+                            .arg(course.code)
+                            .arg(course.name)
+                            .arg(course.teacherList.join("_"));
+
+        QFile outFile(title);
+        if (!outFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
+            QMessageBox::warning(this, "写入失败", QString("无法写入文件 %1").arg(title));
+            continue;
+        }
+        outFile.write("\xEF\xBB\xBF");
+        QTextStream out(&outFile);
+        // file.write("\xEF\xBB\xBF");
+        // out.setCodec("UTF-8");
+        out << "序号,学号,姓名,年级,院系\n";
+
+        int rowNum = 1;
+
+        for (const QString &username : userRoot.keys()) {
+            QJsonObject u = userRoot[username].toObject();
+            QJsonArray currentCourses = u["currentCourses"].toArray();
+            bool hasCourse = std::any_of(currentCourses.begin(), currentCourses.end(), [&](const QJsonValue &v) {
+                return v.toObject().value("code").toString() == courseCode;
+            });
+
+            if (!hasCourse)
+                continue;
+
+            if (course.Now_person > course.Max_person) {
+                QJsonObject lottery = u["courseLottery"].toObject();
+                if (!lottery.value(courseCode).toBool(false))
+                    continue;
+            }
+
+            QString index = u.value("index").toString();
+            QString name = u.value("realname").toString();
+            QString grade = u.value("grade").toString();
+            QString college = u.value("college").toString();
+            out << QString("%1,%2,%3,%4,%5\n").arg(rowNum++).arg(index, name, grade, college);
+        }
+
+        outFile.close();
+        ++processed;
+        progressBar->setValue(processed * 100 / totalCourses);
+        QCoreApplication::processEvents();
+    }
+
+    QMessageBox::information(this, "导出完成", "所有课程名单已导出为 CSV 文件！");
+    dialog.accept();
 }
 void TeacherWindow::refreshMainPage() {
     if (!infoLabel) return;
@@ -160,6 +439,8 @@ void TeacherWindow::refreshMainPage() {
             .arg(teacherInfo->getCurrentTerm().toString())
             .arg(teacherInfo->getEnrollmentTerm().isValid() ? teacherInfo->getEnrollmentTerm().toString() : "无")
         );
+    extraLabel->setText(teacherInfo->GetHasDoneLottery()?"抽签已完成":"抽签未完成");
+    if (!teacherInfo->getEnrollmentTerm().isValid() && !teacherInfo->getRecentlyEndedTerm().isValid()) extraLabel->setVisible(false);
 
     for (int i = 0; i < functionButtons.size(); ++i) {
         QToolButton *btn = functionButtons[i];
@@ -197,7 +478,12 @@ QWidget* TeacherWindow::createMainPage() {
         );
     infoLabel->setAlignment(Qt::AlignLeft);
     infoLabel->setStyleSheet("font-size: 16px; font-weight: bold;");
+    extraLabel = new QLabel(page);
+    extraLabel->setText(teacherInfo->GetHasDoneLottery()?"抽签已完成":"抽签未完成");
+    extraLabel->setStyleSheet("font-size: 16px; font-weight: bold;");
+    if (!teacherInfo->getEnrollmentTerm().isValid()&&!teacherInfo->getRecentlyEndedTerm().isValid()) extraLabel->setVisible(false);
     mainLayout->addWidget(infoLabel);
+    mainLayout->addWidget(extraLabel);
 
     QGridLayout *grid = new QGridLayout;
 
@@ -317,9 +603,212 @@ QWidget* TeacherWindow::createSubPage(const QString &pageName, const Term &opera
     connect(backButton, &QPushButton::clicked, this, &TeacherWindow::showMainPage);
     layout->addWidget(backButton);
     // layout->addStretch();
-    if (pageName == "编辑课程列表") {
+    if (pageName == "导出信息"){
+        QLabel *tip = new QLabel("点击下方按钮导出所有课程的选课学生名单（CSV 格式）", page);
+        tip->setStyleSheet("font-size: 16px; font-weight: bold;");
+        layout->addWidget(tip);
 
-        currentCourseFilePath = QString("course_%1.json").arg(operateTerm.toString());
+        QPushButton *exportBtn = new QPushButton("导出所有课程名单", page);
+        exportBtn->setStyleSheet("font-size: 18px; background-color: #4CAF50; color: white; padding: 10px; border-radius: 5px;");
+        layout->addWidget(exportBtn);
+
+        connect(exportBtn, &QPushButton::clicked, this, &TeacherWindow::exportAllCourseStudentLists);
+    }
+    else if (pageName == "抽签") {
+        // refreshLotteryPage(page, layout);
+        TeacherInfo *Teacher = new TeacherInfo(this);
+        bool flag = !Teacher->GetHasDoneLottery();
+        QLabel *title = new QLabel(flag?"以下课程人数超限，需要抽签：":"抽签已完成，点击下方按钮查看抽签结果：", page);
+        title->setStyleSheet("font-weight: bold; font-size: 16px;");
+        layout->addWidget(title);
+
+        QTableWidget *table = new QTableWidget(page);
+        table->setColumnCount(6);
+        table->setHorizontalHeaderLabels({"索引号", "课程号", "课程名称", "教师", "已选/限选", "操作"});
+        table->horizontalHeader()->setStretchLastSection(true);
+        layout->addWidget(table);
+
+        // QFile file("resources/courses.json");
+        // if (!file.open(QIODevice::ReadOnly)) {
+        //     QMessageBox::warning(this, "读取失败", "无法打开课程信息文件！");
+        //     return page;
+        // }
+        // QJsonDocument doc = QJsonDocument::fromJson(file.readAll());
+        // file.close();
+
+        // if (!doc.isArray()) return page;
+
+        // QJsonArray arr = doc.array();
+        QVector<CourseInfo> All_courses = loadCoursesFromJsonFile("courses.json");
+
+        for (const CourseInfo &c : All_courses) {
+            if (c.Now_person > c.Max_person) {
+                int row = table->rowCount();
+                table->insertRow(row);
+
+                table->setItem(row, 0, new QTableWidgetItem(c.index));
+                table->setItem(row, 1, new QTableWidgetItem(c.code));
+                table->setItem(row, 2, new QTableWidgetItem(c.name));
+                table->setItem(row, 3, new QTableWidgetItem(c.teacherList.join("、")));
+                table->setItem(row, 4, new QTableWidgetItem(QString("%2 / %1").arg(QString::number(c.Max_person)).arg(QString::number(c.Now_person))));
+
+            QPushButton *btn = new QPushButton(flag?"查看选课学生":"查看选课结果", table);
+            connect(btn, &QPushButton::clicked, this, [=]() {
+                QString courseCode = c.code;
+                QString courseName = c.name;
+                QString teachers = c.teacherList.join(", ");
+
+                QDialog dialog(this);
+                dialog.setWindowTitle(QString("%1 %2（%3）抽签名单").arg(courseCode, courseName, teachers));
+                dialog.resize(600, 400);
+                QVBoxLayout *dialogLayout = new QVBoxLayout(&dialog);
+
+                QTableWidget *studentTable = new QTableWidget(&dialog);
+                if (flag) studentTable->setColumnCount(4),studentTable->setHorizontalHeaderLabels({"学号", "姓名", "院系", "投点"});
+                else studentTable->setColumnCount(5),studentTable->setHorizontalHeaderLabels({"学号", "姓名", "院系", "投点","状态"});
+                studentTable->horizontalHeader()->setStretchLastSection(true);
+                dialogLayout->addWidget(studentTable);
+
+                QFile userFile("users.json");
+                if (userFile.open(QIODevice::ReadOnly)) {
+                    QJsonObject root = QJsonDocument::fromJson(userFile.readAll()).object();
+                    userFile.close();
+
+                    int row = 0;
+                    for (const QString &username : root.keys()) {
+                        QJsonObject u = root[username].toObject();
+                        QJsonArray current = u["currentCourses"].toArray();
+                        bool hasCourse = std::any_of(current.begin(), current.end(), [&](const QJsonValue &v) {
+                            return v.toObject().value("code").toString() == courseCode;
+                        });
+
+                        if (hasCourse) {
+                            studentTable->insertRow(row);
+                            auto setCell = [&](int col, const QString &text) {
+                                QTableWidgetItem *item = new QTableWidgetItem(text);
+                                item->setTextAlignment(Qt::AlignCenter);
+                                if (text == "未选上") item->setForeground(QBrush(Qt::red));
+                                else item->setForeground(QBrush(Qt::black));
+                                studentTable->setItem(row, col, item);
+                            };
+                            setCell(0, u.value("index").toString());
+                            setCell(1, u.value("realname").toString());
+                            setCell(2, u.value("college").toString());
+                            int vote = u["courseVotes"].toObject().value(courseCode).toInt(0);
+                            setCell(3, QString::number(vote));
+                            bool status = u["courseLottery"].toObject().value(courseCode).toBool();
+                            if (!flag) setCell(4, status?"已选上":"未选上");
+                            row++;
+                        }
+                    }
+                } else {
+                    QMessageBox::warning(this, "读取失败", "无法打开用户数据！");
+                }
+
+                QPushButton *closeBtn = new QPushButton("关闭", &dialog);
+                dialogLayout->addWidget(closeBtn, 0, Qt::AlignCenter);
+                connect(closeBtn, &QPushButton::clicked, &dialog, &QDialog::accept);
+
+                dialog.exec();
+            });
+            table->setCellWidget(row, 5, btn);
+
+            row++;
+            }
+        }
+
+        QPushButton *lotteryBtn = new QPushButton("开始抽签", page);
+        if (!flag) lotteryBtn->setVisible(false);
+        lotteryBtn->setStyleSheet("font-size: 18px; background-color: #4CAF50; color: white; padding: 10px; border-radius: 5px;");
+        layout->addWidget(lotteryBtn);
+
+        QProgressBar *progressBar = new QProgressBar(page);
+        if (!flag) progressBar->setVisible(false);
+        progressBar->setRange(0, 100);
+        layout->addWidget(progressBar);
+
+        connect(lotteryBtn, &QPushButton::clicked, this, [=]() {
+            QVector<CourseInfo> allCourses = loadCoursesFromJsonFile("courses.json");
+            QFile userFile("users.json");
+
+            if (!userFile.open(QIODevice::ReadOnly)) {
+                QMessageBox::warning(this, "错误", "无法读取用户信息！");
+                return;
+            }
+
+            QJsonObject userRoot = QJsonDocument::fromJson(userFile.readAll()).object();
+            userFile.close();
+
+            int processed = 0;
+            int total = 0;
+            for (const CourseInfo &course : allCourses)
+                if (course.Now_person > course.Max_person)
+                    ++total;
+
+            for (const CourseInfo &course : allCourses) {
+                if (course.Now_person <= course.Max_person) continue;
+
+                QString courseCode = course.code;
+                QString courseName = course.name;
+                QStringList teachers = course.teacherList;
+
+                QVector<QString> pool;
+                QSet<QString> allApplicants;
+
+                for (const QString &username : userRoot.keys()) {
+                    QJsonObject u = userRoot[username].toObject();
+                    QJsonArray currentCourses = u["currentCourses"].toArray();
+                    bool hasCourse = std::any_of(currentCourses.begin(), currentCourses.end(), [&](const QJsonValue &v) {
+                        return v.toObject().value("code").toString() == courseCode;
+                    });
+                    if (hasCourse) {
+                        int vote = u["courseVotes"].toObject().value(courseCode).toInt(0);
+                        for (int i = 0; i < vote + 1; ++i)
+                            pool.append(username);
+                        allApplicants.insert(username);
+                    }
+                }
+
+                std::shuffle(pool.begin(), pool.end(), *QRandomGenerator::global());
+                QSet<QString> selected;
+                for (const QString &u : pool) {
+                    if (selected.size() >= course.Max_person) break;
+                    selected.insert(u);
+                }
+
+                for (const QString &username : allApplicants) {
+                    QJsonObject u = userRoot[username].toObject();
+                    QJsonObject lottery = u["courseLottery"].toObject();
+                    lottery[courseCode] = selected.contains(username);
+                    u["courseLottery"] = lottery;
+                    userRoot[username] = u;
+                }
+
+                ++processed;
+                progressBar->setValue(processed * 100 / total);
+                QCoreApplication::processEvents();
+            }
+
+            QFile outFile("users.json");
+            if (outFile.open(QIODevice::WriteOnly)) {
+                outFile.write(QJsonDocument(userRoot).toJson(QJsonDocument::Indented));
+                outFile.close();
+                QMessageBox::information(this, "抽签完成", "所有抽签已完成，结果已保存！");
+                TeacherInfo *teacher = new TeacherInfo(this);
+                teacher->SetLottery();
+                teacher->ElectiveTermPass();
+                // teacherInfo->save();
+                teacher->save();
+                delete teacher;
+                refreshLotteryPage(page, layout);
+            } else {
+                QMessageBox::warning(this, "写入失败", "无法保存 users.json 文件！");
+            }
+        });
+    }
+    else if (pageName == "编辑课程列表") {
+
+        currentCourseFilePath = QString("courses.json").arg(operateTerm.toString());
         loadCoursesFromFile();
         refreshCourseTable();
         QLineEdit *searchBox = new QLineEdit(page);
@@ -566,7 +1055,7 @@ QWidget* TeacherWindow::createSubPage(const QString &pageName, const Term &opera
                 //     return;
                 // }
                 CourseInfo c;
-                c.index = QString::number(courses.size());
+                c.index = QString::number(courses.size() + 1);
                 c.code = codeEdit->text();
                 c.name = nameEdit->text();
                 c.unit = collegeBox->currentText();
@@ -850,7 +1339,7 @@ QWidget* TeacherWindow::createSubPage(const QString &pageName, const Term &opera
                     courseTable->removeRow(i);
                 }
                 for (int i = 0; i < courses.size(); ++i) {
-                    courses[i].index = QString::number(i);
+                    courses[i].index = QString::number(i+1);
                 }
                 refreshCourseTable();
                 saveCoursesToFile();
@@ -913,7 +1402,7 @@ QWidget* TeacherWindow::createSubPage(const QString &pageName, const Term &opera
                 return;
             }
 
-            QVector<CourseInfo> All_courses = loadCoursesFromJsonFile(":/resources/resources/courses.json");
+            QVector<CourseInfo> All_courses = loadCoursesFromJsonFile("courses.json");
 
             bool courseFound = false;
             CourseInfo foundcourse;
@@ -957,9 +1446,9 @@ QWidget* TeacherWindow::createSubPage(const QString &pageName, const Term &opera
         layout->addStretch();
     }
     else if (pageName == "修改当前学期"){
-        QLabel *curLabel = new QLabel("当前学期：" + teacherInfo->getCurrentTerm().toString(), page);
-        QLabel *enrollLabel = new QLabel("当前选课学期：" + teacherInfo->getEnrollmentTerm().toString(), page);
-        QLabel *upcomingLabel = new QLabel("待开始选课学期：" + teacherInfo->getUpcomingTerm().toString(), page);
+        curLabel = new QLabel("当前学期：" + teacherInfo->getCurrentTerm().toString(), page);
+        enrollLabel = new QLabel("当前选课学期：" + teacherInfo->getEnrollmentTerm().toString(), page);
+        upcomingLabel = new QLabel("待开始选课学期：" + teacherInfo->getUpcomingTerm().toString(), page);
 
         layout->addWidget(curLabel);
         layout->addWidget(enrollLabel);
@@ -1022,7 +1511,7 @@ QWidget* TeacherWindow::createSubPage(const QString &pageName, const Term &opera
                 );
 
             if (reply == QMessageBox::Yes) {
-                teacherInfo->ElectiveTermPass();
+                teacherInfo->setTermEnd();
                 teacherInfo->save();
                 QMessageBox::information(this, "提示", "操作成功！");
                 curLabel->setText("当前学期：" + teacherInfo->getCurrentTerm().toString());
@@ -1126,6 +1615,7 @@ QWidget* TeacherWindow::createSubPage(const QString &pageName, const Term &opera
 void TeacherWindow::showSubPage(const QString &pageName, const Term &operateTerm) {
     QString key = pageName + operateTerm.toString();
     if (pageName == "编辑课程列表") this->resize(1130, 700);
+    if (pageName == "抽签") this->resize(800,600);
     if (!subPages.contains(key)) {
         QWidget *subPage = createSubPage(pageName, operateTerm);
         subPages[key] = subPage;
@@ -1136,6 +1626,7 @@ void TeacherWindow::showSubPage(const QString &pageName, const Term &operateTerm
 
 void TeacherWindow::showMainPage() {
     resize(300, 300);
+    // qDebug() << 123;
     refreshMainPage();
     stackedWidget->setCurrentIndex(0);
 }

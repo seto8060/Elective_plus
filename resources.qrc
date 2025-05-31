@@ -20,5 +20,7 @@
         <file>icon/edit.svg</file>
         <file>icon/reset.svg</file>
         <file>resources/comments.json</file>
+        <file>resources/background.png</file>
+        <file>pictures/logo.png</file>
     </qresource>
 </RCC>

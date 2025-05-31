@@ -1,8 +1,8 @@
 #include "CourseInfo.h"
 #include <QJsonObject>
 #include <QJsonArray>
-#include<QJsonDocument>
 #include <QFile>
+#include <QString>
 
 CourseInfo parseCourseFromJson(const QJsonObject &obj) {
     CourseInfo course;
@@ -27,13 +27,43 @@ CourseInfo parseCourseFromJson(const QJsonObject &obj) {
     course.firstClass = obj.value("first-class").toString();
     course.chineseIntro = obj.value("chinese-intro").toString();
     course.englishIntro = obj.value("english-intro").toString();
+    course.Max_person = obj.value("maxperson").toInt();
+    course.Now_person = obj.value("nowperson").toInt();
     course.obj = obj;
     return course;
 }
 QJsonObject CourseInfo::toJson() const {
+    QJsonObject obj;
+    obj.insert("index", index);
+    obj.insert("code", code);
+    obj.insert("name", name);
+    obj.insert("unit", unit);
+    obj.insert("type", type);
+    obj.insert("class", classNumber);
+    obj.insert("score", score);
+    obj.insert("week", week);
+
+    QJsonArray timeArr;
+    for (const auto &t : timeList)
+        timeArr.append(t);
+    obj.insert("time", timeArr);
+
+    QJsonArray teacherArr;
+    for (const auto &t : teacherList)
+        teacherArr.append(t);
+    obj.insert("teacher", teacherArr);
+
+    obj.insert("info", info);
+    obj.insert("first-class", firstClass);
+    obj.insert("chinese-intro", chineseIntro);
+    obj.insert("english-intro", englishIntro);
+    QVector<int> indices = {2533,2781,2778,2568,2782,2696,2783};//for test
+    obj.insert("maxperson", 90);
+    obj.insert("nowperson", indices.contains(index.toInt()) ? 100 : 90);
+
     return obj;
 }
-static bool saveCoursesToFile(const QString &filename, const QList<CourseInfo> &courses) {
+bool saveCoursesToFile(const QString &filename, const QList<CourseInfo> &courses) {
     QJsonArray arr;
     for (const auto &c : courses)
         arr.append(c.toJson());

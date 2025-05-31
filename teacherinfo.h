@@ -33,6 +33,7 @@ public:
         lastEnrollmentEnded = enrollmentTerm;
         upcomingTerm = enrollmentTerm.nextTerm();
         enrollmentTerm.semester = 0;
+        TermEnd = false;
         return ;
     }
     void ElectiveTermCome(){
@@ -47,7 +48,7 @@ public:
         return Term(-1,-1);
     }
     Term canDoLottery() const{
-        if (lastEnrollmentEnded.semester != 0) return lastEnrollmentEnded;
+        if (TermEnd) return currentTerm;
         return Term(-1,-1);
     }
     Term canExportStudentInfo() const{
@@ -62,6 +63,15 @@ public:
     void refreshVerifyCode(){
         verifycode = QRandomGenerator::global()->bounded(1000, 10000);
     }
+    void SetLottery(){
+        HasDoneLottery = !HasDoneLottery;
+    }
+    bool GetHasDoneLottery(){
+        return HasDoneLottery;
+    }
+    void setTermEnd(){
+        TermEnd = true;
+    }
 
 private:
     //作为教务维护以下变量：
@@ -71,4 +81,5 @@ private:
     Term lastEnrollmentEnded = Term(2025,0);    // 刚刚结束选课的学期
     bool HasDoneLottery = false;
     int verifycode = 1024;
+    bool TermEnd = false;
 };

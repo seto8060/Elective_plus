@@ -17,7 +17,7 @@ UserInfo::UserInfo(const QString &username,
     college(college),
     Index(Index),
     Realname(Realname){
-        QVector<CourseInfo> All_courses = loadCoursesFromJsonFile(":/resources/resources/courses.json");
+        QVector<CourseInfo> All_courses = loadCoursesFromJsonFile("courses.json");
         QVector<int> indices = {2533,2781,2778,2568,2782,2696,2783};
         // currentCourses;
         for (int idx : indices) {
@@ -66,6 +66,10 @@ int UserInfo::getRemainingPoints() const {
 
 int UserInfo::getPointForCourse(const QString &courseCode) const {
     return courseVotes.value(courseCode, 0);
+}
+
+bool UserInfo::getResultForCourse(const QString &courseCode) const{
+    return courseLottery.value(courseCode,0);
 }
 
 void UserInfo::setPointForCourse(const QString &courseCode, int points) {
@@ -123,6 +127,11 @@ QJsonObject UserInfo::toJson() const {
         voteObj[it.key()] = it.value();
     }
     obj["courseVotes"] = voteObj;
+    QJsonObject LotteryObj;
+    for (auto it = courseLottery.begin(); it != courseLottery.end(); ++it) {
+        LotteryObj[it.key()] = it.value();
+    }
+    obj["courseLottery"] = LotteryObj;
     QJsonArray courseArray;
     for (const CourseInfo &course : currentCourses) {
         courseArray.append(course.toJson());
@@ -169,6 +178,12 @@ UserInfo UserInfo::fromJson(const QJsonObject &obj) {
         QJsonObject voteObj = obj["courseVotes"].toObject();
         for (auto it = voteObj.begin(); it != voteObj.end(); ++it) {
             u.courseVotes[it.key()] = it.value().toInt();
+        }
+    }
+    if (obj.contains("courseLottery") && obj["courseLottery"].isObject()) {
+        QJsonObject voteObj = obj["courseLottery"].toObject();
+        for (auto it = voteObj.begin(); it != voteObj.end(); ++it) {
+            u.courseLottery[it.key()] = it.value().toBool();
         }
     }
     // qDebug() << 1;

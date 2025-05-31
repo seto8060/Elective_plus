@@ -1,4 +1,5 @@
 #include "CourseLoader.h"
+#include "CourseInfo.h"
 #include <QFile>
 #include <QJsonDocument>
 #include <QJsonArray>
@@ -29,5 +30,6 @@ QVector<CourseInfo> loadCoursesFromJsonFile(const QString &filePath) {
             courseList.append(parseCourseFromJson(val.toObject()));
         }
     }
+    saveCoursesToFile("courses.json",courseList);
     return courseList;
 }

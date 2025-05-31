@@ -70,7 +70,7 @@ HistoryPage::HistoryPage(UserInfo* userInfo, QStackedWidget* mainStack, QVector<
             auto* historytimetable = new TimetablePage(this);
             auto* historyList = new CourseListWidget(this, 1, user,term,allcourseptr);
             qDebug() << 1 ;
-            historytimetable->setCourses(courses);
+            historytimetable->setCourses(courses,nullptr);
             historyList->setCourses(courses, 1, user);
             stack->addWidget(historytimetable);
             stack->addWidget(historyList);

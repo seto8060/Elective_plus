@@ -1,5 +1,8 @@
 #include "TimetablePage.h"
+#include "userinfo.h"
+#include "teacherinfo.h"
 #include <QVBoxLayout>
+#include <QDebug>
 
 TimetablePage::TimetablePage(QWidget *parent) : QWidget(parent) {
     timetable = new CustomTimetableWidget(this);
@@ -37,6 +40,17 @@ TimetablePage::TimetablePage(QWidget *parent) : QWidget(parent) {
     });
 }
 
-void TimetablePage::setCourses(const QVector<CourseInfo> &courses) {
-    timetable->setCourses(courses);
+void TimetablePage::setCourses(const QVector<CourseInfo> &courses,UserInfo *userinfo) {
+    TeacherInfo *teacher1 = new TeacherInfo(this);
+    if (userinfo == nullptr || teacher1->GetHasDoneLottery() == false) {
+        timetable->setCourses(courses);
+        return ;
+    }
+    QVector<CourseInfo> filtered;
+    for (const auto &course : courses) {
+        qDebug() << course.code;
+        if (userinfo->getResultForCourse(course.code) == true)
+            filtered.append(course);
+    }
+    timetable->setCourses(filtered);
 }

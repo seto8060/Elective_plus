@@ -30,3 +30,4 @@ public:
     }
 };
 CourseInfo parseCourseFromJson(const QJsonObject &obj);
+bool saveCoursesToFile(const QString &filename, const QList<CourseInfo> &courses) ;
