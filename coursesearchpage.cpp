@@ -98,11 +98,11 @@ void CourseSearchPage::populateCourseTable(const QVector<CourseInfo>& courses) {
         }
         QVector<comment> thisCourseComments;
         for(const auto& v:tar->comments){
-            qDebug()<<v.teacher.join("")<<'\n';
-            qDebug()<<c.teacherList.join("")<<'\n';
+            // qDebug()<<v.teacher.join("")<<'\n';
+            // qDebug()<<c.teacherList.join("")<<'\n';
             if(v.teacher.join("")==c.teacherList.join("")){
                 
-                qDebug()<<"+1";
+                // qDebug()<<"+1";
                 thisCourseComments.append(v);
             }
         }

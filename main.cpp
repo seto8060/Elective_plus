@@ -19,7 +19,7 @@ int main(int argc, char *argv[]) {
 
             QObject::connect(mainWin, &QObject::destroyed, [=]() {
                 saveUserToJson(user);
-                qDebug() << "saved" << user->getUsername() << Qt::endl;
+                // qDebug() << "saved" << user->getUsername() << Qt::endl;
                 delete user;
             });
         }

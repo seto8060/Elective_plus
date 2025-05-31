@@ -126,7 +126,7 @@ MainWindow::MainWindow(UserInfo *userInfo,QWidget *parent) : QMainWindow(parent)
     //connect(courseSelectionPage,&CourseSelection::coursesUpdated,this,[courseList,timetablePage](){
     //    timetablePage->setCourses(courseList);
     //});
-    connect(courseSelectionPage,&CourseSelection::coursesUpdated,this,&MainWindow::updateCurrentCourse);
+    // connect(courseSelectionPage,&CourseSelection::coursesUpdated,this,&MainWindow::updateCurrentCourse);
 
     connect(timetablePage, &TimetablePage::requestSwitchToList, this, [=]() {
         mainStack->setCurrentWidget(courseListPage);
@@ -182,7 +182,7 @@ MainWindow::MainWindow(UserInfo *userInfo,QWidget *parent) : QMainWindow(parent)
 }
 
 void MainWindow::changeModule(int index) {
-    qDebug() << index;
+    // qDebug() << index;
     // 当切换到收藏夹页面时，更新收藏夹内容
     if (index == 3) { // 收藏夹的索引是3
         updateFavoritesPage();
@@ -190,9 +190,9 @@ void MainWindow::changeModule(int index) {
         timetablePage->refreshCourses(user);
         courseListPage->setCourses(user->getCurrentCourses(), 0, user);
     }
-    if(index==0){
-        updateCurrentCourse();
-    }
+    // if(index==0){
+    //     updateCurrentCourse();
+    // }
     mainStack->setCurrentIndex(index);
 }
 void MainWindow::updateFavoritesPage(){
@@ -204,12 +204,12 @@ void MainWindow::updateFavoritesPage(){
 //     setWindowTitle(QString("%1%2您好，欢迎来到选课网++！").arg(user.getUsername(), user.getGrade()));
 // }
 
-void MainWindow::updateCurrentCourse(){
-    if(m_courselist){
-        m_courselist->setCourses(user->getCurrentCourses(),0,user);
-        m_timetablePage->setCourses(user->getCurrentCourses());
-    }
-}
+// void MainWindow::updateCurrentCourse(){
+//     if(m_courselist){
+//         m_courselist->setCourses(user->getCurrentCourses(),0,user);
+//         m_timetablePage->setCourses(user->getCurrentCourses());
+//     }
+// }
 
 void MainWindow::loadCourseData() {
     // QVector<CourseInfo> All_courses = loadCoursesFromJsonFile(":/resources/resources/courses.json");

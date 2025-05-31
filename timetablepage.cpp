@@ -48,7 +48,7 @@ void TimetablePage::setCourses(const QVector<CourseInfo> &courses,UserInfo *user
     }
     QVector<CourseInfo> filtered;
     for (const auto &course : courses) {
-        qDebug() << course.code;
+        // qDebug() << course.code;
         if (userinfo->getResultForCourse(course.code) == true)
             filtered.append(course);
     }

@@ -43,7 +43,7 @@ QVector<courseComment> loadCommentsFromJsonFile(const QString &filePath) {
 
         // 获取标准路径
         QString filePath = "comments.json";
-        qDebug() << "Writing to file:" << filePath;
+        // qDebug() << "Writing to file:" << filePath;
 
         // 创建目录（如果不存在）
         QDir dir(QFileInfo(filePath).absolutePath());
@@ -96,7 +96,7 @@ QVector<courseComment> loadCommentsFromJsonFile(const QString &filePath) {
         }
 
         file.close();
-        qDebug() << "Success: Data written to" << filePath;
+        // qDebug() << "Success: Data written to" << filePath;
 
     }
 

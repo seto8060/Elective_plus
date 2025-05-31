@@ -175,15 +175,15 @@ void LoginWindow::handleLogin() {
             return ;
         }
         TeacherInfo *t = new TeacherInfo(this);
-        qDebug() << t->getverifycode();
+        // qDebug() << t->getverifycode();
         if (verifyBox->text() != QString::number(t->getverifycode())){
             errorLabel->setText("验证码错误！");
             errorLabel->setVisible(true);
             return;
         }
-        qDebug() << 1;
+        // qDebug() << 1;
         UserInfo *user= new UserInfo(0);
-        qDebug() << user->getIndex();
+        // qDebug() << user->getIndex();
         emit loginSuccess(user);
         this->close();
         return ;

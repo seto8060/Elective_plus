@@ -206,9 +206,9 @@ void CourseListWidget::setCourses(const QVector<CourseInfo> &courses,int type,Us
                         newCourseComment.comments.append(comment);
                         m_allCourseComments->append(newCourseComment);
                     }
-                    qDebug()<<"Have found\n";                    // 保存评论到JSON文件
+                    // qDebug()<<"Have found\n";                    // 保存评论到JSON文件
                     saveCommentToJson(m_allCourseComments);
-                    qDebug() << "Saved comment for course: " << c.code<<Qt::endl;
+                    // qDebug() << "Saved comment for course: " << c.code<<Qt::endl;
                     QMessageBox::information(this, "成功", "课程评价已保存！");
                     //emit commentUpdated();
                 }
