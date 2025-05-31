@@ -22,6 +22,7 @@ public:
     void importCoursesFromCSV();
     void refreshCourseTable();
     void saveCoursesToFile();
+    void exportAllCourseStudentLists();
     void loadCoursesFromFile() {
         courses.clear();
 
@@ -50,12 +51,13 @@ private:
     QStackedWidget *stackedWidget;
     QMap<QString, QWidget*> subPages;
     TeacherInfo *teacherInfo;
-    QLabel *infoLabel = nullptr;
+    QLabel *infoLabel = nullptr, *extraLabel = nullptr;
     QList<QToolButton*> functionButtons;
     QList<Term> functionTerms;
     QVector<CourseInfo> courses;
     QTableWidget *courseTable = nullptr;
     QString currentCourseFilePath;
+    QLabel *curLabel ,*enrollLabel,*upcomingLabel;
 };
 /*
 教务界面设计：

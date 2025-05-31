@@ -36,6 +36,7 @@ TeacherWindow::TeacherWindow(QWidget *parent)
 {
     stackedWidget = new QStackedWidget(this);
     stackedWidget->addWidget(createMainPage());
+    setWindowTitle("选课网++：教务系统");
 
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
     mainLayout->addWidget(stackedWidget);
@@ -93,7 +94,7 @@ void TeacherWindow::importCoursesFromCSV() {
         if (fields.size() <10) continue;
 
         CourseInfo course;
-        course.index = QString::number(courses.size() + courses.size() + 1);
+        course.index = QString::number(courses.size() + 1);
         course.code = fields[1].trimmed();
         course.name = fields[2].trimmed();
         course.unit = fields[3].trimmed();
@@ -144,7 +145,7 @@ void TeacherWindow::saveCoursesToFile() {
     for (const auto &c : courses)
         arr.append(c.toJson());
 
-    QFile file(currentCourseFilePath);
+    QFile file("courses.json");
     if (!file.open(QIODevice::WriteOnly)) {
         QMessageBox::warning(this, "保存失败", "无法保存课程数据到文件！");
         return;
@@ -240,6 +241,8 @@ void TeacherWindow::refreshLotteryPage(QWidget *page, QVBoxLayout *layout) {
                             auto setCell = [&](int col, const QString &text) {
                                 QTableWidgetItem *item = new QTableWidgetItem(text);
                                 item->setTextAlignment(Qt::AlignCenter);
+                                if (text == "未选上") item->setForeground(QBrush(Qt::red));
+                                else item->setForeground(QBrush(Qt::black));
                                 studentTable->setItem(row, col, item);
                             };
                             setCell(0, u.value("index").toString());
@@ -353,6 +356,81 @@ void TeacherWindow::refreshLotteryPage(QWidget *page, QVBoxLayout *layout) {
         }
     });
 }
+void TeacherWindow::exportAllCourseStudentLists() {
+    QVector<CourseInfo> allCourses = loadCoursesFromJsonFile("courses.json");
+
+    QFile userFile("users.json");
+    if (!userFile.open(QIODevice::ReadOnly)) {
+        QMessageBox::warning(this, "错误", "无法读取用户数据！");
+        return;
+    }
+    QJsonObject userRoot = QJsonDocument::fromJson(userFile.readAll()).object();
+    userFile.close();
+
+    QDialog dialog(this);
+    dialog.setWindowTitle("正在导出所有课程名单...");
+    QVBoxLayout *layout = new QVBoxLayout(&dialog);
+    QProgressBar *progressBar = new QProgressBar(&dialog);
+    layout->addWidget(progressBar);
+    dialog.resize(400, 100);
+    dialog.show();
+
+    int totalCourses = allCourses.size();
+    int processed = 0;
+
+    for (const CourseInfo &course : allCourses) {
+        QString courseCode = course.code;
+        QString title = QString("curriculum/%1-%2-%3-%4.csv")
+                            .arg(course.index)
+                            .arg(course.code)
+                            .arg(course.name)
+                            .arg(course.teacherList.join("_"));
+
+        QFile outFile(title);
+        if (!outFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
+            QMessageBox::warning(this, "写入失败", QString("无法写入文件 %1").arg(title));
+            continue;
+        }
+        outFile.write("\xEF\xBB\xBF");
+        QTextStream out(&outFile);
+        // file.write("\xEF\xBB\xBF");
+        // out.setCodec("UTF-8");
+        out << "序号,学号,姓名,年级,院系\n";
+
+        int rowNum = 1;
+
+        for (const QString &username : userRoot.keys()) {
+            QJsonObject u = userRoot[username].toObject();
+            QJsonArray currentCourses = u["currentCourses"].toArray();
+            bool hasCourse = std::any_of(currentCourses.begin(), currentCourses.end(), [&](const QJsonValue &v) {
+                return v.toObject().value("code").toString() == courseCode;
+            });
+
+            if (!hasCourse)
+                continue;
+
+            if (course.Now_person > course.Max_person) {
+                QJsonObject lottery = u["courseLottery"].toObject();
+                if (!lottery.value(courseCode).toBool(false))
+                    continue;
+            }
+
+            QString index = u.value("index").toString();
+            QString name = u.value("realname").toString();
+            QString grade = u.value("grade").toString();
+            QString college = u.value("college").toString();
+            out << QString("%1,%2,%3,%4,%5\n").arg(rowNum++).arg(index, name, grade, college);
+        }
+
+        outFile.close();
+        ++processed;
+        progressBar->setValue(processed * 100 / totalCourses);
+        QCoreApplication::processEvents();
+    }
+
+    QMessageBox::information(this, "导出完成", "所有课程名单已导出为 CSV 文件！");
+    dialog.accept();
+}
 void TeacherWindow::refreshMainPage() {
     if (!infoLabel) return;
 
@@ -361,6 +439,8 @@ void TeacherWindow::refreshMainPage() {
             .arg(teacherInfo->getCurrentTerm().toString())
             .arg(teacherInfo->getEnrollmentTerm().isValid() ? teacherInfo->getEnrollmentTerm().toString() : "无")
         );
+    extraLabel->setText(teacherInfo->GetHasDoneLottery()?"抽签已完成":"抽签未完成");
+    if (!teacherInfo->getEnrollmentTerm().isValid() && !teacherInfo->getRecentlyEndedTerm().isValid()) extraLabel->setVisible(false);
 
     for (int i = 0; i < functionButtons.size(); ++i) {
         QToolButton *btn = functionButtons[i];
@@ -398,7 +478,12 @@ QWidget* TeacherWindow::createMainPage() {
         );
     infoLabel->setAlignment(Qt::AlignLeft);
     infoLabel->setStyleSheet("font-size: 16px; font-weight: bold;");
+    extraLabel = new QLabel(page);
+    extraLabel->setText(teacherInfo->GetHasDoneLottery()?"抽签已完成":"抽签未完成");
+    extraLabel->setStyleSheet("font-size: 16px; font-weight: bold;");
+    if (!teacherInfo->getEnrollmentTerm().isValid()&&!teacherInfo->getRecentlyEndedTerm().isValid()) extraLabel->setVisible(false);
     mainLayout->addWidget(infoLabel);
+    mainLayout->addWidget(extraLabel);
 
     QGridLayout *grid = new QGridLayout;
 
@@ -518,7 +603,18 @@ QWidget* TeacherWindow::createSubPage(const QString &pageName, const Term &opera
     connect(backButton, &QPushButton::clicked, this, &TeacherWindow::showMainPage);
     layout->addWidget(backButton);
     // layout->addStretch();
-    if (pageName == "抽签") {
+    if (pageName == "导出信息"){
+        QLabel *tip = new QLabel("点击下方按钮导出所有课程的选课学生名单（CSV 格式）", page);
+        tip->setStyleSheet("font-size: 16px; font-weight: bold;");
+        layout->addWidget(tip);
+
+        QPushButton *exportBtn = new QPushButton("导出所有课程名单", page);
+        exportBtn->setStyleSheet("font-size: 18px; background-color: #4CAF50; color: white; padding: 10px; border-radius: 5px;");
+        layout->addWidget(exportBtn);
+
+        connect(exportBtn, &QPushButton::clicked, this, &TeacherWindow::exportAllCourseStudentLists);
+    }
+    else if (pageName == "抽签") {
         // refreshLotteryPage(page, layout);
         TeacherInfo *Teacher = new TeacherInfo(this);
         bool flag = !Teacher->GetHasDoneLottery();
@@ -591,6 +687,8 @@ QWidget* TeacherWindow::createSubPage(const QString &pageName, const Term &opera
                             auto setCell = [&](int col, const QString &text) {
                                 QTableWidgetItem *item = new QTableWidgetItem(text);
                                 item->setTextAlignment(Qt::AlignCenter);
+                                if (text == "未选上") item->setForeground(QBrush(Qt::red));
+                                else item->setForeground(QBrush(Qt::black));
                                 studentTable->setItem(row, col, item);
                             };
                             setCell(0, u.value("index").toString());
@@ -698,6 +796,8 @@ QWidget* TeacherWindow::createSubPage(const QString &pageName, const Term &opera
                 QMessageBox::information(this, "抽签完成", "所有抽签已完成，结果已保存！");
                 TeacherInfo *teacher = new TeacherInfo(this);
                 teacher->SetLottery();
+                teacher->ElectiveTermPass();
+                // teacherInfo->save();
                 teacher->save();
                 delete teacher;
                 refreshLotteryPage(page, layout);
@@ -708,7 +808,7 @@ QWidget* TeacherWindow::createSubPage(const QString &pageName, const Term &opera
     }
     else if (pageName == "编辑课程列表") {
 
-        currentCourseFilePath = QString("course_%1.json").arg(operateTerm.toString());
+        currentCourseFilePath = QString("courses.json").arg(operateTerm.toString());
         loadCoursesFromFile();
         refreshCourseTable();
         QLineEdit *searchBox = new QLineEdit(page);
@@ -955,7 +1055,7 @@ QWidget* TeacherWindow::createSubPage(const QString &pageName, const Term &opera
                 //     return;
                 // }
                 CourseInfo c;
-                c.index = QString::number(courses.size());
+                c.index = QString::number(courses.size() + 1);
                 c.code = codeEdit->text();
                 c.name = nameEdit->text();
                 c.unit = collegeBox->currentText();
@@ -1239,7 +1339,7 @@ QWidget* TeacherWindow::createSubPage(const QString &pageName, const Term &opera
                     courseTable->removeRow(i);
                 }
                 for (int i = 0; i < courses.size(); ++i) {
-                    courses[i].index = QString::number(i);
+                    courses[i].index = QString::number(i+1);
                 }
                 refreshCourseTable();
                 saveCoursesToFile();
@@ -1346,9 +1446,9 @@ QWidget* TeacherWindow::createSubPage(const QString &pageName, const Term &opera
         layout->addStretch();
     }
     else if (pageName == "修改当前学期"){
-        QLabel *curLabel = new QLabel("当前学期：" + teacherInfo->getCurrentTerm().toString(), page);
-        QLabel *enrollLabel = new QLabel("当前选课学期：" + teacherInfo->getEnrollmentTerm().toString(), page);
-        QLabel *upcomingLabel = new QLabel("待开始选课学期：" + teacherInfo->getUpcomingTerm().toString(), page);
+        curLabel = new QLabel("当前学期：" + teacherInfo->getCurrentTerm().toString(), page);
+        enrollLabel = new QLabel("当前选课学期：" + teacherInfo->getEnrollmentTerm().toString(), page);
+        upcomingLabel = new QLabel("待开始选课学期：" + teacherInfo->getUpcomingTerm().toString(), page);
 
         layout->addWidget(curLabel);
         layout->addWidget(enrollLabel);
@@ -1411,7 +1511,7 @@ QWidget* TeacherWindow::createSubPage(const QString &pageName, const Term &opera
                 );
 
             if (reply == QMessageBox::Yes) {
-                teacherInfo->ElectiveTermPass();
+                teacherInfo->setTermEnd();
                 teacherInfo->save();
                 QMessageBox::information(this, "提示", "操作成功！");
                 curLabel->setText("当前学期：" + teacherInfo->getCurrentTerm().toString());
@@ -1526,6 +1626,7 @@ void TeacherWindow::showSubPage(const QString &pageName, const Term &operateTerm
 
 void TeacherWindow::showMainPage() {
     resize(300, 300);
+    // qDebug() << 123;
     refreshMainPage();
     stackedWidget->setCurrentIndex(0);
 }

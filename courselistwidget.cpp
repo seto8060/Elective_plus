@@ -1,5 +1,6 @@
 #include "CourseListWidget.h"
 #include "userinfo.h"
+#include "teacherinfo.h"
 #include "commentloader.h"
 #include <QSvgRenderer>
 #include <QPainter>
@@ -112,6 +113,7 @@ void CourseListWidget::setCourses(const QVector<CourseInfo> &courses,int type,Us
         auto setCenteredItem = [=](int col, const QString &text) {
             QTableWidgetItem *item = new QTableWidgetItem(text);
             item->setTextAlignment(Qt::AlignCenter);
+            if (text == "未选上") item->setForeground(Qt::red);
             table->setItem(i, col, item);
         };
 
@@ -197,6 +199,15 @@ void CourseListWidget::setCourses(const QVector<CourseInfo> &courses,int type,Us
         }/*添加测评*/;
 
         if (type == 0){
+            TeacherInfo *teacher = new TeacherInfo(this);
+            if (teacher->GetHasDoneLottery() == true){
+                bool Lottery_Result = userinfo->getResultForCourse(c.code);
+                // QLabel *Result = new QLabel(Lottery_Result?"已选上":"未选上",this);
+                // if (!Lottery_Result)
+                //     Result->setStyleSheet("color: red;");
+                setCenteredItem(11,Lottery_Result?"已选上":"未选上");
+                continue;
+            }
             QWidget *cellWidget = new QWidget();
             QHBoxLayout *layout = new QHBoxLayout(cellWidget);
             layout->setContentsMargins(0, 0, 0, 0);

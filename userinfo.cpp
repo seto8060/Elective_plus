@@ -68,6 +68,10 @@ int UserInfo::getPointForCourse(const QString &courseCode) const {
     return courseVotes.value(courseCode, 0);
 }
 
+bool UserInfo::getResultForCourse(const QString &courseCode) const{
+    return courseLottery.value(courseCode,0);
+}
+
 void UserInfo::setPointForCourse(const QString &courseCode, int points) {
     courseVotes[courseCode] = points;
 }
@@ -124,10 +128,10 @@ QJsonObject UserInfo::toJson() const {
     }
     obj["courseVotes"] = voteObj;
     QJsonObject LotteryObj;
-    for (auto it = courseVotes.begin(); it != courseVotes.end(); ++it) {
+    for (auto it = courseLottery.begin(); it != courseLottery.end(); ++it) {
         LotteryObj[it.key()] = it.value();
     }
-    obj["courseVotes"] = LotteryObj;
+    obj["courseLottery"] = LotteryObj;
     QJsonArray courseArray;
     for (const CourseInfo &course : currentCourses) {
         courseArray.append(course.toJson());

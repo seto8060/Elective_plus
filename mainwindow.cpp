@@ -1,10 +1,11 @@
 #include "MainWindow.h"
-#include "CourseLoader.h"
+#include "courseloader.h"
 // #include "timetable.h"
 #include "historypage.h"
 #include "timetablepage.h"
 #include "courselistwidget.h"
 #include "courseselection.h"
+#include "teacherinfo.h"
 #include "homepage.h"
 #include "commentloader.h"
 #include <QHBoxLayout>
@@ -75,6 +76,16 @@ MainWindow::MainWindow(UserInfo *userInfo,QWidget *parent) : QMainWindow(parent)
     QListWidgetItem *item6 = new QListWidgetItem(QIcon(":/resources/icon/history.svg"), "历史选课");
     sidebar->addItem(item6);
     sidebar->setFixedWidth(150);
+    TeacherInfo *teacher2 = new TeacherInfo(this);
+    bool flag = teacher2->getEnrollmentTerm().semester > 0;
+    if (!flag){
+        item1->setFlags(item2->flags() & ~Qt::ItemIsEnabled);
+        item1->setToolTip("现在不是选课时间");
+        item2->setFlags(item2->flags() & ~Qt::ItemIsEnabled);
+        item2->setToolTip("现在不是选课时间");
+        item3->setFlags(item2->flags() & ~Qt::ItemIsEnabled);
+        item3->setToolTip("现在不是选课时间");
+    }
 
     mainStack = new QStackedWidget(this);
     mainStack->addWidget(new HomePage(userInfo,this));
@@ -98,7 +109,7 @@ MainWindow::MainWindow(UserInfo *userInfo,QWidget *parent) : QMainWindow(parent)
     TimetablePage *timetablePage = new TimetablePage(this);
     CourseListWidget *courseListPage = new CourseListWidget(this,0,userInfo,"",allCoursesPtr);
 
-    timetablePage->setCourses(courseList);
+    timetablePage->setCourses(courseList,user);
     courseListPage->setCourses(courseList,0,userInfo);
 
     mainStack->addWidget(timetablePage);    // index 5

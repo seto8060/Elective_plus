@@ -26,6 +26,7 @@ TeacherInfo::TeacherInfo(QObject *parent): QObject(parent){
         lastEnrollmentEnded = readTerm(obj["lastEnrollmentEnded"].toObject());
         HasDoneLottery = obj["HasLottery"].toBool();
         verifycode = obj["VerifyCode"].toInt();
+        TermEnd = obj["termend"].toBool(false);
     }
 }
 
@@ -49,6 +50,7 @@ void TeacherInfo::save() {
     obj["upcomingTerm"] = writeTerm(upcomingTerm);
     obj["lastEnrollmentEnded"] = writeTerm(lastEnrollmentEnded);
     obj["HasLottery"] = HasDoneLottery;
+    obj["termend"] = TermEnd;
     obj["VerifyCode"] = verifycode;
 
     QJsonDocument doc(obj);

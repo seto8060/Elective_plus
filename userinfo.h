@@ -39,6 +39,7 @@ public:
     int getTotalUsedPoints() const ;
     int getRemainingPoints() const ;
     int getPointForCourse(const QString &courseCode) const ;
+    bool getResultForCourse(const QString &courseCode) const;
     void setPointForCourse(const QString &courseCode, int points) ;
     // bool IsTeacher = false;
 
