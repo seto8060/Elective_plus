@@ -25,6 +25,11 @@ void CustomTimetableWidget::setCourses(const QVector<CourseInfo> &courses) {
 }
 
 void CustomTimetableWidget::displayCourses(const QVector<CourseInfo> &courses) {
+    const auto children = overlayLayer->findChildren<QLabel*>(QString(), Qt::FindDirectChildrenOnly);
+    for (QLabel *label : children) {
+        label->deleteLater();
+    }
+
     QStringList days = {"一", "二", "三", "四", "五", "六", "日"};
     for (int i = 0; i < 7; ++i) {
         QLabel *dayLabel = new QLabel("星期" + days[i], this);

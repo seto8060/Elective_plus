@@ -54,3 +54,8 @@ void TimetablePage::setCourses(const QVector<CourseInfo> &courses,UserInfo *user
     }
     timetable->setCourses(filtered);
 }
+
+void TimetablePage::refreshCourses(UserInfo *user) {
+    QVector<CourseInfo> courseList = user->getCurrentCourses();
+    setCourses(courseList, user);
+}

@@ -27,7 +27,7 @@ HistoryPage::HistoryPage(UserInfo* userInfo, QStackedWidget* mainStack, QVector<
     scrollLayout->addStretch();
     for (const auto& pair : user->getPastSemestersCourses()) {
         QString term = pair.first;
-        qDebug() << term ;
+        // qDebug() << term ;
         QVector<CourseInfo> courses = pair.second;
 
         QPushButton* btn = new QPushButton(term, this);
@@ -69,7 +69,7 @@ HistoryPage::HistoryPage(UserInfo* userInfo, QStackedWidget* mainStack, QVector<
 
             auto* historytimetable = new TimetablePage(this);
             auto* historyList = new CourseListWidget(this, 1, user,term,allcourseptr);
-            qDebug() << 1 ;
+            // qDebug() << 1 ;
             historytimetable->setCourses(courses,nullptr);
             historyList->setCourses(courses, 1, user);
             stack->addWidget(historytimetable);

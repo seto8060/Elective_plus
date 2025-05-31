@@ -11,7 +11,7 @@ int main(int argc, char *argv[]) {
     // MainWindow mainWin();
 
     QObject::connect(&login, &LoginWindow::loginSuccess, [&](UserInfo *user) {
-        qDebug() << user->getIndex() ;
+        // qDebug() << user->getIndex() ;
         if (user->getIndex() != "teacher"){
             MainWindow *mainWin = new MainWindow(user);
             mainWin->setAttribute(Qt::WA_DeleteOnClose);

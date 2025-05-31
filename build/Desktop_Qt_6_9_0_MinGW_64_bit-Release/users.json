@@ -20449,7 +20449,9 @@
             "04835050": false
         },
         "courseVotes": {
+            "00114514": 0,
             "00130211": 0,
+            "04130450": 0,
             "04830050": 1,
             "04831300": 0,
             "04835000": 11,
@@ -20614,72 +20616,6 @@
                     "星期四(第10节-第11节)"
                 ],
                 "type": "专业任选",
-                "unit": "信息科学技术学院",
-                "week": "1-16"
-            },
-            {
-                "chinese-intro": "地板球（FLOORBALL），于20世纪70年代起源于瑞典。它首先在学校开始，得到学生的广泛喜爱，目前，这项新兴的运动已经在全世界30多个国家开展，100多万人参与，注册运动员达到30多万。1994年，首届地板球（FLOORBALL）世界锦标赛在瑞士举行，至今已经举行了5届。正式地板球比赛是在室内进行的团队运动项目，比赛场地可用木板、硬塑橡胶等材料，标准场地为长40米、宽20米的场地，四周需设置挡板。地板球与冰球和曲棍球相似，比赛中用脚跑动，类似于篮球；其中每队6名队员，可以男女混合组队，其中包括一名守门员。地板球器材简便，易于操作。通过地板球（FLOORBALL）锻炼，可以培养速度、耐力、力量、灵敏、协调等综合能力，全面提升身体素质；能够提高有氧代谢能力，改善心肺机能；培养挑战自我、战胜自我、勇往直前的优秀品质；培养团队精神，促进身心素质的全面发展。地板球（FLOORBALL）课主要教授基本技术、基本知识，使学生掌握地板球（FLOORBALL）的基本技能，学会传、接、击、防、带等技术。地板球比赛身体的冲撞对抗不多，强调灵活性和协调性。",
-                "class": "3",
-                "code": "04130450",
-                "english-intro": "Floorball is a versatile indoor team sport developed in the 1970s in Sweden, Known as \"innebandy\" in Sweden, \"salibandy\" in Finland, and \"unihockey\" in other parts of Europe, \"floorball\" is the official IFF term, which is used worldwide. As of 2014, there are over 300,133 registered floorball players worldwide.\nIn official floorball competition, teams play 5 v 5 with goalies just like in ice hockey and the games consist of three 20-minute periods. However, floorball is extremely versatile. At the recreational level, games can be played with any number of players on any size court (indoors or outside) for any length of time.\nA regulation floorball court is 20 meters by 40 meters. The boards surrounding the court are usually made of heavy-duty plastic, composites or high-density foam that measure 50 cm high.\nFloorball is a fast and exciting game that promotes end-to-end plays with quick transitions and fluid game play. The rules stress the importance of safety and sportsmanship and are designed to limit the chance of injury without decreasing the speed or skill of the game. The emphasis is on speed and skill rather than strength. \nAfter floorball exercises, we can develop comprehensive capabilities such as speed, endurance, strength, agility, and coordination; improve aerobic capacity and teams Spirit, promote the full development of physical and mental qualities. Mainly teach basic skills and basic knowledge,learn to pass, shoot, defense and other technologies.",
-                "first-class": "无",
-                "index": "2360",
-                "info": "邱德拔B2",
-                "maxperson": 90,
-                "name": "地板球",
-                "nowperson": 90,
-                "score": "1",
-                "teacher": [
-                    "周正卿"
-                ],
-                "time": [
-                    "星期一(第3节-第4节)"
-                ],
-                "type": "体育",
-                "unit": "体育教研部",
-                "week": "1-16"
-            },
-            {
-                "chinese-intro": "地板球（FLOORBALL），于20世纪70年代起源于瑞典。它首先在学校开始，得到学生的广泛喜爱，目前，这项新兴的运动已经在全世界30多个国家开展，100多万人参与，注册运动员达到30多万。1994年，首届地板球（FLOORBALL）世界锦标赛在瑞士举行，至今已经举行了5届。正式地板球比赛是在室内进行的团队运动项目，比赛场地可用木板、硬塑橡胶等材料，标准场地为长40米、宽20米的场地，四周需设置挡板。地板球与冰球和曲棍球相似，比赛中用脚跑动，类似于篮球；其中每队6名队员，可以男女混合组队，其中包括一名守门员。地板球器材简便，易于操作。通过地板球（FLOORBALL）锻炼，可以培养速度、耐力、力量、灵敏、协调等综合能力，全面提升身体素质；能够提高有氧代谢能力，改善心肺机能；培养挑战自我、战胜自我、勇往直前的优秀品质；培养团队精神，促进身心素质的全面发展。地板球（FLOORBALL）课主要教授基本技术、基本知识，使学生掌握地板球（FLOORBALL）的基本技能，学会传、接、击、防、带等技术。地板球比赛身体的冲撞对抗不多，强调灵活性和协调性。",
-                "class": "3",
-                "code": "04130450",
-                "english-intro": "Floorball is a versatile indoor team sport developed in the 1970s in Sweden, Known as \"innebandy\" in Sweden, \"salibandy\" in Finland, and \"unihockey\" in other parts of Europe, \"floorball\" is the official IFF term, which is used worldwide. As of 2014, there are over 300,133 registered floorball players worldwide.\nIn official floorball competition, teams play 5 v 5 with goalies just like in ice hockey and the games consist of three 20-minute periods. However, floorball is extremely versatile. At the recreational level, games can be played with any number of players on any size court (indoors or outside) for any length of time.\nA regulation floorball court is 20 meters by 40 meters. The boards surrounding the court are usually made of heavy-duty plastic, composites or high-density foam that measure 50 cm high.\nFloorball is a fast and exciting game that promotes end-to-end plays with quick transitions and fluid game play. The rules stress the importance of safety and sportsmanship and are designed to limit the chance of injury without decreasing the speed or skill of the game. The emphasis is on speed and skill rather than strength. \nAfter floorball exercises, we can develop comprehensive capabilities such as speed, endurance, strength, agility, and coordination; improve aerobic capacity and teams Spirit, promote the full development of physical and mental qualities. Mainly teach basic skills and basic knowledge,learn to pass, shoot, defense and other technologies.",
-                "first-class": "无",
-                "index": "2360",
-                "info": "邱德拔B2",
-                "maxperson": 90,
-                "name": "地板球",
-                "nowperson": 90,
-                "score": "1",
-                "teacher": [
-                    "周正卿"
-                ],
-                "time": [
-                    "星期一(第3节-第4节)"
-                ],
-                "type": "体育",
-                "unit": "体育教研部",
-                "week": "1-16"
-            },
-            {
-                "chinese-intro": "",
-                "class": "0",
-                "code": "00114514",
-                "english-intro": "",
-                "first-class": "",
-                "index": "3028",
-                "info": "",
-                "maxperson": 90,
-                "name": "摸鱼学导论",
-                "nowperson": 90,
-                "score": "0",
-                "teacher": [
-                    "无"
-                ],
-                "time": [
-                    "星期六(第1节-第12节)"
-                ],
-                "type": "实习实践",
                 "unit": "信息科学技术学院",
                 "week": "1-16"
             }

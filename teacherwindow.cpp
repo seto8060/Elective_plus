@@ -808,7 +808,8 @@ QWidget* TeacherWindow::createSubPage(const QString &pageName, const Term &opera
     }
     else if (pageName == "编辑课程列表") {
 
-        currentCourseFilePath = QString("courses.json").arg(operateTerm.toString());
+        currentCourseFilePath = QString("courses.json");
+                                    //.arg(operateTerm.toString());
         loadCoursesFromFile();
         refreshCourseTable();
         QLineEdit *searchBox = new QLineEdit(page);
