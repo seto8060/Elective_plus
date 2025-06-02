@@ -14,6 +14,7 @@
 #include <QTableWidget>
 #include <QHeaderView>
 #include <QDebug>
+#include "classquestionnaire.h"
 
 MainWindow::MainWindow(UserInfo *userInfo,QWidget *parent) : QMainWindow(parent),user(userInfo) {
     All_courses = loadCoursesFromJsonFile("courses.json");
@@ -96,11 +97,15 @@ MainWindow::MainWindow(UserInfo *userInfo,QWidget *parent) : QMainWindow(parent)
     
     // 创建选课页面并连接信号
     CourseSelection *courseSelectionPage = new CourseSelection(All_courses, userInfo, allCoursesPtr,this);
+    ClassQuestionnaire *ClassQuestionnairePage = new ClassQuestionnaire(userInfo, All_courses, All_comments, this);
+
     // 连接收藏夹更新信号
     connect(courseSelectionPage, &CourseSelection::favoritesUpdated, this, &MainWindow::updateFavoritesPage);
+    connect(ClassQuestionnairePage, &ClassQuestionnaire::favoritesUpdated, this, &MainWindow::updateFavoritesPage);
+
     mainStack->addWidget(courseSelectionPage);
     qDebug()<<"CourseSelectionPage\n";
-    mainStack->addWidget(new QLabel("智能选课系统"));
+    mainStack->addWidget(ClassQuestionnairePage);
     
     // 保存收藏夹页面的指针，以便后续更新
     m_favoritePage = new CourseListWidget(this, 2, userInfo, "",allCoursesPtr);
