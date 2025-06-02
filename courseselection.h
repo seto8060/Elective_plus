@@ -29,6 +29,7 @@ private slots:
     void onSearchModButtonClicked();
     void onCurrentCourseButtonClicked();
 
+
 private:
     UserInfo* m_user;
     QVector<CourseInfo> m_allCourses;
@@ -36,6 +37,7 @@ private:
     QPushButton *m_searchModButton;
     QPushButton *m_currentCourseButton;
     QStackedWidget *m_stackWidget;
+    CourseSearchPage* toolToUpdate;
 };
 
 #endif // COURSESELECTION_H

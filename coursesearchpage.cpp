@@ -17,10 +17,10 @@ CourseSearchPage::CourseSearchPage(const QVector<CourseInfo>& allCourses, UserIn
 void CourseSearchPage::setupUI() {
     // 创建主布局
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
-    
+
     // 创建堆叠窗口部件
     m_stackWidget = new QStackedWidget(this);
-    
+
     // 创建主内容窗口部件
     QWidget *mainContentWidget = new QWidget(this);
     QVBoxLayout *contentLayout = new QVBoxLayout(mainContentWidget);
@@ -59,16 +59,16 @@ void CourseSearchPage::setupUI() {
     contentLayout->addLayout(searchLayout);
     contentLayout->addWidget(m_courseTable);
 
-    
+
     // 将主内容窗口添加到堆叠窗口
     m_stackWidget->addWidget(mainContentWidget);
-    
+
     // 将堆叠窗口添加到主布局
     mainLayout->addWidget(m_stackWidget);
 
     // 连接信号槽
     connect(m_searchButton, &QPushButton::clicked, this, &CourseSearchPage::onSearchButtonClicked);
-    
+
 
 }
 
@@ -84,7 +84,7 @@ void CourseSearchPage::populateCourseTable(const QVector<CourseInfo>& courses) {
         m_courseTable->setItem(i, 4, new QTableWidgetItem(c.unit));
 
 
-        
+
         // 修改后:
         courseComment* tar = nullptr;
         for(auto& v:*m_courseComments){
@@ -98,9 +98,11 @@ void CourseSearchPage::populateCourseTable(const QVector<CourseInfo>& courses) {
         }
         QVector<comment> thisCourseComments;
         for(const auto& v:tar->comments){
-            if(v.teacher.join("；")==c.teacherList.join("")){
-                
-                // qDebug()<<"+1";
+            qDebug()<<v.teacher.join("")<<'\n';
+            qDebug()<<c.teacherList.join("")<<'\n';
+            if(v.teacher.join(";")==c.teacherList.join("")){
+
+                qDebug()<<"+1";
                 thisCourseComments.append(v);
             }
         }
@@ -148,7 +150,7 @@ void CourseSearchPage::populateCourseTable(const QVector<CourseInfo>& courses) {
                 m_user->getFavorites().push_back(c);
                 QMessageBox::information(this,"Tips","Success!");
                 emit favoritesUpdated();
-                
+
             }
             else{
                 QMessageBox::information(this,"Tips","请勿重复添加课程！");
@@ -165,16 +167,16 @@ void CourseSearchPage::populateCourseTable(const QVector<CourseInfo>& courses) {
         QHBoxLayout *buttonLayout = new QHBoxLayout(buttonContainer);
         buttonLayout->setContentsMargins(2, 2, 2, 2);
         buttonLayout->setSpacing(5);
-        
+
         // 添加3个按钮到布局
         buttonLayout->addWidget(detailButton);
         buttonLayout->addWidget(addToFavorButton);
         buttonLayout->addWidget(electCourseButton);
-        
+
         // 将容器设置到表格单元格
         m_courseTable->setCellWidget(i, 5, buttonContainer);
-        
-        
+
+
         // 可以在这里连接按钮的信号
 
     }

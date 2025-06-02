@@ -274,6 +274,7 @@ void CourseDetailPage::updateCommentsDisplay() {
         QVBoxLayout *commentLayout = new QVBoxLayout(commentWidget);
         commentLayout->setSpacing(5);
         QLabel *criticLabel = new QLabel("评价人: " + comment.critic);
+        qDebug()<<comment.listenPrefer<<'\n';
         QLabel *lisPreLabel=new QLabel("听感："+QString::number(comment.listenPrefer));
         QLabel *hwPrefer=new QLabel("作业量："+QString::number(comment.hwPrefer));
         QLabel *scorePrefer=new QLabel("给分："+QString::number(comment.scorePrefer));
