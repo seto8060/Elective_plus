@@ -12,26 +12,23 @@ CourseDetailPage::CourseDetailPage(const CourseInfo& course,courseComment* comme
 
 // CourseDetailPage.cpp
 void CourseDetailPage::setupUI(const CourseInfo& course, courseComment* comment) {
-    QVBoxLayout *mainLayout = new QVBoxLayout(this);
+    // mainLayout: left and right
+    QHBoxLayout *mainLayout = new QHBoxLayout(this);
     mainLayout->setSpacing(20);
     mainLayout->setContentsMargins(20, 20, 20, 20);
+    //left
+    QWidget *leftWidget = new QWidget(this);
+    QVBoxLayout *leftLayout = new QVBoxLayout(leftWidget);
+    leftLayout->setSpacing(10);
 
-    // ================= 上部左右分栏 =================
-    QHBoxLayout *topLayout = new QHBoxLayout();
-
-    // 左侧区域（标题 + 基本信息）
+    // title and election button
     QHBoxLayout* titleLayout = new QHBoxLayout();
     titleLayout->setContentsMargins(0,0,0,0);
     titleLayout->setSpacing(10);
 
-    QWidget *leftWidget = new QWidget();
-    QVBoxLayout *leftLayout = new QVBoxLayout(leftWidget);
-    leftLayout->setSpacing(15);
-
     QLabel *titleLabel = new QLabel(course.name, this);
     titleLabel->setStyleSheet("font-size: 24px; font-weight: bold; color: #2c3e50;");
     titleLabel->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Preferred);
-    leftLayout->addWidget(titleLabel);
 
     QPushButton *enrollButton = new QPushButton("选课", this);
     enrollButton->setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Fixed);
@@ -55,53 +52,41 @@ void CourseDetailPage::setupUI(const CourseInfo& course, courseComment* comment)
 
     leftLayout->addWidget(titleContainer);
 
+    // 左侧上半部分：课程基本信息
     QWidget *infoSection = createInfoSection(course);
     leftLayout->addWidget(infoSection);
-    leftLayout->addStretch();
 
+    // 左侧下半部分：课程简介
+    QWidget *introSection = createIntroSection(course);
+    leftLayout->addWidget(introSection);
 
+    // 返回按钮
+    QPushButton *backButton = new QPushButton("返回列表", this);
+    QHBoxLayout *buttonLayout = new QHBoxLayout();
+    buttonLayout->addWidget(backButton, Qt::AlignCenter);
+    buttonLayout->addStretch();
+    leftLayout->addLayout(buttonLayout);
+
+    // ================= 右侧区域 =================
     QWidget *rightWidget = new QWidget();
     QVBoxLayout *rightLayout = new QVBoxLayout(rightWidget);
     rightLayout->setSpacing(15);
 
     // 评论区域
     QWidget *commentsSection = createCommentsSection(comment);
-
-
     rightLayout->addWidget(commentsSection);
-    rightLayout->addStretch();
-
-    // 组装上部
-    topLayout->addWidget(leftWidget, 1);  // 左侧占 2/3 宽度
-    topLayout->addWidget(rightWidget, 1); // 右侧占 1/3 宽度
-    topLayout->setContentsMargins(0, 0, 0, 0);
-
-    // ================= 下部区域 =================
-
-    QWidget *bottomWidget = new QWidget();
-    QVBoxLayout *bottomLayout = new QVBoxLayout(bottomWidget);
-    bottomLayout->addWidget(createSectionTitle("课程介绍"));
-    QWidget *introSection = createIntroSection(course);
-    bottomLayout->addWidget(introSection);
-
-
-    // 操作按钮
-    QHBoxLayout *buttonLayout = new QHBoxLayout();
-    QPushButton *backButton = new QPushButton("返回列表", this);
-
-    buttonLayout->addWidget(backButton,Qt::AlignCenter);
-    buttonLayout->addStretch();
-    bottomLayout->addLayout(buttonLayout);
 
     // ================= 组装整个界面 =================
-    mainLayout->addLayout(topLayout);         // 上部
-    mainLayout->addWidget(bottomWidget, 2);   // 下部（1 为伸缩因子）
+    mainLayout->addWidget(leftWidget, 2);  // 左侧占 3/5 宽度
+    mainLayout->addWidget(rightWidget, 3); // 右侧占 2/5 宽度
 
     // ================= 信号连接 =================
     connect(backButton, &QPushButton::clicked, this, &CourseDetailPage::backRequested);
     connect(enrollButton, &QPushButton::clicked, [this, course]() {
         emit enrollRequested(course.code);
     });
+
+
 
 }
 QLabel* CourseDetailPage::createSectionTitle(const QString& text) {
