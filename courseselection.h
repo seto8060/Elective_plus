@@ -38,6 +38,8 @@ private:
     QPushButton *m_currentCourseButton;
     QStackedWidget *m_stackWidget;
     CourseSearchPage* toolToUpdate;
+public:
+    courseEnrolledPage* mm_enrollPage;
 };
 
 #endif // COURSESELECTION_H

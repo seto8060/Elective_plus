@@ -12,6 +12,7 @@ CONFIG += c++17
 SOURCES += \
     LoginWindow.cpp \
     RegisterWindow.cpp \
+    classquestionnaire.cpp \
     commentloader.cpp \
     coursecomment.cpp \
     coursedetailpage.cpp \
@@ -25,6 +26,7 @@ SOURCES += \
     homepage.cpp \
     main.cpp \
     mainwindow.cpp \
+    numbar.cpp \
     teacherinfo.cpp \
     teacherwindow.cpp \
     timetable.cpp \
@@ -34,6 +36,7 @@ SOURCES += \
 HEADERS += \
     LoginWindow.h \
     RegisterWindow.h \
+    classquestionnaire.h \
     commentloader.h \
     coursecomment.h \
     coursedetailpage.h \
@@ -46,6 +49,7 @@ HEADERS += \
     historypage.h \
     homepage.h \
     mainwindow.h \
+    numbar.h \
     teacherinfo.h \
     teacherwindow.h \
     term.h \

@@ -4,7 +4,6 @@
 #include "historypage.h"
 #include "timetablepage.h"
 #include "courselistwidget.h"
-#include "courseselection.h"
 #include "teacherinfo.h"
 #include "homepage.h"
 #include "commentloader.h"
@@ -98,7 +97,7 @@ MainWindow::MainWindow(UserInfo *userInfo,QWidget *parent) : QMainWindow(parent)
     // 创建选课页面并连接信号
     CourseSelection *courseSelectionPage = new CourseSelection(All_courses, userInfo, allCoursesPtr,this);
     ClassQuestionnaire *ClassQuestionnairePage = new ClassQuestionnaire(userInfo, All_courses, All_comments, this);
-
+    m_selectionPage=courseSelectionPage;
     // 连接收藏夹更新信号
     connect(courseSelectionPage, &CourseSelection::favoritesUpdated, this, &MainWindow::updateFavoritesPage);
     connect(ClassQuestionnairePage, &ClassQuestionnaire::favoritesUpdated, this, &MainWindow::updateFavoritesPage);
@@ -111,6 +110,10 @@ MainWindow::MainWindow(UserInfo *userInfo,QWidget *parent) : QMainWindow(parent)
     m_favoritePage = new CourseListWidget(this, 2, userInfo, "",allCoursesPtr);
     m_favoritePage->setCourses(userInfo->getFavorites(), 2, userInfo);
     mainStack->addWidget(m_favoritePage);
+
+
+
+
     qDebug()<<"favorpage\n";
     QVector<CourseInfo> courseList = userInfo->getCurrentCourses();
 
@@ -193,6 +196,11 @@ void MainWindow::changeModule(int index) {
     }else if (index == 4) {
         timetablePage->refreshCourses(user);
         courseListPage->setCourses(user->getCurrentCourses(), 0, user);
+    }else if(index==1){
+        qDebug()<<"Before suspicious\n";
+        if (m_selectionPage->mm_enrollPage != nullptr)
+            m_selectionPage->mm_enrollPage->populateCourseTable(user->getCurrentCourses());
+        qDebug()<<"After suspicious\n";
     }
     mainStack->setCurrentIndex(index);
 }

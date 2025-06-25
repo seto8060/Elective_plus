@@ -59,7 +59,7 @@ void CourseSelection::setupUI()
     CourseSearchPage *m_searchPage=new CourseSearchPage(m_allCourses,m_user,m_courseComments,this);
     // 创建已选课程界面
     courseEnrolledPage *m_enrollPage=new courseEnrolledPage(m_user,this);
-
+    mm_enrollPage=m_enrollPage;
     // 将页面添加到堆栈
     m_stackWidget->addWidget(announcementPage);
     m_stackWidget->addWidget(m_searchPage);

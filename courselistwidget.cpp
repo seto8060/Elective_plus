@@ -12,6 +12,7 @@
 #include<QFormLayout>
 #include<QLineEdit>
 #include <QPlainTextEdit>
+#include <QInputDialog>
 double estimateAverageVoteWeight(double omega) {
     return std::max(0.0, 46.0 * std::tanh(omega - 1.0));
 }
@@ -215,7 +216,50 @@ void CourseListWidget::setCourses(const QVector<CourseInfo> &courses,int type,Us
                 }
             });
         }/*添加测评*/;
+        if (type==2){
+            QWidget *cellWidget = new QWidget();
+            QHBoxLayout *layout = new QHBoxLayout(cellWidget);
+            layout->setContentsMargins(0, 0, 0, 0);
+            layout->setSpacing(4);
 
+            QPushButton *electButton = new QPushButton("选课");
+            electButton->setFixedSize(80,24);
+            electButton->setStyleSheet("QPushButton { font-size: 12px; padding: 2px; background-color: #f0f0f0;}QPushButton:hover { background-color: #e0e0e0;}");
+            
+            QPushButton *deleteButton= new QPushButton("移除");
+            deleteButton->setFixedSize(80,24);
+            deleteButton->setStyleSheet("QPushButton { font-size: 12px; padding: 2px; background-color: #f0f0f0;}QPushButton:hover { background-color: #e0e0e0;}");
+
+            connect(deleteButton,&QPushButton::clicked,this,[=](){
+                auto &favorites=userinfo->getFavorites();
+                favorites.erase(std::remove_if(favorites.begin(),favorites.end(),[&](const CourseInfo&cc){
+                    return cc.code==c.code;
+                }));
+                QMessageBox::information(this,"Tips","请重新进入收藏夹查看");
+                //emit favoritesUpdated();
+            });
+
+            connect(electButton,&QPushButton::clicked,this,[this,userinfo,c](){
+                if (userinfo->getCurrentCourses().contains(c)){
+                    QMessageBox::information(this,"Tips","请勿重复添加课程");
+                    return;
+                }
+                int votees=QInputDialog::getInt(this,"海淀赌场","投点数",0,0,userinfo->getRemainingPoints());
+                userinfo->getCurrentCourses().push_back(c);
+                userinfo->setPointForCourse(c.code,votees);
+                QMessageBox::information(this,"Tips","选课成功");
+
+            });
+
+
+
+            layout->addWidget(electButton);
+            layout->addWidget(deleteButton);
+            layout->setAlignment(Qt::AlignCenter);
+            cellWidget->setLayout(layout);
+            table->setCellWidget(i, 11, cellWidget);
+            
+        }
         if (type == 0){
             TeacherInfo *teacher = new TeacherInfo(this);
             if (teacher->GetHasDoneLottery() == true){

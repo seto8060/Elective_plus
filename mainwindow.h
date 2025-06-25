@@ -10,6 +10,7 @@
 #include "timetablepage.h"
 #include "courselistwidget.h"
 #include "timetablepage.h"
+#include "courseselection.h"
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
@@ -32,6 +33,7 @@ private:
     // QString currentUser;
     // QString currentRole;
     CourseListWidget *m_favoritePage;
+    CourseSelection *m_selectionPage;
     QTableWidget *courseTable = nullptr;
     QListWidget *sidebar;
     QStackedWidget *mainStack;
