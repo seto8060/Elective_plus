@@ -28,6 +28,7 @@ ClassQuestionnaire::ClassQuestionnaire(UserInfo *USER, QVector<CourseInfo> AllCo
     createNeedCollectionWidget();
     createSummaryWidget();
     createResultWidget();
+    createFinishWidget();
 
     connect(startButton, &QPushButton::clicked, this, &ClassQuestionnaire::startCollection);
     connect(nextPageButton, &QPushButton::clicked, this, &ClassQuestionnaire::nextPage);
@@ -37,6 +38,7 @@ ClassQuestionnaire::ClassQuestionnaire(UserInfo *USER, QVector<CourseInfo> AllCo
     connect(restartButton_2, &QPushButton::clicked, this, &ClassQuestionnaire::restartCollection);
     connect(resultButton, &QPushButton::clicked, this, &ClassQuestionnaire::resultPage);
     connect(workButton, &QPushButton::clicked, this, &ClassQuestionnaire::finishPage);
+    connect(returnButton, &QPushButton::clicked, this, &ClassQuestionnaire::returnPage);
 
     stackedWidget -> setCurrentIndex(0);
 }
@@ -63,6 +65,19 @@ void ClassQuestionnaire::endPage(){
     SummaryText -> setText(getSummaryText());
     currentIndex ++;
     stackedWidget -> setCurrentIndex(currentIndex + 1);
+}
+
+void ClassQuestionnaire::finishPage(){
+    currentIndex ++;
+    for(int i = 0; i < selectCourseNow.size(); ++i){
+        selectOneCourse(selectCourseNow[i]);
+    }
+    stackedWidget -> setCurrentIndex(currentIndex + 1);
+}
+void ClassQuestionnaire::returnPage(){
+    currentIndex = 0;
+    quesResult.clear();
+    stackedWidget -> setCurrentIndex(0);
 }
 
 void ClassQuestionnaire::setRatingDisplay(QTableWidgetItem *item, double total, double hw, double exam, double listen, int cnt)
@@ -173,11 +188,15 @@ void ClassQuestionnaire::resultPage(){
     QVector<CourseWithLoss> Eng;
     QVector<CourseWithLoss> General;
     QVector<CourseWithLoss> Public;
+    QMap<QPair<QString, QString>, bool> visClass;
 
     //1 score
     for (int i = 0; i < courses.size(); i ++){
         if(courses[i].course.score.toInt() == 0) continue;
-        if(courses[i].course.index.toInt() >= 2164 && courses[i].course.index.toInt() <= 2169) continue;
+        if(courses[i].course.index.toInt() >= 2163 && courses[i].course.index.toInt() <= 2168) continue;
+        if(courses[i].course.index.toInt() >= 2368 && courses[i].course.index.toInt() <= 2376) continue;
+        if(courses[i].course.index.toInt() >= 2390 && courses[i].course.index.toInt() <= 2401) continue;
+        if(courses[i].course.index.toInt() >= 2193 && courses[i].course.index.toInt() <= 2194) continue;
         if(courses[i].course.type == "体育" && courses[i].course.name != "太极拳" && courses[i].course.name != "健美操")
             PE.append(courses[i]);
     }
@@ -185,22 +204,29 @@ void ClassQuestionnaire::resultPage(){
     //2 score
     for (int i = 0; i < courses.size(); i ++){
         if(courses[i].course.score.toInt() == 0) continue;
-        if(courses[i].course.type == "大学英语" && (i == 0 || courses[i].course.index != courses[i - 1].course.index))
+        if(courses[i].course.type == "大学英语" && (visClass[QPair<QString, QString>(courses[i].course.code, courses[i].course.classNumber)] == 0)){
             Eng.append(courses[i]);
+            visClass[QPair<QString, QString>(courses[i].course.code, courses[i].course.classNumber)] = 1;
+        }
+
     }
 
     // 2/ 3/ 4
     for (int i = 0; i < courses.size(); i ++){
         if(courses[i].course.score.toInt() == 0) continue;
-        if(courses[i].course.type == "通选课" && (i == 0 || courses[i].course.index != courses[i - 1].course.index))
+        if(courses[i].course.type == "通选课" && (visClass[QPair<QString, QString>(courses[i].course.code, courses[i].course.classNumber)] == 0)){
             General.append(courses[i]);
+            visClass[QPair<QString, QString>(courses[i].course.code, courses[i].course.classNumber)] = 1;
+        }
     }
 
     //1/ 2/ 3/ 4
     for (int i = 0; i < courses.size(); i ++){
         if(courses[i].course.score.toInt() == 0) continue;
-        if(courses[i].course.type == "全校公选课" && (i == 0 || courses[i].course.index != courses[i - 1].course.index))
+        if(courses[i].course.type == "全校公选课" && (visClass[QPair<QString, QString>(courses[i].course.code, courses[i].course.classNumber)] == 0)){
+            visClass[QPair<QString, QString>(courses[i].course.code, courses[i].course.classNumber)]= 1;
             Public.append(courses[i]);
+        }
     }
 
     if(quesResult["PE"]){
@@ -313,10 +339,12 @@ void ClassQuestionnaire::resultPage(){
     int numGen = quesResult["general"];
     int numPub = quesResult["public"];
 
+    //bug : 选课时没考虑选的课之间的时间冲突
     if(numPE){
         for (int i = 0; i < PE.size(); ++ i){
-            if(dp[0][0][0].preLoss + quesResult["freeday"] * dp[0][0][0].ifChangeFree(PE[i].course) + PE[i].loss < dp[1][0][0].preLoss){
+            if(dp[0][0][0].preLoss + quesResult["freeday"] * dp[0][0][0].ifChangeFree(PE[i].course) * 5.0 + PE[i].loss < dp[1][0][0].preLoss){
                 PlanLoss tmp = dp[0][0][0];
+                tmp.preLoss += quesResult["freeday"] * dp[0][0][0].ifChangeFree(PE[i].course) * 5.0;
                 tmp.addCourse(PE[i]);
                 dp[1][0][0] = tmp;
             }
@@ -325,8 +353,12 @@ void ClassQuestionnaire::resultPage(){
 
     if(numEng){
         for (int i = 0; i < Eng.size(); ++ i){
-            if(dp[numPE][0][0].preLoss + quesResult["freeday"] * dp[numPE][0][0].ifChangeFree(Eng[i].course) + Eng[i].loss < dp[numPE + 2][0][0].preLoss){
+            QVector<CourseInfo> courseListNow = dp[numPE][0][0].selectClasses;
+            if(!timeCheck(Eng[i].course, courseListNow)) continue;
+
+            if(dp[numPE][0][0].preLoss + quesResult["freeday"] * dp[numPE][0][0].ifChangeFree(Eng[i].course) * 5.0 + Eng[i].loss < dp[numPE + 2][0][0].preLoss){
                 PlanLoss tmp = dp[numPE][0][0];
+                tmp.preLoss += quesResult["freeday"] * dp[numPE][0][0].ifChangeFree(Eng[i].course) * 5.0;
                 tmp.addCourse(Eng[i]);
                 dp[numPE + 2][0][0] = tmp;
             }
@@ -334,10 +366,13 @@ void ClassQuestionnaire::resultPage(){
     }
 
     for (int i = 0; i < General.size(); ++ i){
-        for (int j = 24; j >= General[i].course.score.toInt() + numPE + 2 * numEng; j --){
+        for (int j = 24; j >= General[i].course.score.toInt() + numPE + 2 * numEng; j --){ 
             for (int k = 9; k >= 1; k --){
-                if(dp[j - General[i].course.score.toInt()][k - 1][0].preLoss + quesResult["freeday"] * dp[j - General[i].course.score.toInt()][k - 1][0].ifChangeFree(General[i].course) + General[i].loss < dp[j][k][0].preLoss){
+                QVector<CourseInfo> courseListNow = dp[j - General[i].course.score.toInt()][k - 1][0].selectClasses;
+                if(!timeCheck(General[i].course, courseListNow)) continue;
+                if(dp[j - General[i].course.score.toInt()][k - 1][0].preLoss + quesResult["freeday"] * dp[j - General[i].course.score.toInt()][k - 1][0].ifChangeFree(General[i].course) * 5.0 + General[i].loss < dp[j][k][0].preLoss){
                     PlanLoss tmp = dp[j - General[i].course.score.toInt()][k - 1][0];
+                    tmp.preLoss += quesResult["freeday"] * dp[j - General[i].course.score.toInt()][k - 1][0].ifChangeFree(General[i].course) * 5.0;
                     tmp.addCourse(General[i]);
                     dp[j][k][0] = tmp;
                 }
@@ -349,8 +384,12 @@ void ClassQuestionnaire::resultPage(){
         for (int i = 0; i < Public.size(); ++ i){
             for (int j = 24; j >= Public[i].course.score.toInt() + numPE + 2 * numEng; j --){
                 for (int k = 9; k >= 1; k --){
-                    if(dp[j - Public[i].course.score.toInt()][num][k - 1].preLoss + quesResult["freeday"] * dp[j - Public[i].course.score.toInt()][num][k - 1].ifChangeFree(Public[i].course) + Public[i].loss < dp[j][num][k - 1].preLoss){
+                    QVector<CourseInfo> courseListNow = dp[j - Public[i].course.score.toInt()][num][k - 1].selectClasses;
+                    if(!timeCheck(Public[i].course, courseListNow)) continue;
+
+                    if(dp[j - Public[i].course.score.toInt()][num][k - 1].preLoss + quesResult["freeday"] * dp[j - Public[i].course.score.toInt()][num][k - 1].ifChangeFree(Public[i].course) * 5.0 + Public[i].loss < dp[j][num][k - 1].preLoss){
                         PlanLoss tmp = dp[j - Public[i].course.score.toInt()][num][k - 1];
+                        tmp.preLoss += quesResult["freeday"] * dp[j - Public[i].course.score.toInt()][num][k - 1].ifChangeFree(Public[i].course) * 5.0;
                         tmp.addCourse(Public[i]);
                         dp[j][num][k] = tmp;
                     }
@@ -390,9 +429,12 @@ void ClassQuestionnaire::resultPage(){
         if(MinLoss[i] != 2000.0){
             Maxscore = i;
             class_Num = ans[i].size();
+            break;
         }
     }
     resultSummary -> setText(QString("智能选课系统根据需求选出了%1门课，共%2学分\n").arg(class_Num).arg(Maxscore));
+
+    selectCourseNow = ans[Maxscore];
 
     courseTable->setRowCount(ans[Maxscore].size());
     for (int i = 0; i < ans[Maxscore].size(); ++i) {
@@ -404,7 +446,7 @@ void ClassQuestionnaire::resultPage(){
         courseTable->setItem(i, 4, new QTableWidgetItem(c.timeList.join("；")));
         courseTable->setItem(i, 5, new QTableWidgetItem(c.unit));
 
-        // ⭐ 评分逻辑
+        // 评分逻辑
         courseComment* tar = nullptr;
         for (auto& v : all_comments) {
             if (v.code == c.code) {
@@ -449,11 +491,16 @@ void ClassQuestionnaire::resultPage(){
         QPushButton* addToFavorButton = new QPushButton("添加到收藏夹", this);
         QPushButton* electCourseButton = new QPushButton("选课", this);
 
+        detailButton->setStyleSheet("QPushButton { border: 1px solid black; }");
+        addToFavorButton->setStyleSheet("QPushButton { border: 1px solid black; }");
+        electCourseButton->setStyleSheet("QPushButton { border: 1px solid black; }");
+
         connect(detailButton, &QPushButton::clicked, [=]() {
             CourseDetailPage *detailPage = new CourseDetailPage(c, tar,this);
             connect(detailPage, &CourseDetailPage::backRequested, [this, detailPage]() {
                 stackedWidget->removeWidget(detailPage);
                 detailPage->deleteLater();
+                stackedWidget -> setCurrentIndex(currentIndex + 1);
             });
             connect(detailPage, &CourseDetailPage::enrollRequested, this, [this, c](const QString& code) {
                 if (code == c.code) {
@@ -491,12 +538,6 @@ void ClassQuestionnaire::resultPage(){
     }
     currentIndex ++;
     stackedWidget -> setCurrentIndex(currentIndex + 1);
-}
-
-void ClassQuestionnaire::finishPage(){
-    currentIndex = 0;
-    quesResult.clear();
-    stackedWidget -> setCurrentIndex(0);
 }
 
 void ClassQuestionnaire::restartCollection(){
@@ -613,17 +654,16 @@ void ClassQuestionnaire::createWelcomeWidget(){
 
     //系统描述 需要更改文案 更改文字格式
     QString courseSystemDesc =
-        "欢迎来到智能选课系统！<br>"
-        "为收集您的选课需求，该系统将选课需求划分成<br>"
-        "<b>“给分好”</b>"
-        "<b>“听感好”</b>"
-        "<b>“任务量小”</b>"
-        "<b>“不希望上早八”</b>"
-        "<b>“希望无课的天数尽可能多”</b>"
-        "<b>“需要投点的课尽可能少”</b><br>"
-        "六个方面.<br>"
-        "请根据您的意愿输入您需要的学分数、课程数，以及您对于各个意愿的权重<br>"
-        "该系统会生成若干套尽可能符合需求的选课计划供您选择";
+        "欢迎使用智能选课系统！<br>"
+        "为全面收集您的选课偏好，我们将选课需求细化为以下六个维度：<br>"
+        "<b>「给分优良」</b>"
+        "<b>「授课生动」</b>"
+        "<b>「课业轻松」</b>"
+        "<b>「避开早八」</b>"
+        "<b>「空余日多」</b>"
+        "<b>「少用投点」</b><br>"
+        "请根据个人需求，输入期望的学分数、课程数及各维度权重。<br>"
+        "系统将生成多套契合您需求的选课方案供您选择";
     QLabel *describeLabel = new QLabel(courseSystemDesc);
     describeLabel->setStyleSheet("font-size: 24px; color: rgba(0, 0, 0, 0.85); line-height: 1.6; margin: 30px 0;");
     describeLabel->setAlignment(Qt::AlignCenter);
@@ -655,6 +695,7 @@ void ClassQuestionnaire::createWelcomeWidget(){
 //通识核心/1234/英语分级
 void ClassQuestionnaire::createScoreCollectionWidget(){
     scoreWidget = new QWidget;
+    scoreWidget -> setStyleSheet("background: #DBDBDB");
     QVBoxLayout *scoreLayout = new QVBoxLayout(scoreWidget);
 
     scoreLayout -> setContentsMargins(40, 30, 40, 30);
@@ -722,6 +763,8 @@ void ClassQuestionnaire::createScoreCollectionWidget(){
 //6个需求 每个需求分为5个程度 非常需要/比较需要/一般需要/不太需要/不考虑
 void ClassQuestionnaire::createNeedCollectionWidget(){
     needWidget = new QWidget;
+    needWidget -> setStyleSheet("background: #DBDBDB");
+
     QVBoxLayout *needLayout = new QVBoxLayout(needWidget);
     needLayout -> setContentsMargins(40, 30, 40, 30);
     needLayout -> setSpacing(20);
@@ -734,7 +777,7 @@ void ClassQuestionnaire::createNeedCollectionWidget(){
                            "3 = 一般需要\n"
                            "4 = 比较需要\n"
                            "5 = 非常需要");
-    needTitle -> setStyleSheet("font-size: 24px; font-weight: bold; color: #2d3748; text-align: center;");
+    needTitle -> setStyleSheet("font-size: 20px; font-weight: bold; color: #2d3748; text-align: center;");
     needLayout->addWidget(needTitle);
 
     /*
@@ -803,8 +846,10 @@ void ClassQuestionnaire::createNeedCollectionWidget(){
 }
 
 void ClassQuestionnaire::createSummaryWidget(){
-
     summaryWidget = new QWidget;
+    summaryWidget -> setStyleSheet("background: #DBDBDB");
+
+
     QVBoxLayout *summaryLayout = new QVBoxLayout(summaryWidget);
     summaryLayout->setContentsMargins(40, 30, 40, 30);
     summaryLayout->setSpacing(20);
@@ -867,6 +912,8 @@ void ClassQuestionnaire::createSummaryWidget(){
 void ClassQuestionnaire::createResultWidget(){
 
     resultWidget = new QWidget;
+    resultWidget -> setStyleSheet("background: #DBDBDB");
+
     QVBoxLayout *resultLayout = new QVBoxLayout(resultWidget);
     resultLayout -> setContentsMargins(40, 30, 40, 30);
     resultLayout -> setSpacing(20);
@@ -886,6 +933,13 @@ void ClassQuestionnaire::createResultWidget(){
 
 
     courseTable = new QTableWidget(this);
+    courseTable->setStyleSheet(
+        "QTableWidget {"
+        "   border: 2px solid black;"          // 外边框
+        "   gridline-color: black;"            // 网格线
+        "}"
+        );
+
     courseTable->setColumnCount(8); // 编号、名称、教师、时间、单位、操作、marks
     courseTable->setHorizontalHeaderLabels({"课程编号", "课程名称","课程类别", "授课教师", "上课时间", "开课单位", "操作", "评分"});
     courseTable->horizontalHeader()->setStretchLastSection(false);
@@ -897,7 +951,7 @@ void ClassQuestionnaire::createResultWidget(){
     courseTable->setColumnWidth(1, 130);
     courseTable->setColumnWidth(2, 80);
     courseTable->setColumnWidth(3, 80);
-    courseTable->setColumnWidth(4, 330);
+    courseTable->setColumnWidth(4, 230);
     courseTable->setColumnWidth(5, 130);
     courseTable->setColumnWidth(6, 300);
     courseTable->setColumnWidth(7, 80);
@@ -911,7 +965,7 @@ void ClassQuestionnaire::createResultWidget(){
     QWidget *ButtonWidget = new QWidget;
     QHBoxLayout *ButtonLayout = new QHBoxLayout(ButtonWidget);
 
-    workButton = new QPushButton("返回");
+    workButton = new QPushButton("一键选课");
     workButton -> setStyleSheet(
         "QPushButton {"
         "  background-color: #48bb78;"
@@ -940,9 +994,9 @@ void ClassQuestionnaire::createResultWidget(){
         "}"
         );
     ButtonLayout -> addStretch();
-    ButtonLayout -> addWidget(workButton);
-    ButtonLayout -> addStretch();
     ButtonLayout -> addWidget(restartButton_2);
+    ButtonLayout -> addStretch();
+    ButtonLayout -> addWidget(workButton);
     ButtonLayout -> addStretch();
 
     resultLayout -> addWidget(ButtonWidget);
@@ -951,6 +1005,44 @@ void ClassQuestionnaire::createResultWidget(){
     stackedWidget -> addWidget(resultWidget);
 }
 
+
+void ClassQuestionnaire::createFinishWidget(){
+    finishWidget = new QWidget;
+
+    finishWidget -> setStyleSheet("background: #DBDBDB");
+
+    QVBoxLayout *finishLayout = new QVBoxLayout(finishWidget);
+    finishLayout -> setAlignment(Qt::AlignCenter);
+
+
+    QString courseSystemDesc =
+        "一键选课完成！\n"
+        "当前所有课默认投点为0，如有需要可选择手动投点。";
+    QLabel *describeLabel = new QLabel(courseSystemDesc);
+    describeLabel->setStyleSheet("font-size: 24px; color: rgba(0, 0, 0, 0.85); line-height: 1.6; margin: 30px 0;");
+    describeLabel->setAlignment(Qt::AlignCenter);
+    //系统描述终止
+
+    returnButton = new QPushButton("返回");
+    returnButton->setStyleSheet(
+        "QPushButton {"
+        "  background-color: rgba(255,255,255,0.9);"
+        "  color: #2c5282;"
+        "  border-radius: 25px;"
+        "  padding: 15px 40px;"
+        "  font-size: 18px;"
+        "  font-weight: bold;"
+        "}"
+        "QPushButton:hover {"
+        "  background-color: #e2e8f0;"
+        "}"
+        );
+
+    finishLayout -> addWidget(describeLabel);
+    finishLayout -> addWidget(returnButton, 0, Qt::AlignCenter);
+
+    stackedWidget -> addWidget(finishWidget);
+}
 double ClassQuestionnaire::square(double x){return x * x;}
 
 bool ClassQuestionnaire::checkEight(QString Time){
@@ -994,9 +1086,9 @@ double ClassQuestionnaire::lossCalculation(CourseInfo course){
     score /= coursecomment.comments.size();
     experience /= coursecomment.comments.size();
 
-    loss += 0.1 * square(5 - load) * (quesResult["load"] + 0.1);
-    loss += 0.1 * square(5 - score) * (quesResult["grade"] + 0.1);
-    loss += 0.1 * square(5 - experience) * (quesResult["experience"] + 0.1);
+    loss += 0.1 * square(5 - load) * (quesResult["load"] + 0.01);
+    loss += 0.1 * square(5 - score) * (quesResult["grade"] + 0.01);
+    loss += 0.1 * square(5 - experience) * (quesResult["experience"] + 0.01);
 
     bool eightFlag = 0;
     for (int i = 0; i < course.timeList.size(); ++ i){
