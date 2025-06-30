@@ -1,0 +1,21 @@
+{
+    "HasLottery": false,
+    "VerifyCode": 5794,
+    "currentTerm": {
+        "semester": 3,
+        "startYear": 2024
+    },
+    "enrollmentTerm": {
+        "semester": 0,
+        "startYear": 2025
+    },
+    "lastEnrollmentEnded": {
+        "semester": 1,
+        "startYear": 2025
+    },
+    "termend": false,
+    "upcomingTerm": {
+        "semester": 2,
+        "startYear": 2025
+    }
+}
