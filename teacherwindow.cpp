@@ -433,6 +433,7 @@ void TeacherWindow::exportAllCourseStudentLists() {
 }
 void TeacherWindow::refreshMainPage() {
     if (!infoLabel) return;
+    teacherInfo = new TeacherInfo(this);
     infoLabel->setText(
         QString("当前学期：%1\n当前选课学期：%2")
             .arg(teacherInfo->getCurrentTerm().toString())
@@ -454,13 +455,13 @@ void TeacherWindow::refreshMainPage() {
             operateTerm = teacherInfo->canDoLottery();
         else if (text == "导出信息")
             operateTerm = teacherInfo->canExportStudentInfo();
-        else if (text == "刷新验证码") ;
+        else if (text == "刷新令牌") ;
         else if (text == "修改当前学期")
             operateTerm = teacherInfo->getCurrentTerm();
 
         functionTerms[i] = operateTerm;
         bool available = operateTerm.isValid();
-        if (text == "刷新验证码") available = true;
+        if (text == "刷新令牌") available = true;
         btn->setEnabled(available);
         btn->setToolTip(available ? "" : "当前不可用");
     }
@@ -497,7 +498,7 @@ QWidget* TeacherWindow::createMainPage() {
         { "修改当前学期", ":/resources/icon/semester.svg" },
         { "抽签", ":/resources/icon/lottery.svg" },
         { "导出信息", ":/resources/icon/export.svg" },
-        { "刷新验证码", ":/resources/icon/reset.svg" }
+        { "刷新令牌", ":/resources/icon/reset.svg" }
     };
 
     int row = 0, col = 0;
@@ -520,23 +521,29 @@ QWidget* TeacherWindow::createMainPage() {
             operateTerm = teacherInfo->canDoLottery();
         else if (info.text == "导出信息")
             operateTerm = teacherInfo->canExportStudentInfo();
-        else if (info.text == "刷新验证码");
-        else if (info.text == "修改当前学期")
+        else if (info.text == "刷新令牌");
+        else if (info.text == "修改当前学期"){
+
             operateTerm = teacherInfo->getCurrentTerm();
+            // connect(info, &QPushButton::clicked, this, [=](){
+
+            // });
+        }
 
         bool available = operateTerm.isValid();
-        if (info.text == "刷新验证码") available = true;
+        if (info.text == "刷新令牌") available = true;
         button->setEnabled(available);
         if (!available) button->setToolTip("当前不可用");
 
         connect(button, &QToolButton::clicked, this, [=]() {
-            if (info.text == "刷新验证码") {
+            if (info.text == "刷新令牌") {
                 teacherInfo->refreshVerifyCode();
                 teacherInfo->save();
-                QMessageBox::information(this, "验证码已更新",
-                                         QString("已更新验证码为：%1")
+                QMessageBox::information(this, "令牌已更新",
+                                         QString("已更新令牌为：%1")
                                              .arg(teacherInfo->getverifycode()));
             } else {
+                teacherInfo = new TeacherInfo(this);
                 showSubPage(info.text, operateTerm);
             }
         });
@@ -1348,6 +1355,28 @@ QWidget* TeacherWindow::createSubPage(const QString &pageName, const Term &opera
         });
     }
     else if (pageName == "手工选课"){
+        page->setStyleSheet(R"(
+            QLabel {
+                font-size: 18px;
+            }
+            QLineEdit {
+                padding: 6px;
+                font-size: 16px;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+            }
+            QPushButton {
+                background-color: #4CAF50;
+                color: white;
+                padding: 8px;
+                font-size: 16px;
+                border: none;
+                border-radius: 4px;
+            }
+            QPushButton:hover {
+                background-color: #45a049;
+            }
+        )");
         QLabel *info = new QLabel("请输入学号与课程索引号进行手工选课：", page);
         layout->addWidget(info);
 
@@ -1446,6 +1475,7 @@ QWidget* TeacherWindow::createSubPage(const QString &pageName, const Term &opera
         layout->addStretch();
     }
     else if (pageName == "修改当前学期"){
+        teacherInfo = new TeacherInfo(this);
         curLabel = new QLabel("当前学期：" + teacherInfo->getCurrentTerm().toString(), page);
         enrollLabel = new QLabel("当前选课学期：" + teacherInfo->getEnrollmentTerm().toString(), page);
         upcomingLabel = new QLabel("待开始选课学期：" + teacherInfo->getUpcomingTerm().toString(), page);
@@ -1487,7 +1517,7 @@ QWidget* TeacherWindow::createSubPage(const QString &pageName, const Term &opera
                     startElectBtn->setEnabled(true);
                     startElectBtn->setToolTip("");
                 }
-                if (!teacherInfo->getEnrollmentTerm().isValid()) {
+                if (teacherInfo->getTermEnd()) {
                     endElectBtn->setEnabled(false);
                     endElectBtn->setToolTip("当前不可用");
                 }
@@ -1526,7 +1556,7 @@ QWidget* TeacherWindow::createSubPage(const QString &pageName, const Term &opera
                     startElectBtn->setEnabled(true);
                     startElectBtn->setToolTip("");
                 }
-                if (!teacherInfo->getEnrollmentTerm().isValid()) {
+                if (teacherInfo->getTermEnd()) {
                     endElectBtn->setEnabled(false);
                     endElectBtn->setToolTip("当前不可用");
                 }
@@ -1565,7 +1595,7 @@ QWidget* TeacherWindow::createSubPage(const QString &pageName, const Term &opera
                     startElectBtn->setEnabled(true);
                     startElectBtn->setToolTip("");
                 }
-                if (!teacherInfo->getEnrollmentTerm().isValid()) {
+                if (teacherInfo->getTermEnd()) {
                     endElectBtn->setEnabled(false);
                     endElectBtn->setToolTip("当前不可用");
                 }
@@ -1586,7 +1616,7 @@ QWidget* TeacherWindow::createSubPage(const QString &pageName, const Term &opera
             startElectBtn->setEnabled(true);
             startElectBtn->setToolTip("");
         }
-        if (!teacherInfo->getEnrollmentTerm().isValid()) {
+        if (teacherInfo->getTermEnd()) {
             endElectBtn->setEnabled(false);
             endElectBtn->setToolTip("当前不可用");
         }
@@ -1616,11 +1646,12 @@ void TeacherWindow::showSubPage(const QString &pageName, const Term &operateTerm
     QString key = pageName + operateTerm.toString();
     if (pageName == "编辑课程列表") this->resize(1130, 700);
     if (pageName == "抽签") this->resize(800,600);
-    if (!subPages.contains(key)) {
+    // if (pageName == "修改当前学期")
+    // if (!subPages.contains(key)) {
         QWidget *subPage = createSubPage(pageName, operateTerm);
         subPages[key] = subPage;
         stackedWidget->addWidget(subPage);
-    }
+    // }
     stackedWidget->setCurrentWidget(subPages[key]);
 }
 
