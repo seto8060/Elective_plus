@@ -97,9 +97,9 @@ LoginWindow::LoginWindow(QWidget *parent) : QWidget(parent) {
     roleBox->addItem("学生");
     roleBox->addItem("教务");
 
-    verifyLabel = new QLabel("请输入验证码：", this);
+    verifyLabel = new QLabel("请输入令牌：", this);
     verifyBox = new QLineEdit(this);
-    verifyBox->setPlaceholderText("验证码");
+    verifyBox->setPlaceholderText("令牌");
     verifyLabel->setVisible(false);
     verifyBox->setVisible(false);
     connect(roleBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [=](int index){
@@ -177,7 +177,7 @@ void LoginWindow::handleLogin() {
         TeacherInfo *t = new TeacherInfo(this);
         // qDebug() << t->getverifycode();
         if (verifyBox->text() != QString::number(t->getverifycode())){
-            errorLabel->setText("验证码错误！");
+            errorLabel->setText("令牌校验错误！");
             errorLabel->setVisible(true);
             return;
         }

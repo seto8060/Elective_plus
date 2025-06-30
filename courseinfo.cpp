@@ -58,7 +58,7 @@ QJsonObject CourseInfo::toJson() const {
     obj.insert("first-class", firstClass);
     obj.insert("chinese-intro", chineseIntro);
     obj.insert("english-intro", englishIntro);
-    QVector<int> indices = {2533,2781,2778,2568,2782,2696,2783};//for test
+    QVector<int> indices = {2533,2781,2778,2568,2782,2696,2783};//for test,may be deleted if there is real data
     obj.insert("maxperson", 90);
     obj.insert("nowperson", indices.contains(index.toInt()) ? 100 : 90);
 

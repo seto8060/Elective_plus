@@ -4,6 +4,8 @@
 #include "historypage.h"
 #include "timetablepage.h"
 #include "courselistwidget.h"
+#include "courseselection.h"
+#include "classquestionnaire.h"
 #include "teacherinfo.h"
 #include "homepage.h"
 #include "commentloader.h"
@@ -98,6 +100,7 @@ MainWindow::MainWindow(UserInfo *userInfo,QWidget *parent) : QMainWindow(parent)
     CourseSelection *courseSelectionPage = new CourseSelection(All_courses, userInfo, allCoursesPtr,this);
     ClassQuestionnaire *ClassQuestionnairePage = new ClassQuestionnaire(userInfo, All_courses, All_comments, this);
     m_selectionPage=courseSelectionPage;
+    connect(ClassQuestionnairePage, &ClassQuestionnaire::favoritesUpdated, this, &MainWindow::updateFavoritesPage);
     // 连接收藏夹更新信号
     connect(courseSelectionPage, &CourseSelection::favoritesUpdated, this, &MainWindow::updateFavoritesPage);
     connect(ClassQuestionnairePage, &ClassQuestionnaire::favoritesUpdated, this, &MainWindow::updateFavoritesPage);

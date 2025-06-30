@@ -26,6 +26,10 @@ public:
         return verifycode;
     }
 
+    bool getTermEnd() const{
+        return TermEnd;
+    }
+
     void TermPass(){
         currentTerm = currentTerm.nextTerm();
     }
@@ -56,7 +60,7 @@ public:
         return Term(-1,-1);
     }
     Term canManuallyElect() const{
-        if (enrollmentTerm.semester != 0) return enrollmentTerm;
+        if (!HasDoneLottery && TermEnd) return enrollmentTerm;
         return Term(-1,-1);
     }
     void save();

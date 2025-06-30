@@ -264,12 +264,14 @@ void CourseListWidget::setCourses(const QVector<CourseInfo> &courses,int type,Us
             TeacherInfo *teacher = new TeacherInfo(this);
             if (teacher->GetHasDoneLottery() == true){
                 bool Lottery_Result = userinfo->getResultForCourse(c.code);
+                delete teacher;
                 // QLabel *Result = new QLabel(Lottery_Result?"已选上":"未选上",this);
                 // if (!Lottery_Result)
                 //     Result->setStyleSheet("color: red;");
                 setCenteredItem(11,Lottery_Result?"已选上":"未选上");
                 continue;
             }
+            delete teacher;
             QWidget *cellWidget = new QWidget();
             QHBoxLayout *layout = new QHBoxLayout(cellWidget);
             layout->setContentsMargins(0, 0, 0, 0);
