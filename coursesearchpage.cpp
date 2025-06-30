@@ -42,11 +42,11 @@ void CourseSearchPage::setupUI() {
     m_courseTable->setSelectionBehavior(QAbstractItemView::SelectRows);
 
     m_courseTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
-    m_courseTable->setColumnWidth(0, 130);   // 课程编号
+    m_courseTable->setColumnWidth(0, 90);   // 课程编号
     m_courseTable->setColumnWidth(1, 150);  // 课程名称
-    m_courseTable->setColumnWidth(2, 100);  // 授课教师
-    m_courseTable->setColumnWidth(3, 350);  // 上课时间
-    m_courseTable->setColumnWidth(4, 150);  // 开课单位
+    m_courseTable->setColumnWidth(2, 90);  // 授课教师
+    m_courseTable->setColumnWidth(3, 290);  // 上课时间
+    m_courseTable->setColumnWidth(4, 120);  // 开课单位
     m_courseTable->setColumnWidth(5, 300);  // 操作按钮
     m_courseTable->setColumnWidth(6, 80);   // 评分
 

@@ -29,7 +29,9 @@ SOURCES += \
     teacherwindow.cpp \
     timetable.cpp \
     timetablepage.cpp \
-    userinfo.cpp
+    userinfo.cpp \
+    numbar.cpp \
+    classquestionnaire.cpp
 
 HEADERS += \
     LoginWindow.h \
@@ -51,7 +53,9 @@ HEADERS += \
     term.h \
     timetable.h \
     timetablepage.h \
-    userinfo.h
+    userinfo.h \
+    numbar.h \
+    classquestionnaire.h
 
 FORMS += \
     mainwindow.ui
